@@ -11,11 +11,12 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 
-from aqt.editor import Editor
+from aqt.addcards import AddCards
 from anki.hooks import wrap
 from anki.hooks import runHook
 from aqt.utils import tooltip
 from anki.lang import _
+import re
 
 
 ###############################################################################
@@ -42,12 +43,22 @@ def change_model_to(chooser, model_name):
     chooser.mw.reset()
 
 
-def onCloze(self):
-    if self.addMode:
-        if self.note.model()['name'] == 'Basic':
-            chooser = self.parentWindow.modelChooser
-            change_model_to(chooser, "Cloze")
-            tooltip(_("Automatic switch from Basic to Cloze"))
+def isClozeNote(note):
+    for name, val in note.items():
+        if re.search(r'\{\{c(\d+)::', val):
+            return True
+    return False
 
 
-Editor.onCloze = wrap(Editor.onCloze, onCloze, "after")
+def newAddCards(self, _old):
+    note = self.editor.note
+    if note.model()['name'] == basic_note_type and isClozeNote(note):
+        change_model_to(self.modelChooser, cloze_note_type)
+        _old(self)
+        tooltip(_("Automatic switch from Basic to Cloze"))
+
+    else:
+        return _old(self)
+
+
+AddCards.addCards = wrap(AddCards.addCards, newAddCards, "around")
