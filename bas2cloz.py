@@ -50,4 +50,4 @@ def onCloze(self):
             tooltip(_("Automatic switch from Basic to Cloze"))
 
 
-Editor.onCloze = wrap(Editor.onCloze, onCloze, "before")
+Editor.onCloze = wrap(Editor.onCloze, onCloze, "after")
