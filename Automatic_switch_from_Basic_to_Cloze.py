@@ -13,18 +13,32 @@
 
 from aqt.addcards import AddCards
 from anki.hooks import wrap
-from anki.hooks import runHook
+from anki.hooks import addHook, runHook
 from aqt.utils import tooltip
 from anki.lang import _
 import re
+from aqt import mw
 
 
-###############################################################################
+def modelExists(model_name):
+    return bool(mw.col.models.byName(model_name))
 
-basic_note_type = 'Basic'
-cloze_note_type = 'Cloze'
 
-###############################################################################
+def findModelName():
+    """Prepare note type"""
+    global basic_note_type
+    global cloze_note_type
+
+    basic_note_type = ['Basic']
+    if modelExists(_('Basic')):
+        basic_note_type.append(_('Basic'))
+
+    cloze_note_type = _('Cloze')
+    if not modelExists(cloze_note_type):
+        cloze_note_type = 'Cloze'
+
+
+addHook("profileLoaded", findModelName)
 
 
 def change_model_to(chooser, model_name):
@@ -52,7 +66,7 @@ def isClozeNote(note):
 
 def newAddCards(self, _old):
     note = self.editor.note
-    if note.model()['name'] == basic_note_type and isClozeNote(note):
+    if note.model()['name'] in basic_note_type and isClozeNote(note):
         change_model_to(self.modelChooser, cloze_note_type)
         _old(self)
         tooltip(_("Automatic switch from Basic to Cloze"))
