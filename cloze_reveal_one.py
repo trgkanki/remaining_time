@@ -20,7 +20,7 @@ from aqt import mw
 
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ TEMPALTES
 
-model_name = 'Cloze (Reveal one)'
+model_name = u'Cloze (Reveal one)'
 
 card_front = '''
 <style>cloze2 {opacity: 0;}cloze2_w {background-color: #ffeba2;}</style>
@@ -116,6 +116,7 @@ def updateNote(note):
     html = makeClozeCompatiable(html)
     note['Text'] = html
 
+
 # AddCards and EditCurrent windows
 
 def onEditorSave(self, *args):
@@ -132,16 +133,16 @@ def onEditorSave(self, *args):
 Editor.saveNow = wrap(Editor.saveNow, onEditorSave, "before")
 
 
-# Batch change node types on deck change
+# Batch change node types on card type change
 
-def batchEditNotes(browser, nids):
+def applyClozeFormat(browser, nids):
     mw = browser.mw
     mw.checkpoint("Note type change to cloze (reveal one)")
     mw.progress.start()
     browser.model.beginReset()
     for nid in nids:
         note = mw.col.getNote(nid)
-        updateNote()
+        updateNote(note)
         note.flush()
     browser.model.endReset()
     mw.requireReset()
@@ -150,8 +151,8 @@ def batchEditNotes(browser, nids):
 
 
 def onChangeModel(self):
-    if self.targetModel == model_name:
-        batchEditNotes(self.browser, self.nids)
+    if self.targetModel['name'] == model_name:
+        applyClozeFormat(self.browser, self.nids)
 
 
 ChangeModel.accept = wrap(ChangeModel.accept, onChangeModel, "after")
