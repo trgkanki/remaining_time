@@ -20,7 +20,7 @@ from aqt import mw
 
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ TEMPALTES
 
-model_name = u'Cloze (Reveal one)'
+model_name = u'Cloze (Hide all)'
 
 card_front = '''
 <style>cloze2 {opacity: 0;}cloze2_w {background-color: #ffeba2;}</style>
@@ -67,7 +67,7 @@ def addClozeModel(col):
         models.addField(clozeModel, fld)
 
     # Add template
-    template = models.newTemplate('cloze-ro')
+    template = models.newTemplate('Cloze (Hide all)')
     template['qfmt'] = card_front
     template['afmt'] = card_back
     clozeModel['css'] = card_css
