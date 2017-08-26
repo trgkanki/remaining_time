@@ -3,13 +3,15 @@
 # Copyright © 2017 Hyun Woo Park (phu54321@naver.com)
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
-# Lots of code from "Cloze overlapper" by Glutaminate
+# Lots of code from
+#   - Cloze overlapper (by Glutaminate)
+#   - Batch Note Editing (by Glutaminate)
 #
 
 import re
 
-from aqt.addcards import AddCards
-from aqt.editcurrent import EditCurrent
+from aqt.editor import Editor
+from aqt.browser import ChangeModel
 from anki.hooks import addHook, wrap
 
 from anki.consts import MODEL_CLOZE
@@ -18,7 +20,7 @@ from aqt import mw
 
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ TEMPALTES
 
-model_name = 'Cloze (Reveal 1)'
+model_name = 'Cloze (Reveal one)'
 
 card_front = '''
 <style>cloze2 {opacity: 0;}cloze2_w {background-color: #ffeba2;}</style>
@@ -91,10 +93,6 @@ def wrapClozeContent(clozeContent):
     return "%s%s%s" % (cloze_header, clozeContent, cloze_footer)
 
 
-re_cloze = re.compile(r'\{\{c(\d+)::(([^:]|:[^:])*?)\}\}')
-re_cloze_with_hint = re.compile(r'\{\{c(\d+)::(([^:]|:[^:])*?)::(.*?)\}\}')
-
-
 def stripClozeHelper(html):
     return (html
             .replace("<cloze2_w>", "")
@@ -112,21 +110,48 @@ def makeClozeCompatiable(html):
     return html
 
 
-# AddCards and EditCurrent windows
-
-def onCardAddUpdate(self, _old):
-    """Automatically generate overlapping clozes before adding cards"""
-    note = self.editor.note
-    if note.model()["name"] != model_name:
-        return _old(self)
-
+def updateNote(note):
     html = note['Text']
     html = stripClozeHelper(html)
     html = makeClozeCompatiable(html)
     note['Text'] = html
 
-    return _old(self)
+# AddCards and EditCurrent windows
+
+def onEditorSave(self, *args):
+    """Automatically generate overlapping clozes before adding cards"""
+    note = self.note
+    if note is None:
+        return
+
+    if note.model()["name"] == model_name:
+        updateNote(note)
+        self.setNote(note)
 
 
-AddCards.addCards = wrap(AddCards.addCards, onCardAddUpdate, "around")
-EditCurrent.onSave = wrap(EditCurrent.onSave, onCardAddUpdate, "around")
+Editor.saveNow = wrap(Editor.saveNow, onEditorSave, "before")
+
+
+# Batch change node types on deck change
+
+def batchEditNotes(browser, nids):
+    mw = browser.mw
+    mw.checkpoint("Note type change to cloze (reveal one)")
+    mw.progress.start()
+    browser.model.beginReset()
+    for nid in nids:
+        note = mw.col.getNote(nid)
+        updateNote()
+        note.flush()
+    browser.model.endReset()
+    mw.requireReset()
+    mw.progress.finish()
+    mw.reset()
+
+
+def onChangeModel(self):
+    if self.targetModel == model_name:
+        batchEditNotes(self.browser, self.nids)
+
+
+ChangeModel.accept = wrap(ChangeModel.accept, onChangeModel, "after")
