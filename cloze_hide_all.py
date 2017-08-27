@@ -103,12 +103,12 @@ def stripClozeHelper(html):
 
 def makeClozeCompatiable(html):
     html = re.sub(
-        r'\{\{c(\d+)::(([^:]|:[^:])*?)\}\}',
+        r'\{\{c(\d+)::(([^:}]|:[^:}])*?)\}\}',
         '{{c\\1::%s\\2%s}}' % (cloze_header, cloze_footer),
         html
     )
     html = re.sub(
-        r'\{\{c(\d+)::(([^:]|:[^:])*?)::(([^:]|:[^:])*?)\}\}',
+        r'\{\{c(\d+)::(([^:}]|:[^:}])*?)::(([^:}]|:[^:}])*?)\}\}',
         '{{c\\1::%s\\2%s::\\4}}' % (cloze_header, cloze_footer),
         html
     )
