@@ -69,7 +69,8 @@ cloze2_w { background-color: #ffeba2; }
 .cloze cloze2_w { background-color: inherit; }
 cloze2_w.reveal-cloze2 { background-color: inherit; }
 cloze2.reveal-cloze2 { visibility: inherit; }
-.cloze2-toggle { display: block; width: 100%; margin-top: 20px; }
+.cloze2-toggle { -webkit-appearance:none; display: block; font-size:1.3em; height: 2em; background-color: #ffffff; width: 100%; margin-top: 20px; }
+.cloze2-toggle:active { background-color: #ffffaa; }
 </style>
 
 <script>
