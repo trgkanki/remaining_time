@@ -40,8 +40,10 @@ card_front = '''
 
 card_back = '''
 {{cloze:Text}}
+{{#Extra}}
 <hr>
 {{Extra}}
+{{/Extra}}
 '''
 
 card_css = '''
