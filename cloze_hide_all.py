@@ -1,10 +1,12 @@
 # -*- mode: Python ; coding: utf-8 -*-
 #
-# Cloze (Hide All) - v3
+# Cloze (Hide All) - v3.1
 #   Adds a new card type "Cloze (Hide All)", which hides all clozes on its
 #   front and optionally on the back.
 #
 # Changelog
+#  .1 : Fixed bug when editing notes (EditCurrent hook, better saveNow hook)
+#       Fixed issues where wrong fields are marked as 'sticky'
 #  v3 : Fixed issues which caused text to disappear on the mac version,
 #        Added option to hide other clozes on the back.
 #  v2 : Support clozes with hint
