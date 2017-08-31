@@ -21,6 +21,7 @@
 import re
 
 from aqt.editor import Editor
+from aqt.editcurrent import EditCurrent
 from aqt.browser import ChangeModel
 from aqt.utils import askUser
 from anki.hooks import addHook, wrap
@@ -101,7 +102,6 @@ def addClozeModel(col):
     # Add fields
     for fieldName in ('Text', 'Extra'):
         fld = models.newField(fieldName)
-        fld["sticky"] = True
         models.addField(clozeModel, fld)
 
     # Add template
@@ -117,6 +117,7 @@ def addClozeModel(col):
 
 warningMsg = "ClozeHideAll will update its card template. Sync your deck to AnkiWeb before pressing OK"
 
+
 def updateClozeModel(col, warnUserUpdate=True):
     models = col.models
     clozeModel = mw.col.models.byName(model_name)
@@ -124,6 +125,7 @@ def updateClozeModel(col, warnUserUpdate=True):
         if warnUserUpdate and not askUser(warningMsg):
             return
         fld = models.newField(hideback_caption)
+        fld["sticky"] = True
         models.addField(clozeModel, fld)
 
         template = clozeModel['tmpls'][0]
@@ -192,11 +194,27 @@ def onEditorSave(self, *args):
         return
 
     if note.model()["name"] == model_name:
+        self.web.eval("saveField('key');")
         updateNote(note)
         self.setNote(note)
 
 
-Editor.saveNow = wrap(Editor.saveNow, onEditorSave, "after")
+Editor.saveNow = wrap(Editor.saveNow, onEditorSave, "before")
+
+
+def onEditCurrent(self, *args):
+    ed = self.editor
+    note = self.editor.note
+    if note is None:
+        return
+
+    if note.model()["name"] == model_name:
+        ed.web.eval("saveField('key');")
+        updateNote(note)
+        ed.loadNote()
+
+
+EditCurrent.onSave = wrap(EditCurrent.onSave, onEditCurrent, "before")
 
 
 # Batch change node types on card type change
