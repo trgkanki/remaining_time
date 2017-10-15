@@ -67,8 +67,10 @@ def isClozeNote(note):
 def newAddCards(self, _old):
     note = self.editor.note
     if note.model()['name'] in basic_note_type and isClozeNote(note):
+        oldModelName = note.model()['name']
         change_model_to(self.modelChooser, cloze_note_type)
         _old(self)
+        change_model_to(self.modelChooser, oldModelName)
         tooltip(_("Automatic switch from Basic to Cloze"))
 
     else:
