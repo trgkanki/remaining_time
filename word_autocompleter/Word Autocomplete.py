@@ -1,5 +1,7 @@
 """
-Word-based autocompleter v0.01
+Word-based autocompleter v0.02
+
+v0.02 : Delayed autocomplete implemented.
 
 Code borrowed from:
     - https://github.com/gr2m/contenteditable-autocomplete
@@ -50,7 +52,6 @@ def onLoadNote(self):
 
     self.web.eval(jqueryJs)
     self.web.eval(wcAdapterJs)
-
     self.web.eval("wordSet = [" + ''.join('"%s", ' % w for w in wordset) + "]")
 
 

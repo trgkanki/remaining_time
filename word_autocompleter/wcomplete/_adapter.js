@@ -41,7 +41,7 @@ if (!window._wcomplete) {
             var acceptanceTable = new Array(N);
             var indirectSorter = new Array(N);
 
-            var checkPerLoop = 10000;
+            var checkPerLoop = 1000;
             var i = 0;
             function checker() {
                 var j = 0;
@@ -65,7 +65,7 @@ if (!window._wcomplete) {
                 }
                 setTimeout(checker, 1);
             }
-            checker();
+            setTimeout(checker, 1);
         }
 
         function getCaretParentElement() {
@@ -90,9 +90,17 @@ if (!window._wcomplete) {
             return caretOffset;
         }
 
-        function getWordStart(text, from) {
+        function getWordStart(text, from, allowTrailingSpaces) {
             var endedWithAlphabet = false;
-            for (var j = from - 1 ; j >= 0 ; j--) {
+            var j = from - 1;
+            var spaces = 0;
+            if(allowTrailingSpaces) {
+                for(; j >= 0 ; j--) {
+                    if(!text.charAt(j) == ' ') break;
+                }
+                spaces = (from - 1) - j;
+            }
+            for (; j >= 0 ; j--) {
                 var ch = text.charAt(j);
                 if(
                     'a' <= ch && ch <= 'z' ||
@@ -107,6 +115,7 @@ if (!window._wcomplete) {
                 else break;
             }
             if(!endedWithAlphabet) return null;
+            else if(allowTrailingSpaces) return [j + 1, spaces];
             else return j + 1;
         }
 
@@ -127,11 +136,12 @@ if (!window._wcomplete) {
             var $container = $(container);
             var cursorAt = getCaretCharacterOffsetWithin(container);
             var text = $container.text();
-            var wordStart = getWordStart(text, cursorAt);
+            var ws = getWordStart(text, cursorAt, true);
+            var wordStart = ws[0], spaces = ws[1];
             if(wordStart == null) return;
             var repText = 
                 text.substring(0, wordStart) +
-                newText +
+                newText + ' '.repeat(spaces) +
                 text.substring(cursorAt);
             container.textContent = repText;
             setCursorAt($container, wordStart + repText.length);
@@ -165,86 +175,125 @@ if (!window._wcomplete) {
             return $el;
         }
 
+        function clearAutocompleteSpan() {
+            var $el = getAutoCompleterSpan();
+            $el.data('autocomplete', null);
+            $el.html("-------");
+        }
+
         var isFindingAutocomplete = false;
-        var nextQueue = false;
+        var anotherAutocompleteQueued = false;
+        var issueAutocompleteQueued = null;
+
+        function queueAutocompleteIssue(index) {
+            if(!isFindingAutocomplete) issueAutocomplete(index);
+            else issueAutocompleteQueued = index;
+        }
+
+        function issueAutocomplete(index) {
+            var $el = getAutoCompleterSpan();
+            var candidates = $el.data('autocomplete');
+            var candidateIndex = index;
+            if(candidates.length > candidateIndex) {
+                replaceCurrentQuery($el.data('autocomplete')[candidateIndex]);
+                clearAutocompleteSpan();
+            }
+        }
+
         function queueAutocomplete(query, callback) {
             if(isFindingAutocomplete) {
-                nextQueue = query;
+                anotherAutocompleteQueued = query;
                 return;
             }
 
-            function resolveNextQueue() {
-                if(nextQueue) {
-                    nextQueue = null;
-                    queueAutocomplete(nextQueue);
+            function popTaskQueue() {
+                if(issueAutocompleteQueued !== null) {
+                    if(issueAutocompleteQueued < 0) {
+                        anotherAutocompleteQueued = null;
+                        issueAutocompleteQueued += 1000;  // Reset to positive
+                    }
+                    if(anotherAutocompleteQueued) {
+                        issueAutocompleteQueued -= 1000;  // Make negative
+                    }
+                    else {
+                        issueAutocomplete(issueAutocompleteQueued);
+                        issueAutocompleteQueued = null;
+                    }
+                }
+                if(anotherAutocompleteQueued) {
+                    anotherAutocompleteQueued = null;
+                    queueAutocomplete(anotherAutocompleteQueued);
                 }
             }
 
             var $el = getAutoCompleterSpan();
             var query = getCurrentQuery();
             if(!(query && query.length >= 2)) {
-                resolveNextQueue();
+                clearAutocompleteSpan();
+                popTaskQueue();
                 return;
             }
 
             isFindingAutocomplete = true;
             getAutocompleteList(query, wordSet, function(autocomplete) {
                 if(autocomplete.length == 0) {
-                    $el.data('autocomplete', null);
-                    $el.html("-------");
+                    clearAutocompleteSpan();
                 }
 
                 else {
                     $el.css('display', 'inline-block');
-                    var html = "<b>" + autocomplete[0] + "</b>";
+                    var html = "<b title='Press Tab'>" + autocomplete[0] + "</b>";
                     for(var i = 1 ; i < autocomplete.length ; i++) {
-                        html += " / " + autocomplete[i];
+                        html += " / <span title='Press Ctrl+" + i + "'>" + autocomplete[i] + "</span>";
                     }
                     $el.html(html);
                     $el.data('autocomplete', autocomplete);
                     $el.insertAfter(currentField);
                 }
                 isFindingAutocomplete = false;
-                resolveNextQueue();
+                popTaskQueue();
             })
         }
 
         var ctrlPressed = false;
-        $('body').on('input keydown', '[contenteditable]', function(event) {
+        $('body').on('keydown', '[contenteditable]', function(event) {
             var $this = $(this);
             var $el = getAutoCompleterSpan();
             if(event.keyCode == 17) ctrlPressed = true;
 
-            if(ctrlPressed && 49 <= event.keyCode && event.keyCode <= 57) {
-                if($el.data('autocomplete')) {
-                    var candidates = $el.data('autocomplete');
-                    var candidateIndex = event.keyCode - 49;
-                    if(candidates.length > candidateIndex) {
-                        replaceCurrentQuery($el.data('autocomplete')[candidateIndex]);
-                        $el.data('autocomplete', null);
-                        $el.html("-------");
-                    }
-                }
+            // Ctrl 1-9
+            if(
+                ctrlPressed &&
+                (49 <= event.keyCode && event.keyCode <= 57) &&
+                $el.data('autocomplete')
+            ) {
+                queueAutocompleteIssue(event.keyCode - 49);
                 event.preventDefault();
                 return;
             }
 
+            // ESC -> clear autocomplete
+            if(event.keyCode == 27 && $el.data('autocomplete')) {
+                clearAutocompleteSpan();
+                event.preventDefault();
+                return;
+            }
+
+            // Shift
             if(event.keyCode == 9 && $el.data('autocomplete')) {
-                replaceCurrentQuery($el.data('autocomplete')[0]);
+                queueAutocompleteIssue(0);
                 event.preventDefault();
-                $el.data('autocomplete', null);
-                $el.html("-------");
                 return;
             }
+        }
 
+        $('body').on('input', '[contenteditable]', function(event) {
             var query = getCurrentQuery();
             queueAutocomplete(query);
         });
 
         $('body').on('blur', '[contenteditable]', function(event) {
-            var $el = getAutoCompleterSpan();
-            $el.data('autocomplete', null);
-            $el.html("-------");
+            clearAutocompleteSpan();
         });
 
         $('body').on('keyup', '[contenteditable]', function(event) {
