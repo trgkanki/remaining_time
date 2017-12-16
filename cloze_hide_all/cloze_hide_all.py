@@ -1,10 +1,14 @@
 # -*- mode: Python ; coding: utf-8 -*-
 #
-# Cloze (Hide All) - v3
+# Cloze (Hide All) - v4
 #   Adds a new card type "Cloze (Hide All)", which hides all clozes on its
 #   front and optionally on the back.
 #
 # Changelog
+#  v4 : Prefixing cloze content with ! will make it visibile on other clozes.
+#        Other hidden content's size will be fixed. (No automatic update)
+#  .1 : Fixed bug when editing notes (EditCurrent hook, better saveNow hook)
+#       Fixed issues where wrong fields are marked as 'sticky'
 #  v3 : Fixed issues which caused text to disappear on the mac version,
 #        Added option to hide other clozes on the back.
 #  v2 : Support clozes with hint
@@ -35,7 +39,18 @@ from aqt import mw
 model_name = u'Cloze (Hide all)'
 
 card_front = '''
-<style>cloze2 {opacity: 0;}cloze2_w {background-color: #ffeba2;}</style>
+<style>
+cloze2 {
+    display: none;
+}
+
+cloze2_w {
+    display: inline-block;
+    width: 5em;
+    height: 1em;
+    background-color: #ffeba2;
+}
+</style>
 {{cloze:Text}}
 '''
 
@@ -59,19 +74,61 @@ card_css = '''
     font-weight: bold;
     color: blue;
 }
+
+cz_hide {
+    display: none;
+}
 '''
 
 hideback_caption = u'Hide others on the back side'
 
 hideback_html = '''<style>
-cloze2 { visibility: hidden; }
-cloze2_w { background-color: #ffeba2; }
-.cloze cloze2 { visibility: inherit; }
-.cloze cloze2_w { background-color: inherit; }
-cloze2_w.reveal-cloze2 { background-color: inherit; }
-cloze2.reveal-cloze2 { visibility: inherit; }
-.cloze2-toggle { -webkit-appearance:none; display: block; font-size:1.3em; height: 2em; background-color: #ffffff; width: 100%; margin-top: 20px; }
-.cloze2-toggle:active { background-color: #ffffaa; }
+cloze2 {
+    display: none;
+}
+
+cloze2_w {
+    display: inline-block;
+    width: 5em;
+    height: 1em;
+    background-color: #ffeba2;
+}
+
+.cloze cloze2 {
+    display: inherit;
+}
+
+.cloze cloze2_w {
+    display: inherit;
+    width: auto;
+    height: auto;
+    background-color: inherit;
+}
+
+cloze2.reveal-cloze2 {
+    display: inherit;
+}
+
+cloze2_w.reveal-cloze2 {
+    display: inline;
+    width: inherit;
+    height: inherit;
+    background-color: inherit;
+}
+
+.cloze2-toggle {
+    -webkit-appearance: none;
+    display: block;
+    font-size: 1.3em;
+    height: 2em;
+    background-color: #ffffff;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.cloze2-toggle:active {
+    background-color: #ffffaa;
+}
 </style>
 
 <script>
@@ -115,7 +172,8 @@ def addClozeModel(col):
     return clozeModel
 
 
-warningMsg = "ClozeHideAll will update its card template. Sync your deck to AnkiWeb before pressing OK"
+warningMsg = ("ClozeHideAll will update its card template. "
+              "Sync your deck to AnkiWeb before pressing OK")
 
 
 def updateClozeModel(col, warnUserUpdate=True):
@@ -155,6 +213,8 @@ def wrapClozeContent(clozeContent):
 
 def stripClozeHelper(html):
     return (html
+            .replace("<cz_hide>", "")
+            .replace("</cz_hide>", "")
             .replace("<cloze2_w>", "")
             .replace("<cloze2>", "")
             .replace("</cloze2_w>", "")
@@ -163,13 +223,18 @@ def stripClozeHelper(html):
 
 def makeClozeCompatiable(html):
     html = re.sub(
-        r'\{\{c(\d+)::(([^:}]|:[^:}])*?)\}\}',
+        r'\{\{c(\d+)::([^!]([^:}]|:[^:}])*?)\}\}',
         '{{c\\1::%s\\2%s}}' % (cloze_header, cloze_footer),
         html
     )
     html = re.sub(
-        r'\{\{c(\d+)::(([^:}]|:[^:}])*?)::(([^:}]|:[^:}])*?)\}\}',
+        r'\{\{c(\d+)::([^!]([^:}]|:[^:}])*?)::(([^:}]|:[^:}])*?)\}\}',
         '{{c\\1::%s\\2%s::\\4}}' % (cloze_header, cloze_footer),
+        html
+    )
+    html = re.sub(
+        r'\{\{c(\d+)::!',
+        '{{c\\1::<cz_hide>!</cz_hide>',
         html
     )
     return html
@@ -194,7 +259,7 @@ def onEditorSave(self, *args):
         return
 
     if note.model()["name"] == model_name:
-        self.web.eval("saveField('key');")
+        self.web.eval("saveField('blur');")
         updateNote(note)
         self.setNote(note)
 
@@ -209,7 +274,7 @@ def onEditCurrent(self, *args):
         return
 
     if note.model()["name"] == model_name:
-        ed.web.eval("saveField('key');")
+        ed.web.eval("saveField('blur');")
         updateNote(note)
         ed.loadNote()
 
