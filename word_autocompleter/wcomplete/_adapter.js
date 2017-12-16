@@ -135,16 +135,16 @@ if (!window._wcomplete) {
             var container = getCaretParentElement();
             var $container = $(container);
             var cursorAt = getCaretCharacterOffsetWithin(container);
-            var text = $container.text();
+            var text = container.textContent;
             var ws = getWordStart(text, cursorAt, true);
+            if(ws == null) return;
             var wordStart = ws[0], spaces = ws[1];
-            if(wordStart == null) return;
             var repText = 
                 text.substring(0, wordStart) +
-                newText + ' '.repeat(spaces) +
+                newText +
                 text.substring(cursorAt);
             container.textContent = repText;
-            setCursorAt($container, wordStart + repText.length);
+            setCursorAt($container, wordStart + newText.length);
         }
 
         // https://github.com/gr2m/contenteditable-autocomplete
@@ -279,13 +279,13 @@ if (!window._wcomplete) {
                 return;
             }
 
-            // Shift
+            // Tab
             if(event.keyCode == 9 && $el.data('autocomplete')) {
                 queueAutocompleteIssue(0);
                 event.preventDefault();
                 return;
             }
-        }
+        });
 
         $('body').on('input', '[contenteditable]', function(event) {
             var query = getCurrentQuery();
@@ -301,3 +301,4 @@ if (!window._wcomplete) {
         });
     })();
 }
+
