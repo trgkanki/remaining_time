@@ -1,6 +1,7 @@
 """
-Word-based autocompleter v0.02
+Word-based autocompleter v0.03
 
+v0.03 : Bugfix / feature improvement
 v0.02 : Delayed autocomplete implemented.
 
 Code borrowed from:

@@ -43,16 +43,17 @@ if (!window._wcomplete) {
 
             var checkPerLoop = 1000;
             var i = 0;
+
             function checker() {
                 var j = 0;
-                for(j = 0 ; j < checkPerLoop ; j++) {
-                    if(i == wordList.length) {
+                for (j = 0; j < checkPerLoop; j++) {
+                    if (i == wordList.length) {
                         indirectSorter.sort(function(a, b) {
                             return acceptanceTable[b] - acceptanceTable[a];
                         });
 
                         var ret = [];
-                        for(i = 0 ; i < Math.min(N, 5) ; i++) {
+                        for (i = 0; i < Math.min(N, 5); i++) {
                             var idx = indirectSorter[i];
                             if (acceptanceTable[idx] < 0) break;
                             ret.push(wordList[idx]);
@@ -94,28 +95,26 @@ if (!window._wcomplete) {
             var endedWithAlphabet = false;
             var j = from - 1;
             var spaces = 0;
-            if(allowTrailingSpaces) {
-                for(; j >= 0 ; j--) {
-                    if(!text.charAt(j) == ' ') break;
+            if (allowTrailingSpaces) {
+                for (; j >= 0; j--) {
+                    if (!text.charAt(j) == ' ') break;
                 }
                 spaces = (from - 1) - j;
             }
-            for (; j >= 0 ; j--) {
+            for (; j >= 0; j--) {
                 var ch = text.charAt(j);
-                if(
+                if (
                     'a' <= ch && ch <= 'z' ||
                     'A' <= ch && ch <= 'Z') {
                     endedWithAlphabet = true;
                     continue;
-                }
-                else if('0' <= ch && ch <= '9') {
+                } else if ('0' <= ch && ch <= '9') {
                     endedWithAlphabet = false;
                     continue;
-                }
-                else break;
+                } else break;
             }
-            if(!endedWithAlphabet) return null;
-            else if(allowTrailingSpaces) return [j + 1, spaces];
+            if (!endedWithAlphabet) return null;
+            else if (allowTrailingSpaces) return [j + 1, spaces];
             else return j + 1;
         }
 
@@ -126,7 +125,7 @@ if (!window._wcomplete) {
             var cursorAt = getCaretCharacterOffsetWithin(container);
             var text = $container.text();
             var wordStart = getWordStart(text, cursorAt);
-            if(wordStart == null) return null;
+            if (wordStart == null) return null;
             return text.substring(wordStart, cursorAt);
         }
 
@@ -137,9 +136,17 @@ if (!window._wcomplete) {
             var cursorAt = getCaretCharacterOffsetWithin(container);
             var text = container.textContent;
             var ws = getWordStart(text, cursorAt, true);
-            if(ws == null) return;
-            var wordStart = ws[0], spaces = ws[1];
-            var repText = 
+            if (ws == null) return;
+            var wordStart = ws[0],
+                spaces = ws[1];
+            for (var i = 0; i < spaces; i++) newText += ' ';
+
+            // First of oldtext is capital → Capitalize
+            var oldText = text.substring(wordStart, cursorAt);
+            if (oldText.charAt(0) == oldText.charAt(0).toUpperCase()) { // A-Z
+                newText = newText.substring(0, 1).toUpperCase() + newText.substring(1);
+            }
+            var repText =
                 text.substring(0, wordStart) +
                 newText +
                 text.substring(cursorAt);
@@ -186,41 +193,43 @@ if (!window._wcomplete) {
         var issueAutocompleteQueued = null;
 
         function queueAutocompleteIssue(index) {
-            if(!isFindingAutocomplete) issueAutocomplete(index);
+            if (!isFindingAutocomplete) issueAutocomplete(index);
             else issueAutocompleteQueued = index;
         }
 
         function issueAutocomplete(index) {
             var $el = getAutoCompleterSpan();
             var candidates = $el.data('autocomplete');
+            if (candidates == null) return; // No autocomplete available.
             var candidateIndex = index;
-            if(candidates.length > candidateIndex) {
+            if (candidates.length > candidateIndex) {
                 replaceCurrentQuery($el.data('autocomplete')[candidateIndex]);
                 clearAutocompleteSpan();
             }
         }
 
         function queueAutocomplete(query, callback) {
-            if(isFindingAutocomplete) {
+            if (isFindingAutocomplete) {
                 anotherAutocompleteQueued = query;
                 return;
             }
 
             function popTaskQueue() {
-                if(issueAutocompleteQueued !== null) {
-                    if(issueAutocompleteQueued < 0) {
+                if (issueAutocompleteQueued !== null) {
+                    // Wait for next autocomplete issue.
+                    if (issueAutocompleteQueued < 0) { // Already waited once.
                         anotherAutocompleteQueued = null;
-                        issueAutocompleteQueued += 1000;  // Reset to positive
+                        issueAutocompleteQueued += 1000; // Reset to positive
                     }
-                    if(anotherAutocompleteQueued) {
-                        issueAutocompleteQueued -= 1000;  // Make negative
-                    }
-                    else {
+                    if (anotherAutocompleteQueued) {
+                        // Make negative → Wait for one more autocomplete query.
+                        issueAutocompleteQueued -= 1000;
+                    } else {
                         issueAutocomplete(issueAutocompleteQueued);
                         issueAutocompleteQueued = null;
                     }
                 }
-                if(anotherAutocompleteQueued) {
+                if (anotherAutocompleteQueued) {
                     anotherAutocompleteQueued = null;
                     queueAutocomplete(anotherAutocompleteQueued);
                 }
@@ -228,7 +237,7 @@ if (!window._wcomplete) {
 
             var $el = getAutoCompleterSpan();
             var query = getCurrentQuery();
-            if(!(query && query.length >= 2)) {
+            if (!(query && query.length >= 2)) {
                 clearAutocompleteSpan();
                 popTaskQueue();
                 return;
@@ -236,14 +245,12 @@ if (!window._wcomplete) {
 
             isFindingAutocomplete = true;
             getAutocompleteList(query, wordSet, function(autocomplete) {
-                if(autocomplete.length == 0) {
+                if (autocomplete.length == 0) {
                     clearAutocompleteSpan();
-                }
-
-                else {
+                } else {
                     $el.css('display', 'inline-block');
                     var html = "<b title='Press Tab'>" + autocomplete[0] + "</b>";
-                    for(var i = 1 ; i < autocomplete.length ; i++) {
+                    for (var i = 1; i < autocomplete.length; i++) {
                         html += " / <span title='Press Ctrl+" + i + "'>" + autocomplete[i] + "</span>";
                     }
                     $el.html(html);
@@ -255,32 +262,39 @@ if (!window._wcomplete) {
             })
         }
 
+        var CTRL = 17;
+        var DIGIT_0 = 49,
+            DIGIT_9 = 57;
+        var ESC = 27;
+        var TAB = 9;
+
         var ctrlPressed = false;
         $('body').on('keydown', '[contenteditable]', function(event) {
             var $this = $(this);
             var $el = getAutoCompleterSpan();
-            if(event.keyCode == 17) ctrlPressed = true;
+
+            if (event.keyCode == CTRL) ctrlPressed = true;
 
             // Ctrl 1-9
-            if(
+            if (
                 ctrlPressed &&
-                (49 <= event.keyCode && event.keyCode <= 57) &&
+                (DIGIT_0 <= event.keyCode && event.keyCode <= DIGIT_9) &&
                 $el.data('autocomplete')
             ) {
-                queueAutocompleteIssue(event.keyCode - 49);
+                queueAutocompleteIssue(event.keyCode - DIGIT_9);
                 event.preventDefault();
                 return;
             }
 
             // ESC -> clear autocomplete
-            if(event.keyCode == 27 && $el.data('autocomplete')) {
+            if (event.keyCode == ESC && $el.data('autocomplete')) {
                 clearAutocompleteSpan();
                 event.preventDefault();
                 return;
             }
 
             // Tab
-            if(event.keyCode == 9 && $el.data('autocomplete')) {
+            if (event.keyCode == TAB && $el.data('autocomplete')) {
                 queueAutocompleteIssue(0);
                 event.preventDefault();
                 return;
@@ -297,8 +311,7 @@ if (!window._wcomplete) {
         });
 
         $('body').on('keyup', '[contenteditable]', function(event) {
-            if(event.keyCode == 17) ctrlPressed = false;
+            if (event.keyCode == 17) ctrlPressed = false;
         });
     })();
 }
-
