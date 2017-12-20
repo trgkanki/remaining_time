@@ -13,9 +13,10 @@ if (!window._caretFixed) {
     (function() {
         var LEFT = 37, RIGHT = 39;
 
-        var tempInput = document.createElement('input', {
-            style: "position: absolute; opacity: 0; left: -99999px;"
-        });
+        var tempInput = document.createElement('input');
+        tempInput.style.position = 'absolute';
+        tempInput.style.opacity = '0';
+        tempInput.style.left = '-99999px';
         document.body.appendChild(tempInput);
 
         var oldRange = null;
@@ -50,6 +51,7 @@ if (!window._caretFixed) {
         });
     })();
 }
+
 """)
 
 
