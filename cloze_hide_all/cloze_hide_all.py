@@ -5,6 +5,7 @@
 #   front and optionally on the back.
 #
 # Changelog
+#  v5 : DOM-boundary crossing clozes will be handled properly
 #  v4 : Prefixing cloze content with ! will make it visibile on other clozes.
 #        Other hidden content's size will be fixed. (No automatic update)
 #  .1 : Fixed bug when editing notes (EditCurrent hook, better saveNow hook)
@@ -37,6 +38,21 @@ from aqt import mw
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ TEMPALTES
 
 model_name = u'Cloze (Hide all)'
+
+czhd_def = '''\
+<script>
+/* --- DO NOT DELETE OR EDIT THIS SCRIPT --- */
+setTimeout(function() {
+    var clozeBoxes = document.querySelector(".cloze cloze2_w");
+    var elements = document.querySelectorAll("cloze2." + clozeBoxes.className);
+    for(var i = 0 ; i < elements.length ; i++) {
+        elements[i].style.display="inline";
+    }
+}, 0);
+/* --- DO NOT DELETE OR EDIT THIS SCRIPT --- */
+</script>
+
+'''
 
 card_front = '''
 <style>
@@ -95,25 +111,19 @@ cloze2_w {
 }
 
 .cloze cloze2 {
-    display: inherit;
+    display: inline;
 }
 
 .cloze cloze2_w {
-    display: inherit;
-    width: auto;
-    height: auto;
-    background-color: inherit;
+    display: none;
 }
 
 cloze2.reveal-cloze2 {
-    display: inherit;
+    display: inline;
 }
 
 cloze2_w.reveal-cloze2 {
-    display: inline;
-    width: inherit;
-    height: inherit;
-    background-color: inherit;
+    display: none;
 }
 
 .cloze2-toggle {
@@ -192,6 +202,11 @@ def updateClozeModel(col, warnUserUpdate=True):
 
         models.save()
 
+    template = clozeModel['tmpls'][0]
+    if czhd_def not in template['afmt']:
+        template['afmt'] = czhd_def + '\n' + template['afmt']
+        models.save()
+
 
 def registerClozeModel():
     """Prepare note type"""
@@ -203,33 +218,149 @@ def registerClozeModel():
 addHook("profileLoaded", registerClozeModel)
 
 # Editor
-cloze_header = "<cloze2_w><cloze2>"
-cloze_footer = "</cloze2></cloze2_w>"
-
-
-def wrapClozeContent(clozeContent):
-    return "%s%s%s" % (cloze_header, clozeContent, cloze_footer)
 
 
 def stripClozeHelper(html):
-    return (html
-            .replace("<cz_hide>", "")
-            .replace("</cz_hide>", "")
-            .replace("<cloze2_w>", "")
-            .replace("<cloze2>", "")
-            .replace("</cloze2_w>", "")
-            .replace("</cloze2>", ""))
+    return re.sub(
+        r"</?(cz_hide|cloze2|cloze2_w)>|" +
+        r"<(cloze2_w|cloze2) class=(\"|')cz-\d+(\"|')>|" +
+        r"<script( class=(\"|')cz-\d+(\"|'))?>_czha\(\d+\)</script>",
+        "",
+        html
+    )
+
+
+_voidElements = {
+    'area', 'base', 'basefont', 'bgsound', 'br', 'col',
+    'command', 'embed', 'frame', 'hr', 'image', 'img', 'input', 'isindex',
+    'keygen', 'link', 'menuitem', 'meta', 'nextid', 'param', 'source',
+    'track', 'wbr'
+}
+
+
+clozeId = 0
+
+
+def wrapClozeTag(s):
+    """
+    Cloze may span across DOM boundary. This ensures that clozed text
+    in elements different from starting element to be properly hidden
+    by enclosing them by <cloze2>
+    """
+    global clozeId
+
+    PARSE_DATA = 0
+    PARSE_TAG = 1
+    mode = PARSE_DATA
+
+    output = ["<cloze2_w class='cz-%d'></cloze2_w>" % clozeId]
+    dataCh = []
+    tagCh = []
+    tagStack = []
+
+    cloze_header = "<cloze2 class='cz-%d'>" % clozeId
+    cloze_footer = "</cloze2>"
+
+    clozeId += 1
+
+    def emitData():
+        data = ''.join(dataCh)
+        dataCh[:] = []
+
+        if not data:
+            return
+
+        output.append("%s%s%s" % (cloze_header, data, cloze_footer))
+
+    def emitTag():
+        tag = ''.join(tagCh)
+        tagCh[:] = []
+
+        # Process starting tag & Ending tag
+        tagStartMatch = re.match("<\s*([a-zA-Z0-9]+)", tag)
+        tagEndMatch = re.match("<\s*/\s*([a-zA-Z0-9]+)", tag)
+
+        if tagStartMatch:
+            tagName = tagStartMatch.group(1)
+            # If tagStack is not empty, then a parent of this dom element have
+            # been applied cloze2, so we don't need to apply it once again.
+            if not tagStack:
+                output.append(cloze_header)
+
+            if tagName not in _voidElements:
+                # Push tag name to stack to trace where we're in
+                # current DOM tree.
+                tagStack.append(tagName)
+                output.append(tag)
+
+            else:
+                output.append(tag)
+                # void elements won't have corresponding closing tags, so
+                # we should close cloze2 tag here.
+                if not tagStack:
+                    output.append(cloze_footer)
+
+        elif tagEndMatch:
+            tagName = tagEndMatch.group(1)
+            if tagName not in _voidElements:
+                # Still in tag stack
+                if tagStack:
+                    if tagStack.pop() != tagName:
+                        # Invalid HTML found. Don't do further processing.
+                        return s
+
+                    output.append(tag)
+
+                    # If dom is broken and all elements have been
+                    # processed, add a cloze2
+                    if not tagStack:
+                        output.append(cloze_footer)
+
+                # We're out of original DOM tree we've started from.
+                # This can happen. :)
+                else:
+                    output.append(tag)
+
+    for ch in s:
+        if mode == PARSE_DATA:
+            # Tag start/end -> switch to tag parsing mode
+            if ch == '<':
+                mode = PARSE_TAG
+                emitData()
+                tagCh.append('<')
+
+            # Emit character as-is
+            else:
+                dataCh.append(ch)
+
+        elif mode == PARSE_TAG:
+            tagCh.append(ch)
+
+            if ch == '>':
+                mode = PARSE_DATA
+                emitTag()
+
+    if mode == PARSE_DATA:
+        emitData()
+    else:
+        emitTag()
+
+    return ''.join(output)
 
 
 def makeClozeCompatiable(html):
     html = re.sub(
         r'\{\{c(\d+)::([^!]([^:}]|:[^:}])*?)\}\}',
-        '{{c\\1::%s\\2%s}}' % (cloze_header, cloze_footer),
+        lambda match:
+            '{{c%s::%s}}' %
+            (match.group(1), wrapClozeTag(match.group(2))),
         html
     )
     html = re.sub(
         r'\{\{c(\d+)::([^!]([^:}]|:[^:}])*?)::(([^:}]|:[^:}])*?)\}\}',
-        '{{c\\1::%s\\2%s::\\4}}' % (cloze_header, cloze_footer),
+        lambda match:
+            '{{c%s::%s::%s}}' %
+            (match.group(1), wrapClozeTag(match.group(2)), match.group(4)),
         html
     )
     html = re.sub(
@@ -241,6 +372,9 @@ def makeClozeCompatiable(html):
 
 
 def updateNote(note):
+    global clozeId
+    clozeId = 1
+
     html = note['Text']
     html = stripClozeHelper(html)
     html = makeClozeCompatiable(html)
