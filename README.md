@@ -10,14 +10,20 @@ This plugin prevents you from creating Cloze note in basic note types. If you tr
 just automatically changes the note type to Cloze. So you can make both cloze type and basic type notes
 via Basic note type.
 
+![bas2cloz example](basic_to_cloze/bas2cloz.gif)
+
 ## Cloze (Hide all)
 
 This addon creates a new card type. On this card type, all clozes except what you're reviewing now are hidden with
 a yellow box.
 
+![Cloze (Hide all) example](cloze_hide_all/cloze_hide_all.png)
+
 ## Word autocompleter
 
 This adds sublime text-like fuzzy word autocompletion to anki.
+
+![wcomplete example](word_autocompleter/autocompleter.png)
 
 ## IME caret fixer = caretfix  (Experimental)
 
