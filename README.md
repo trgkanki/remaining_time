@@ -7,6 +7,7 @@ If you find these plugins useful, feel free to donate via paypal.
 ## Automatic switch from Basic to Cloze = basic_to_cloze
 
 [AnkiWeb page](https://ankiweb.net/shared/info/2105427255)
+
 This plugin prevents you from creating Cloze note in basic note types. If you try to do so, this plugin just automatically changes the note type to Cloze. So you can make both cloze type and basic type note via Basic note type.
 
 ![bas2cloz example](basic_to_cloze/bas2cloz.gif)
@@ -14,6 +15,7 @@ This plugin prevents you from creating Cloze note in basic note types. If you tr
 ## Cloze (Hide all)
 
 [AnkiWeb page](https://ankiweb.net/shared/info/1709973686)
+
 This addon creates a new card type. On this card type, all clozes except what you're reviewing now are hidden with a yellow box.
 
 ![Cloze (Hide all) example](cloze_hide_all/cloze_hide_all.png)
@@ -21,9 +23,21 @@ This addon creates a new card type. On this card type, all clozes except what yo
 ## Word autocompleter
 
 [AnkiWeb page](https://ankiweb.net/shared/info/1299759105)
+
 This adds sublime text-like fuzzy word autocompletion to anki.
 
 ![wcomplete example](word_autocompleter/autocompleter.png)
+
+
+## Paste HTML
+
+[AnkiWeb page](C:\gitclones\anki_plugins\paste_html)
+
+Copy & Paste Anki contents from Webpage, Microsoft Word, Powerpoint, and Anywhere
+
+![Paste HTML example](paste_html/paste_html.gif)
+
+
 
 ## IME caret fixer = caretfix  (Experimental)
 
