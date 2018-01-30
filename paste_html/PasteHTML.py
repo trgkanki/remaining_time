@@ -1,16 +1,29 @@
 # -*- coding: utf-8 -*-
 #
-# Cloze (Hide All) - v4
-#   Adds a new card type "Cloze (Hide All)", which hides all clozes on its
-#   front and optionally on the back.
+# PasteHTML
+#   Let you paste richtext to anki, with formatting preserved.
+#
+# v2. bugfix, embedded images are now supported
+# v1. Initial release
 #
 
 from HTMLParser import HTMLParser
 import cgi
 import re
-from aqt.editor import EditorWebView
-from aqt.qt import QMimeData
+import urllib2
+import os
 
+from aqt.editor import EditorWebView
+from aqt.qt import (
+    QDialog,
+    QImage,
+    Qt,
+    QLabel,
+    QVBoxLayout,
+    QMimeData
+)
+from aqt.utils import tooltip
+from anki.utils import namedtmp
 
 # Tags that don't have ending tags.
 _voidElements = {
@@ -106,13 +119,34 @@ _styleRegex = re.compile('(.+?) *: *(.+?);')
 _allowedTags |= _ignoredTags
 
 
+def SaveImageToMedia(imageData, editor):
+    im = QImage.fromData(imageData)
+    uname = namedtmp("pasteHTML-%d" % im.cacheKey())
+
+    if editor.mw.pm.profile.get("pastePNG", False):
+        ext = ".png"
+        im.save(uname + ext, None, 50)
+    else:
+        ext = ".jpg"
+        im.save(uname + ext, None, 80)
+
+    # invalid image?
+    if not os.path.exists(uname + ext):
+        return ""
+
+    fname = editor.mw.col.media.addFile(uname + ext)
+    return fname
+
+
 class TagCleaner(HTMLParser):
-    def __init__(self):
+    def __init__(self, editorWebView):
         HTMLParser.__init__(self)
         self.nonAllowedTagCountInStack = 0
         self.output = []
         self.tagStack = []
         self.parseError = False
+        self.editorWebView = editorWebView
+        self.editor = editorWebView.editor
 
     def writeData(self, data):
         if self.nonAllowedTagCountInStack == 0:
@@ -151,6 +185,17 @@ class TagCleaner(HTMLParser):
         else:
             del attrDict['style']
 
+        # Special cure for images: Download web images
+        if tag == 'img' and 'src' in attrDict:
+            imageUrl = attrDict['src']
+
+            imageData = downloadMedia(imageUrl, self.editor)
+            if imageData:
+                fname = SaveImageToMedia(imageData, self.editor)
+                attrDict['src'] = fname
+            else:
+                tooltip("Failed to download %s" % imageUrl)
+
         if attrDict:
             attrStr = ' ' + ' '.join(
                 '%s="%s"' % (k, cgi.escape(v)) for k, v in attrDict.items()
@@ -186,19 +231,77 @@ class TagCleaner(HTMLParser):
         return ''.join(self.output)
 
 
-def cleanTag(data):
-    parser = TagCleaner()
+def cleanTag(data, editorWebView):
+    parser = TagCleaner(editorWebView)
     parser.feed(data)
     data = parser.flush()
     data = re.sub('^\s*\n', '', data, flags=re.M)
     return data
 
 
+def downloadMedia(url, editor):
+    # Local file : just read the file content
+    if url.startswith("file://"):
+        try:
+            url = url[7:]
+            # On windows, paths tend to be prefixed by file:///
+            # rather than file://, so we remove redundant slash.
+            if re.match(r'^/[A-Za-z]:\\', url):
+                url = url[1:]
+            return open(url, 'rb').read()
+        except OSError:
+            pass
+
+    app = editor.mw.app
+
+    # Show download dialog
+    d = QDialog(editor.parentWindow)
+    d.setWindowTitle("Downloading media (0.0%)")
+    d.setWindowModality(Qt.WindowModal)
+    vbox = QVBoxLayout()
+    label = QLabel(url)
+    label.setWordWrap(True)
+    vbox.addWidget(label)
+    d.setLayout(vbox)
+    d.show()
+
+    # Download chunk by chunk for progress bar
+    try:
+        response = urllib2.urlopen(url)
+        totSize = int(response.info().getheader('Content-Length').strip())
+        currentRead = 0
+        chunk_size = 16384
+        chunks = []
+
+        while True:
+            chunk = response.read(chunk_size)
+            currentRead += len(chunk)
+
+            if not chunk:
+                break
+
+            d.setWindowTitle(
+                "Downloading media (%.1f%%)" %
+                (currentRead * 100.0 / totSize)
+            )
+            app.processEvents()
+            chunks.append(chunk)
+
+        return ''.join(chunks)
+
+    except urllib2.URLError:
+        return None
+
+    finally:
+        d.close()
+        del d
+
+
 def newProcessHtml(self, mime):
     html = mime.html()
     newMime = QMimeData()
     if self.strip and not html.startswith("<!--anki-->"):
-        newMime.setHtml(cleanTag(html))
+        newMime.setHtml(cleanTag(html, self))
     else:
         if html.startswith("<!--anki-->"):
             html = html[11:]
