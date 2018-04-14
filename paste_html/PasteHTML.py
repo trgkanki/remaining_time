@@ -343,7 +343,6 @@ def onHtmlCopy(web):
         newMime = QMimeData()
         newHtml = cleanTag(mime.html(), web)
         newMime.setHtml(newHtml)
-        tooltip(newHtml)
         clip.setMimeData(newMime, mode=mode)
     web.triggerPageAction(QWebPage.Paste)
     web.restoreClip()
