@@ -8,22 +8,26 @@
 #
 
 from HTMLParser import HTMLParser
-import cgi
 import re
+import cgi
 import urllib2
 import os
 
-from aqt.editor import EditorWebView
+from aqt.editor import Editor, EditorWebView
 from aqt.qt import (
+    Qt,
+    QClipboard,
+    QWebPage,
     QDialog,
     QImage,
-    Qt,
     QLabel,
     QVBoxLayout,
-    QMimeData
+    QMimeData,
 )
-from aqt.utils import tooltip
 from anki.utils import namedtmp
+from aqt.utils import tooltip
+from anki.lang import _
+from anki.hooks import wrap
 
 # Tags that don't have ending tags.
 _voidElements = {
@@ -115,30 +119,8 @@ _overrideStyles = {
 # Main implementation
 ##############################################
 
-_styleRegex = re.compile('(.+?) *: *(.+?);')
-_allowedTags |= _ignoredTags
 
-
-def SaveImageToMedia(imageData, editor):
-    im = QImage.fromData(imageData)
-    uname = namedtmp("pasteHTML-%d" % im.cacheKey())
-
-    if editor.mw.pm.profile.get("pastePNG", False):
-        ext = ".png"
-        im.save(uname + ext, None, 50)
-    else:
-        ext = ".jpg"
-        im.save(uname + ext, None, 80)
-
-    # invalid image?
-    if not os.path.exists(uname + ext):
-        return ""
-
-    fname = editor.mw.col.media.addFile(uname + ext)
-    return fname
-
-
-class TagCleaner(HTMLParser):
+class NonFormatTagCleaner(HTMLParser):
     def __init__(self, editorWebView):
         HTMLParser.__init__(self)
         self.nonAllowedTagCountInStack = 0
@@ -231,8 +213,31 @@ class TagCleaner(HTMLParser):
         return ''.join(self.output)
 
 
+_styleRegex = re.compile('(.+?) *: *(.+?);')
+_allowedTags |= _ignoredTags
+
+
+def SaveImageToMedia(imageData, editor):
+    im = QImage.fromData(imageData)
+    uname = namedtmp("pasteHTML-%d" % im.cacheKey())
+
+    if editor.mw.pm.profile.get("pastePNG", False):
+        ext = ".png"
+        im.save(uname + ext, None, 50)
+    else:
+        ext = ".jpg"
+        im.save(uname + ext, None, 80)
+
+    # invalid image?
+    if not os.path.exists(uname + ext):
+        return ""
+
+    fname = editor.mw.col.media.addFile(uname + ext)
+    return fname
+
+
 def cleanTag(data, editorWebView):
-    parser = TagCleaner(editorWebView)
+    parser = NonFormatTagCleaner(editorWebView)
     parser.feed(data)
     data = parser.flush()
     data = re.sub('^\s*\n', '', data, flags=re.M)
@@ -297,18 +302,54 @@ def downloadMedia(url, editor):
         del d
 
 
-def newProcessHtml(self, mime):
-    html = mime.html()
-    newMime = QMimeData()
-    if self.strip and not html.startswith("<!--anki-->"):
-        newMime.setHtml(cleanTag(html, self))
+# Hook functions for EditorWebView
+
+
+# Some custom keyboard doesn't support Alt modifier on QShortcut. I don't know
+# why. So here we don't use QShortcut here. Shortcuts will be processed on
+# `newKeyPressEvent`.
+
+def addPasteHtmlShortcut(self):
+    self._addButton(
+        "paste_html",
+        lambda: onHtmlCopy(self.web),
+        _("Shift+Ctrl+Alt+P"),  # Bogus shortcut.
+        _("Paste HTML (Ctrl+Alt+V)"),  # Only this matters
+        check=True,
+        text="PasteHTML"
+    )
+
+
+# Some custom keyboard doesn't support Alt modifier on QShortcut.
+def newKeyPressEvent(self, evt, _old):
+    if (
+        evt.modifiers() == (Qt.AltModifier | Qt.ControlModifier) and
+        evt.key() == Qt.Key_V
+    ):
+        onHtmlCopy(self)
+        return evt.accept()
     else:
-        if html.startswith("<!--anki-->"):
-            html = html[11:]
-        # no html stripping
-        html = self.editor._filterHTML(html, localize=True)
-        newMime.setHtml(html)
-    return newMime
+        return _old(self, evt)
 
 
-EditorWebView._processHtml = newProcessHtml
+def onHtmlCopy(web):
+    mode = QClipboard.Clipboard
+
+    clip = web.editor.mw.app.clipboard()
+    mime = clip.mimeData(mode=mode)
+
+    web.saveClip(mode=mode)
+    if mime.hasHtml():
+        newMime = QMimeData()
+        newHtml = cleanTag(mime.html(), web)
+        newMime.setHtml(newHtml)
+        tooltip(newHtml)
+        clip.setMimeData(newMime, mode=mode)
+    web.triggerPageAction(QWebPage.Paste)
+    web.restoreClip()
+
+
+Editor.setupButtons = wrap(
+    Editor.setupButtons, addPasteHtmlShortcut, 'after')
+EditorWebView.keyPressEvent = wrap(
+    EditorWebView.keyPressEvent, newKeyPressEvent, 'around')
