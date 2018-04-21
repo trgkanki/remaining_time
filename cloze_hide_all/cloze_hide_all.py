@@ -1,11 +1,13 @@
 # -*- mode: Python ; coding: utf-8 -*-
 #
-# Cloze (Hide All) - v4
+# Cloze (Hide All) - v5.1
 #   Adds a new card type "Cloze (Hide All)", which hides all clozes on its
 #   front and optionally on the back.
 #
 # Changelog
 #  v5 : DOM-boundary crossing clozes will be handled properly
+#  .1 : More rubust DOM boundary handling
+#        Compatiable with addon 719871418
 #  v4 : Prefixing cloze content with ! will make it visibile on other clozes.
 #        Other hidden content's size will be fixed. (No automatic update)
 #  .1 : Fixed bug when editing notes (EditCurrent hook, better saveNow hook)
@@ -238,17 +240,12 @@ _voidElements = {
 }
 
 
-clozeId = 0
-
-
-def wrapClozeTag(s):
+def wrapClozeTag(s, clozeId):
     """
     Cloze may span across DOM boundary. This ensures that clozed text
     in elements different from starting element to be properly hidden
     by enclosing them by <cloze2>
     """
-    global clozeId
-
     PARSE_DATA = 0
     PARSE_TAG = 1
     mode = PARSE_DATA
@@ -256,12 +253,11 @@ def wrapClozeTag(s):
     output = ["<cloze2_w class='cz-%d'></cloze2_w>" % clozeId]
     dataCh = []
     tagCh = []
-    tagStack = []
 
     cloze_header = "<cloze2 class='cz-%d'>" % clozeId
     cloze_footer = "</cloze2>"
 
-    clozeId += 1
+    chunks = []
 
     def emitData():
         data = ''.join(dataCh)
@@ -270,7 +266,7 @@ def wrapClozeTag(s):
         if not data:
             return
 
-        output.append("%s%s%s" % (cloze_header, data, cloze_footer))
+        chunks.append(('data', data))
 
     def emitTag():
         tag = ''.join(tagCh)
@@ -281,45 +277,10 @@ def wrapClozeTag(s):
         tagEndMatch = re.match("<\s*/\s*([a-zA-Z0-9]+)", tag)
 
         if tagStartMatch:
-            tagName = tagStartMatch.group(1)
-            # If tagStack is not empty, then a parent of this dom element have
-            # been applied cloze2, so we don't need to apply it once again.
-            if not tagStack:
-                output.append(cloze_header)
-
-            if tagName not in _voidElements:
-                # Push tag name to stack to trace where we're in
-                # current DOM tree.
-                tagStack.append(tagName)
-                output.append(tag)
-
-            else:
-                output.append(tag)
-                # void elements won't have corresponding closing tags, so
-                # we should close cloze2 tag here.
-                if not tagStack:
-                    output.append(cloze_footer)
+            chunks.append(('tstart', tag))
 
         elif tagEndMatch:
-            tagName = tagEndMatch.group(1)
-            if tagName not in _voidElements:
-                # Still in tag stack
-                if tagStack:
-                    if tagStack.pop() != tagName:
-                        # Invalid HTML found. Don't do further processing.
-                        return s
-
-                    output.append(tag)
-
-                    # If dom is broken and all elements have been
-                    # processed, add a cloze2
-                    if not tagStack:
-                        output.append(cloze_footer)
-
-                # We're out of original DOM tree we've started from.
-                # This can happen. :)
-                else:
-                    output.append(tag)
+            chunks.append(('tend', tag))
 
     for ch in s:
         if mode == PARSE_DATA:
@@ -345,6 +306,63 @@ def wrapClozeTag(s):
     else:
         emitTag()
 
+    # Recursive replace
+    while True:
+        hasReduction = False
+
+        # Reduce <tstart><data><tend> --> <data>
+        if len(chunks) >= 3:
+            i = 2
+            newChunks = []
+            while i < len(chunks):
+                if (
+                    chunks[i - 2][0] == 'tstart' and
+                    chunks[i - 1][0] == 'data' and
+                    chunks[i - 0][0] == 'tend'
+                ):
+                    newChunks.append((
+                        'data',
+                        chunks[i - 2][1] + chunks[i - 1][1] + chunks[i][1]
+                    ))
+                    hasReduction = True
+                    i += 3
+                else:
+                    newChunks.append(chunks[i - 2])
+                    i += 1
+
+            newChunks.extend(chunks[i - 2:])
+            chunks = newChunks
+
+        # Reduce <data><data> --> <data>
+        if len(chunks) >= 2:
+            i = 1
+            newChunks = []
+            while i < len(chunks):
+                if (
+                    chunks[i - 1][0] == 'data' and
+                    chunks[i - 0][0] == 'data'
+                ):
+                    newChunks.append((
+                        'data',
+                        chunks[i - 1][1] + chunks[i][1]
+                    ))
+                    hasReduction = True
+                    i += 2
+                else:
+                    newChunks.append(chunks[i - 1])
+                    i += 1
+
+            newChunks.extend(chunks[i - 1:])
+            chunks = newChunks
+
+        if not hasReduction:
+            break
+
+    output.extend([
+        cloze_header + x[1] + cloze_footer if x[0] == 'data' else x[1]
+        for x in chunks
+    ])
+
     return ''.join(output)
 
 
@@ -353,14 +371,21 @@ def makeClozeCompatiable(html):
         r'\{\{c(\d+)::([^!]([^:}]|:[^:}])*?)\}\}',
         lambda match:
             '{{c%s::%s}}' %
-            (match.group(1), wrapClozeTag(match.group(2))),
+            (
+                match.group(1),
+                wrapClozeTag(match.group(2), int(match.group(1)))
+            ),
         html
     )
     html = re.sub(
         r'\{\{c(\d+)::([^!]([^:}]|:[^:}])*?)::(([^:}]|:[^:}])*?)\}\}',
         lambda match:
             '{{c%s::%s::%s}}' %
-            (match.group(1), wrapClozeTag(match.group(2)), match.group(4)),
+            (
+                match.group(1),
+                wrapClozeTag(match.group(2), int(match.group(1))),
+                match.group(4)
+            ),
         html
     )
     html = re.sub(
@@ -372,15 +397,13 @@ def makeClozeCompatiable(html):
 
 
 def updateNote(note):
-    global clozeId
-    clozeId = 1
-
     html = note['Text']
     html = stripClozeHelper(html)
     html = makeClozeCompatiable(html)
     note['Text'] = html
 
-    if note[hideback_caption]:
+    # Note changing its model may not have a hideback_caption field.
+    if hideback_caption in note and note[hideback_caption]:
         note[hideback_caption] = "Clear to reveal other clozes on the back."
 
 
@@ -438,4 +461,4 @@ def onChangeModel(self):
         applyClozeFormat(self.browser, self.nids)
 
 
-ChangeModel.accept = wrap(ChangeModel.accept, onChangeModel, "after")
+ChangeModel.accept = wrap(ChangeModel.accept, onChangeModel, "before")
