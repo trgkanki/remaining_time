@@ -397,14 +397,11 @@ def makeClozeCompatiable(html):
 
 
 def updateNote(note):
-    html = note['Text']
-    html = stripClozeHelper(html)
-    html = makeClozeCompatiable(html)
-    note['Text'] = html
-
-    # Note changing its model may not have a hideback_caption field.
-    if hideback_caption in note and note[hideback_caption]:
-        note[hideback_caption] = "Clear to reveal other clozes on the back."
+    for key in note.keys():
+        html = note[key]
+        html = stripClozeHelper(html)
+        html = makeClozeCompatiable(html)
+        note[key] = html
 
 
 # AddCards and EditCurrent windows
