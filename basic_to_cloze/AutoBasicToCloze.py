@@ -23,6 +23,7 @@ import re
 
 anki21 = version.startswith("2.1.")
 
+
 def modelExists(model_name):
     return bool(mw.col.models.byName(model_name))
 
@@ -68,7 +69,7 @@ def isClozeNote(note):
     return False
 
 
-def callWithCallback (f, cb):
+def callWithCallback(f, cb):
     """Mediates callback-accepting anki 2.1 & non-callback anki 2.0"""
     if anki21:
         f(cb)
@@ -76,28 +77,32 @@ def callWithCallback (f, cb):
         f()
         cb()
 
+
 def newAddCards(self, _old):
     if not (basic_note_type and cloze_note_type):
         return _old(self)
 
     note = self.editor.note
     if note.model()['name'] in basic_note_type and isClozeNote(note):
-        oldModelName = None
+        oldModelName = [None]
 
         def cb1():
-            nonlocal oldModelName
-            oldModelName = note.model()['name']
+            oldModelName[0] = note.model()['name']
             change_model_to(self.modelChooser, cloze_note_type)
 
             callWithCallback(self.editor.saveNow, cb2)
 
         def cb2():
-            nonlocal oldModelName
-            self._addCards()
-            change_model_to(self.modelChooser, oldModelName)
-            tooltip(_(f'[Basic2Cloze] {oldModelName} → {cloze_note_type}'))
+            if anki21:
+                self._addCards()
+            else:
+                self.addCards()
 
-        callWithCallback (self.editor.saveNow, cb1)
+            change_model_to(self.modelChooser, oldModelName[0])
+            tooltip(_('[Basic2Cloze] %s -> %s' %
+                      (oldModelName[0], cloze_note_type)))
+
+        callWithCallback(self.editor.saveNow, cb1)
     else:
         return _old(self)
 
