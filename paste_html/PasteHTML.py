@@ -253,6 +253,11 @@ def downloadMedia(url, editor):
             # rather than file://, so we remove redundant slash.
             if re.match(r'^/[A-Za-z]:\\', url):
                 url = url[1:]
+
+            # on mac
+            else if url.startswith('//'):
+                url = url[1:]
+
             return open(url, 'rb').read()
         except OSError:
             pass
