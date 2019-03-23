@@ -1,11 +1,12 @@
 from aqt import mw
-from anki.hooks import addHook
+from anki.hooks import addHook, wrap
+from aqt.reviewer import Reviewer
 from base64 import b64encode
 from .ExponentialSmoother import ExponentialSmoother
 
 
 def getRemainingReviews():
-    counts = list(mw.col.sched.counts())
+    counts = list(mw.col.sched.counts(mw.reviewer.card))
     nu, lrn, rev = counts[:3]
     return rev + 2 * nu + lrn
 
@@ -13,16 +14,19 @@ def getRemainingReviews():
 estimator = ExponentialSmoother()
 # Should be updated on `onShowQuestion`. Set to 1, not 0 to avoid division by 0
 maxRemainingReviews = 1
+lastRemainingReviews = 1
+
+def reset():
+    global maxRemainingReviews
+    estimator.reset()
+    maxRemainingReviews = 1
 
 
-def onStateChange(state, oldState, *args):
-    if state == 'review':
-        global maxRemainingReviews
-        estimator.reset()
-        maxRemainingReviews = 1
+## Hook Reviewer.answerCard
+def onEaseUpdate(self, ease):
+    estimator.updateLastEntryEase(ease)
 
-
-addHook('beforeStateChange', onStateChange)
+Reviewer._answerCard = wrap(Reviewer._answerCard, onEaseUpdate, 'before')
 
 
 def t2s(time):
@@ -42,13 +46,24 @@ def t2s(time):
 clampMinTime = 10
 clampMaxTime = 120
 minAlpha = 0.2
+maxAlpha = 0.7
+
+againColor = (239, 103, 79)  # Again
+goodColor = (114, 166, 249)  # Good/Easy
 
 ## code
 
 def onShowQuestion():
-
-    global maxRemainingReviews
+    global maxRemainingReviews, lastRemainingReviews
     currentRemainingReviews = getRemainingReviews()
+
+    # significant change on review count: need reset
+    if abs(currentRemainingReviews - lastRemainingReviews) >= 20:
+        reset()
+
+    lastRemainingReviews = currentRemainingReviews
+
+    # Progress trace
     maxRemainingReviews = max(maxRemainingReviews, currentRemainingReviews)
     progress = 1 - currentRemainingReviews / maxRemainingReviews
     estimator.update(progress)
@@ -65,18 +80,19 @@ def onShowQuestion():
     pathSVGs = []
     timeSum = sum(log.elapsedTime for log in estimator.logs)
     rectX = 0
-    for log in estimator.logs:
+    for log in estimator.logs[1:]:
 
         rectW = log.elapsedTime / timeSum * progress
         if log.elapsedTime < clampMinTime:
-            rectAlpha = 1
-        elif log.elapsedTime > 120:
+            rectAlpha = maxAlpha
+        elif log.elapsedTime > clampMaxTime:
             rectAlpha = minAlpha
         else:
-            rectAlpha = (log.elapsedTime - clampMinTime) / (clampMaxTime - clampMinTime) * minAlpha + (1 - minAlpha)
+            rectAlpha = (log.elapsedTime - clampMinTime) / (clampMaxTime - clampMinTime) * minAlpha + (maxAlpha - minAlpha)
+        rectColor = str(againColor if log.answerEase == 1 else goodColor)[1:-1]
 
         pathSVGs.append(
-            f'<path d="M{rectX} 0 h{rectW} V1 h-{rectW} Z" fill="rgba(114, 166, 249, {rectAlpha})" shape-rendering="crispEdges" />'
+            f'<path d="M{rectX} 0 h{rectW} V1 h-{rectW} Z" fill="rgba({rectColor}, {rectAlpha})" shape-rendering="crispEdges" />'
         )
         rectX += rectW
 

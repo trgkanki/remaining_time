@@ -1,7 +1,11 @@
 import time
 import collections
 
-_LogEntry = collections.namedtuple('ReviewLogEntry', 'elapsedTime newPercent')
+class LogEntry:
+    def __init__(self, elapsedTime, newPercent, answerEase):
+        self.elapsedTime = elapsedTime
+        self.newPercent = newPercent
+        self.answerEase = answerEase
 
 class ExponentialSmoother:
     def __init__(self):
@@ -12,12 +16,18 @@ class ExponentialSmoother:
         self.lastTime = time.time()
         self.startTime = time.time()
         self.elapsedTime = 0
+        self.lastAnswerEase = None
 
     def update(self, newPercent):
         timeSpent = time.time() - self.lastTime
-        self.logs.append(_LogEntry(timeSpent, newPercent))
+        self.logs.append(LogEntry(timeSpent, newPercent, self.lastAnswerEase))
         self.lastTime = time.time()
         self.elapsedTime = self.lastTime - self.startTime
+
+    def updateLastEntryEase(self, ease):
+        if not self.logs:
+            return
+        self.lastAnswerEase = ease
 
     def getSlope(self):
         if len(self.logs) < 2:
