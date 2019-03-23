@@ -38,6 +38,13 @@ def t2s(time):
         return " > day"
 
 
+## Drawing settings
+clampMinTime = 10
+clampMaxTime = 120
+minAlpha = 0.2
+
+## code
+
 def onShowQuestion():
 
     global maxRemainingReviews
@@ -55,9 +62,27 @@ def onShowQuestion():
         t2s(elapsedTime + remainingTime)
     )
 
+    pathSVGs = []
+    timeSum = sum(log.elapsedTime for log in estimator.logs)
+    rectX = 0
+    for log in estimator.logs:
+
+        rectW = log.elapsedTime / timeSum * progress
+        if log.elapsedTime < clampMinTime:
+            rectAlpha = 1
+        elif log.elapsedTime > 120:
+            rectAlpha = minAlpha
+        else:
+            rectAlpha = (log.elapsedTime - clampMinTime) / (clampMaxTime - clampMinTime) * minAlpha + (1 - minAlpha)
+
+        pathSVGs.append(
+            f'<path d="M{rectX} 0 h{rectW} V1 h-{rectW} Z" fill="rgba(114, 166, 249, {rectAlpha})" shape-rendering="crispEdges" />'
+        )
+        rectX += rectW
+
     svgContent = f'''
     <svg width="1" height="1" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0 0 H{progress} V1 L0 1 Z" fill="lightgreen" />
+        {''.join(pathSVGs)}
     </svg>
     '''
 
