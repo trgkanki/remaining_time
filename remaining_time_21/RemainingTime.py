@@ -1,46 +1,47 @@
 from aqt import mw
+from aqt.main import AnkiQt
 from anki.hooks import addHook, wrap
 from aqt.reviewer import Reviewer
 from base64 import b64encode
 from .ExponentialSmoother import ExponentialSmoother
 
+import time
 
 def getRemainingReviews():
     counts = list(mw.col.sched.counts(mw.reviewer.card))
     nu, lrn, rev = counts[:3]
-    return rev + 2 * nu + lrn
+    return rev + nu + lrn
 
-
+_cardReviewStart = 0
 estimator = ExponentialSmoother()
-# Should be updated on `onShowQuestion`. Set to 1, not 0 to avoid division by 0
-maxRemainingReviews = 1
-lastRemainingReviews = 1
 
-def reset():
-    global maxRemainingReviews
-    estimator.reset()
-    maxRemainingReviews = 1
+##########
 
+def _afterMoveToState(self, state, *args):
+    if state == 'deckBrowser':
+        estimator.reset()
+    elif state == 'review':
+        renderBarAndResetCardTimer()
 
-## Hook Reviewer.answerCard
-def onEaseUpdate(self, ease):
-    estimator.updateLastEntryEase(ease)
-
-Reviewer._answerCard = wrap(Reviewer._answerCard, onEaseUpdate, 'before')
+AnkiQt.moveToState = wrap(AnkiQt.moveToState, _afterMoveToState, 'after')
 
 
-def t2s(time):
-    return "%.1fm" % (time / 60.0)
+##########
 
-    if time < 60:
-        return "%ds" % time
-    elif time < 3600:
-        return "%dm" % (time / 60)
-    elif time < 86400:
-        return "%.1fh" % (time / 3600.0)
-    else:
-        return " > day"
+def _newAnswerCard(self, ease, _old=None):
+    dt = min(time.time() - _cardReviewStart, 120)
+    y0 = getRemainingReviews()
+    ret = _old(self, ease)
+    y1 = getRemainingReviews()
+    dy = y0 - y1
+    estimator.update(dt, dy, ease)
+    renderBarAndResetCardTimer()
+    return ret
 
+Reviewer._answerCard = wrap(Reviewer._answerCard, _newAnswerCard, 'around')
+
+
+##########
 
 ## Drawing settings
 clampMinTime = 10
@@ -51,25 +52,26 @@ maxAlpha = 0.7
 againColor = (239, 103, 79)  # Again
 goodColor = (114, 166, 249)  # Good/Easy
 
-## code
+def t2s(time):
+    if time < 60:
+        return "%ds" % time
+    elif time < 86400:
+        return "%dm" % (time / 60)
+    else:
+        return " > day"
 
-def onShowQuestion():
-    global maxRemainingReviews, lastRemainingReviews
+def renderBarAndResetCardTimer():
+    global _cardReviewStart
+
     currentRemainingReviews = getRemainingReviews()
+    if currentRemainingReviews == 0:
+        return
 
-    # significant change on review count: need reset
-    if abs(currentRemainingReviews - lastRemainingReviews) >= 20:
-        reset()
-
-    lastRemainingReviews = currentRemainingReviews
-
-    # Progress trace
-    maxRemainingReviews = max(maxRemainingReviews, currentRemainingReviews)
-    progress = 1 - currentRemainingReviews / maxRemainingReviews
-    estimator.update(progress)
+    _cardReviewStart = time.time()
 
     elapsedTime = estimator.elapsedTime
-    remainingTime = (1 - progress) / estimator.getSlope()
+    remainingTime = currentRemainingReviews / estimator.getSlope()
+    progress = elapsedTime / (elapsedTime + remainingTime)
 
     message = "Elapsed %s,  Remaining %s, Total %s" % (
         t2s(elapsedTime),
@@ -78,18 +80,17 @@ def onShowQuestion():
     )
 
     pathSVGs = []
-    timeSum = sum(log.elapsedTime for log in estimator.logs)
+    timeSum = sum(log[0] for log in estimator.logs)
     rectX = 0
-    for log in estimator.logs[1:]:
-
-        rectW = log.elapsedTime / timeSum * progress
-        if log.elapsedTime < clampMinTime:
+    for dt, dy, ease in estimator.logs[1:]:
+        rectW = dt / timeSum * progress
+        if dt < clampMinTime:
             rectAlpha = maxAlpha
-        elif log.elapsedTime > clampMaxTime:
+        elif dt > clampMaxTime:
             rectAlpha = minAlpha
         else:
-            rectAlpha = (log.elapsedTime - clampMinTime) / (clampMaxTime - clampMinTime) * minAlpha + (maxAlpha - minAlpha)
-        rectColor = str(againColor if log.answerEase == 1 else goodColor)[1:-1]
+            rectAlpha = (dt - clampMinTime) / (clampMaxTime - clampMinTime) * minAlpha + (maxAlpha - minAlpha)
+        rectColor = str(againColor if ease == 1 else goodColor)[1:-1]
 
         pathSVGs.append(
             f'<path d="M{rectX} 0 h{rectW} V1 h-{rectW} Z" fill="rgba({rectColor}, {rectAlpha})" shape-rendering="crispEdges" />'
@@ -124,7 +125,7 @@ def onShowQuestion():
 
         styleEl.html(`
         body.card {{
-            padding-top: 1rem;
+            margin-top: 1rem;
         }}
 
         #remainingTimeBar {{
@@ -140,7 +141,7 @@ def onShowQuestion():
             font-size: .8rem;
 
             border-bottom: 1px solid #aaa;
- 
+
             background: url('data:image/svg+xml;base64,{b64svg}');
             background-repeat: no-repeat;
             background-size: cover;
@@ -150,6 +151,3 @@ def onShowQuestion():
         `)
     }})()
     ''')
-
-
-addHook('showQuestion', onShowQuestion)

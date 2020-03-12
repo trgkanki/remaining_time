@@ -1,11 +1,4 @@
 import time
-import collections
-
-class LogEntry:
-    def __init__(self, elapsedTime, newPercent, answerEase):
-        self.elapsedTime = elapsedTime
-        self.newPercent = newPercent
-        self.answerEase = answerEase
 
 class ExponentialSmoother:
     def __init__(self):
@@ -13,16 +6,13 @@ class ExponentialSmoother:
 
     def reset(self):
         self.logs = []
-        self.lastTime = time.time()
-        self.startTime = time.time()
         self.elapsedTime = 0
-        self.lastAnswerEase = None
+        self._startTime = time.time()
 
-    def update(self, newPercent):
-        timeSpent = time.time() - self.lastTime
-        self.logs.append(LogEntry(timeSpent, newPercent, self.lastAnswerEase))
-        self.lastTime = time.time()
-        self.elapsedTime = self.lastTime - self.startTime
+    def update(self, dt, dy, ease):
+        self.logs.append([dt, dy, ease])
+        self.logs = self.logs[-100:]
+        self.elapsedTime = time.time() - self._startTime
 
     def updateLastEntryEase(self, ease):
         if not self.logs:
@@ -32,15 +22,14 @@ class ExponentialSmoother:
     def getSlope(self):
         if len(self.logs) < 2:
             return 1e-6
+
         totTime = 0
-        percentChange = 0
-        for i in range(
-            max(len(self.logs) - 100, 0),
-            len(self.logs)
-        ):
+        totY = 0
+        for i, (dt, dy, ease) in enumerate(self.logs):
             r = 1.005 ** i
-            totTime += r * (self.logs[i - 1].elapsedTime)
-            percentChange += r * (self.logs[i].newPercent - self.logs[i - 1].newPercent)
+            totTime += r * dt
+            totY += r * dy
+
         if totTime < 1:
             return 1
-        return max(percentChange / totTime, 1e-6)
+        return max(totY / totTime, 1e-6)
