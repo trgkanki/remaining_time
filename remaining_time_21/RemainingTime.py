@@ -97,7 +97,7 @@ def renderBarAndResetCardTimer():
     pathSVGs = []
     timeSum = sum(log[0] for log in estimator.logs)
     rectX = 0
-    for dt, dy, ease in estimator.logs[1:]:
+    for dt, dy, ease in estimator.logs:
         rectW = dt / timeSum * progress
         if dt < clampMinTime:
             rectAlpha = maxAlpha
