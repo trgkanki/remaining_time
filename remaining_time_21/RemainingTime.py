@@ -1,7 +1,8 @@
 from aqt import mw
 from aqt.main import AnkiQt
-from anki.hooks import addHook, wrap
 from aqt.reviewer import Reviewer
+from anki.collection import _Collection
+from anki.hooks import addHook, wrap
 from base64 import b64encode
 from .ExponentialSmoother import ExponentialSmoother
 import time
@@ -46,15 +47,26 @@ def _newAnswerCard(self, ease, _old=None):
 
     dt = min(time.time() - _cardReviewStart, 300)
     y0 = getRemainingReviews()
+    reviewedCardID = self.card.id
     ret = _old(self, ease)
     y1 = getRemainingReviews()
     dy = y0 - y1
-    estimator.update(dt, dy, ease)
+    estimator.update(dt, dy, ease, reviewedCardID)
     renderBarAndResetCardTimer()
     return ret
 
 Reviewer._answerCard = wrap(Reviewer._answerCard, _newAnswerCard, 'around')
 
+def _newUndoReview(self, _old=None):
+    cid = _old(self)
+    if estimator.logs:
+        if estimator.logs[-1][3] == cid:
+            estimator.undoUpdate()
+            renderBarAndResetCardTimer()
+
+    return cid
+
+_Collection._undoReview = wrap(_Collection._undoReview, _newUndoReview, 'around')
 
 ##########
 
@@ -97,7 +109,7 @@ def renderBarAndResetCardTimer():
     pathSVGs = []
     timeSum = sum(log[0] for log in estimator.logs)
     rectX = 0
-    for dt, dy, ease in estimator.logs:
+    for dt, dy, ease, cid in estimator.logs:
         rectW = dt / timeSum * progress
         if dt < clampMinTime:
             rectAlpha = maxAlpha

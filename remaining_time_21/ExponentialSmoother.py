@@ -9,9 +9,12 @@ class ExponentialSmoother:
         self.elapsedTime = 0
         self._startTime = time.time()
 
-    def update(self, dt, dy, ease):
-        self.logs.append([dt, dy, ease])
-        self.logs = self.logs[-100:]
+    def update(self, dt, dy, ease, cid):
+        self.logs.append([dt, dy, ease, cid])
+        self.elapsedTime = time.time() - self._startTime
+
+    def undoUpdate(self):
+        self.logs.pop()
         self.elapsedTime = time.time() - self._startTime
 
     def updateLastEntryEase(self, ease):
@@ -25,7 +28,7 @@ class ExponentialSmoother:
 
         totTime = 0
         totY = 0
-        for i, (dt, dy, ease) in enumerate(self.logs):
+        for i, (dt, dy, ease, cid) in enumerate(self.logs):
             r = 1.005 ** i
             totTime += r * dt
             totY += r * dy
