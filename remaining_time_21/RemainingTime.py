@@ -116,7 +116,7 @@ def renderBarAndResetCardTimer():
         elif log.dt > clampMaxTime:
             rectAlpha = minAlpha
         else:
-            rectAlpha = (log.dt - clampMinTime) / (clampMaxTime - clampMinTime) * (maxAlpha - minAlpha) + minAlpha
+            rectAlpha = maxAlpha - (log.dt - clampMinTime) / (clampMaxTime - clampMinTime) * (maxAlpha - minAlpha)
         rectColor = str(againColor if log.ease == 1 else goodColor)[1:-1]
 
         pathSVGs.append(
