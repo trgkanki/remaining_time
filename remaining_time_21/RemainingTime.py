@@ -125,7 +125,7 @@ def renderBarAndResetCardTimer():
 
         styleEl.html(`
         body.card {{
-            margin-top: 1rem;
+            padding-top: 1rem;
         }}
 
         #remainingTimeBar {{
