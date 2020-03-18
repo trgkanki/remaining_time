@@ -4,8 +4,13 @@ from anki.hooks import addHook, wrap
 from aqt.reviewer import Reviewer
 from base64 import b64encode
 from .ExponentialSmoother import ExponentialSmoother
-
 import time
+
+config = mw.addonManager.getConfig(__name__)
+if config is None:
+    config = {}
+
+##########
 
 def getRemainingReviews():
     counts = list(mw.col.sched.counts(mw.reviewer.card))
@@ -105,6 +110,40 @@ def renderBarAndResetCardTimer():
 
     b64svg = b64encode(svgContent.encode('utf-8')).decode('ascii')
 
+    showAtBottom = config.get('showAtBottom', False)
+    barPositioningCSS = (
+        '''
+        body.card {
+            padding-top: 1rem;
+        }
+
+        #remainingTimeBar {
+            position: fixed;
+
+            left: 0;
+            right: 0;
+            top: 0;
+
+            border-bottom: 1px solid #aaa;
+        }
+        ''' if not showAtBottom else
+        '''
+        body.card {
+            padding-bottom: 1rem;
+        }
+
+        #remainingTimeBar {
+            position: fixed;
+
+            left: 0;
+            right: 0;
+            bottom: 0;
+
+            border-top: 1px solid #aaa;
+        }
+        '''
+    )
+
     mw.web.eval(f'''
     (function () {{
         let styleEl = $('#remainingTimeStylesheet')
@@ -124,23 +163,19 @@ def renderBarAndResetCardTimer():
         barEl.text("{message}")
 
         styleEl.html(`
+        {barPositioningCSS}
+
         body.card {{
             padding-top: 1rem;
         }}
 
         #remainingTimeBar {{
-            position: fixed;
             font-family: sans-serif;
             z-index: 100;
 
-            left: 0;
-            right: 0;
-            top: 0;
             height: 1rem;
             line-height: 1rem;
             font-size: .8rem;
-
-            border-bottom: 1px solid #aaa;
 
             background: url('data:image/svg+xml;base64,{b64svg}');
             background-repeat: no-repeat;
