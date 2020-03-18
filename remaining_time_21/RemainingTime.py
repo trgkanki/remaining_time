@@ -34,6 +34,16 @@ AnkiQt.moveToState = wrap(AnkiQt.moveToState, _afterMoveToState, 'after')
 ##########
 
 def _newAnswerCard(self, ease, _old=None):
+    if self.mw.state != "review":
+        _old(self, ease)
+        return
+    if self.state != "answer":
+        _old(self, ease)
+        return
+    if self.mw.col.sched.answerButtons(self.card) < ease:
+        _old(self, ease)
+        return
+
     dt = min(time.time() - _cardReviewStart, 120)
     y0 = getRemainingReviews()
     ret = _old(self, ease)
