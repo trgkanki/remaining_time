@@ -104,6 +104,7 @@ def renderBarAndResetCardTimer():
 
     svgContent = f'''
     <svg width="1" height="1" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 0 h1 V1 h-1 Z" fill="white" />
         {''.join(pathSVGs)}
     </svg>
     '''
