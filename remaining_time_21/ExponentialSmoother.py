@@ -1,5 +1,12 @@
 import time
 
+class LogEntry:
+    def __init__(self, dt, dy, ease, cid):
+        self.dt = dt
+        self.dy = dy
+        self.ease = ease
+        self.cid = cid
+
 class ExponentialSmoother:
     def __init__(self):
         self.reset()
@@ -10,7 +17,7 @@ class ExponentialSmoother:
         self._startTime = time.time()
 
     def update(self, dt, dy, ease, cid):
-        self.logs.append([dt, dy, ease, cid])
+        self.logs.append(LogEntry(dt, dy, ease, cid))
         self.elapsedTime = time.time() - self._startTime
 
     def undoUpdate(self):
@@ -28,10 +35,10 @@ class ExponentialSmoother:
 
         totTime = 0
         totY = 0
-        for i, (dt, dy, ease, cid) in enumerate(self.logs):
+        for i, log in enumerate(self.logs):
             r = 1.005 ** i
-            totTime += r * dt
-            totY += r * dy
+            totTime += r * log.dt
+            totY += r * log.dy
 
         if totTime < 1:
             return 1

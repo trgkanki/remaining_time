@@ -60,7 +60,7 @@ Reviewer._answerCard = wrap(Reviewer._answerCard, _newAnswerCard, 'around')
 def _newUndoReview(self, _old=None):
     cid = _old(self)
     if estimator.logs:
-        if estimator.logs[-1][3] == cid:
+        if estimator.logs[-1].cid == cid:
             estimator.undoUpdate()
             renderBarAndResetCardTimer()
 
@@ -107,17 +107,17 @@ def renderBarAndResetCardTimer():
     )
 
     pathSVGs = []
-    timeSum = sum(log[0] for log in estimator.logs)
+    timeSum = sum(log.dt for log in estimator.logs)
     rectX = 0
-    for dt, dy, ease, cid in estimator.logs:
-        rectW = dt / timeSum * progress
-        if dt < clampMinTime:
+    for log in estimator.logs:
+        rectW = log.dt / timeSum * progress
+        if log.dt < clampMinTime:
             rectAlpha = maxAlpha
-        elif dt > clampMaxTime:
+        elif log.dt > clampMaxTime:
             rectAlpha = minAlpha
         else:
-            rectAlpha = (dt - clampMinTime) / (clampMaxTime - clampMinTime) * minAlpha + (maxAlpha - minAlpha)
-        rectColor = str(againColor if ease == 1 else goodColor)[1:-1]
+            rectAlpha = (log.dt - clampMinTime) / (clampMaxTime - clampMinTime) * minAlpha + (maxAlpha - minAlpha)
+        rectColor = str(againColor if log.ease == 1 else goodColor)[1:-1]
 
         pathSVGs.append(
             f'<path d="M{rectX} 0 h{rectW} V1 h-{rectW} Z" fill="rgba({rectColor}, {rectAlpha})" shape-rendering="crispEdges" />'
