@@ -44,7 +44,7 @@ def _newAnswerCard(self, ease, _old=None):
         _old(self, ease)
         return
 
-    dt = min(time.time() - _cardReviewStart, 120)
+    dt = min(time.time() - _cardReviewStart, 300)
     y0 = getRemainingReviews()
     ret = _old(self, ease)
     y1 = getRemainingReviews()
