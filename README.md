@@ -1,10 +1,9 @@
+
 # anki_plugins [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4YEDX8978UQUG)
 
-Some useful plugins for anki.
+Some useful plugins for anki. If you find these plugins useful, feel free to donate via paypal.
 
-If you find these plugins useful, feel free to donate via paypal.
-
-## Automatic switch from Basic to Cloze = basic_to_cloze
+## Automatic switch from Basic to Cloze
 
 [AnkiWeb page](https://ankiweb.net/shared/info/2105427255)
 
@@ -20,7 +19,16 @@ This addon creates a new card type. On this card type, all clozes except what yo
 
 ![Cloze (Hide all) example](cloze_hide_all/cloze_hide_all.png)
 
-## Word autocompleter
+## Remaining Time
+
+[AnkiWeb page](https://ankiweb.net/shared/info/1508357010)
+
+Shows you a remaining time to complete a deck. Essential addon.
+
+![Remaining Time Example](remaining_time_21/remaining_time.png)
+
+
+## Word autocompleter (Anki 2.0)
 
 [AnkiWeb page](https://ankiweb.net/shared/info/1299759105)
 
@@ -29,17 +37,7 @@ This adds sublime text-like fuzzy word autocompletion to anki.
 ![wcomplete example](word_autocompleter/autocompleter.png)
 
 
-## Paste HTML
+## Obsolete addons
 
-[AnkiWeb page](C:\gitclones\anki_plugins\paste_html)
-
-Copy & Paste Anki contents from Webpage, Microsoft Word, Powerpoint, and Anywhere
-
-![Paste HTML example](paste_html/paste_html.gif)
-
-
-
-## IME caret fixer = caretfix  (Experimental)
-
-This is still an experimental addon. QtWebView which Anki uses to render card and editor has some weird bug, that when you try to type non-latin characters, carets (vertical bar indicating where you're typing) suddenly disappears. This hacky addon tries to fix it. 
-
+- IME caret fixer: Deprecated as of Anki 2.1
+- Paste HTML: Anki 2.1 has native support of pasting formatted data.
