@@ -199,6 +199,7 @@ def renderBarAndResetCardTimer():
             height: 1rem;
             line-height: 1rem;
             font-size: .8rem;
+            color: black !important;
 
             background: url('data:image/svg+xml;base64,{b64svg}');
             background-repeat: no-repeat;
