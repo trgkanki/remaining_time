@@ -41,7 +41,9 @@ class ExponentialSmoother:
 
         totTime = 0
         totY = 0
-        for i, log in enumerate(self.logs):
+
+        # Only take last 100 review session for estimation.
+        for i, log in enumerate(self.logs[-100:]):
             r = 1.005 ** i
             totTime += r * log.dt
             totY += r * log.dy
