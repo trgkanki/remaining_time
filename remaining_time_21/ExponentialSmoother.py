@@ -1,7 +1,8 @@
 import time
 
 class LogEntry:
-    def __init__(self, dt, dy, ease, cid):
+    def __init__(self, epoch, dt, dy, ease, cid):
+        self.epoch = epoch
         self.dt = dt
         self.dy = dy
         self.ease = ease
@@ -16,8 +17,13 @@ class ExponentialSmoother:
         self.elapsedTime = 0
         self._startTime = time.time()
 
-    def update(self, dt, dy, ease, cid):
-        self.logs.append(LogEntry(dt, dy, ease, cid))
+    def update(self, epoch, dy, ease, cid):
+        if self.logs:
+            dt = epoch - self.logs[-1].epoch
+        else:
+            dt = epoch - self._startTime
+        dt = min(dt, 300)  # Set maximum dt to 300 (5min)
+        self.logs.append(LogEntry(epoch, dt, dy, ease, cid))
         self.elapsedTime = time.time() - self._startTime
 
     def undoUpdate(self):

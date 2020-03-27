@@ -45,13 +45,12 @@ def _newAnswerCard(self, ease, _old=None):
         _old(self, ease)
         return
 
-    dt = min(time.time() - _cardReviewStart, 300)
     y0 = getRemainingReviews()
     reviewedCardID = self.card.id
     ret = _old(self, ease)
     y1 = getRemainingReviews()
     dy = y0 - y1
-    estimator.update(dt, dy, ease, reviewedCardID)
+    estimator.update(time.time(), dy, ease, reviewedCardID)
     renderBarAndResetCardTimer()
     return ret
 
