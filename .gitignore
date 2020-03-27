@@ -60,3 +60,4 @@ target/
 
 # distribution
 *.zip
+meta.json
