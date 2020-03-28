@@ -17,7 +17,7 @@ if config is None:
 def getRemainingReviews():
     counts = list(mw.col.sched.counts(mw.reviewer.card))
     nu, lrn, rev = counts[:3]
-    return rev + nu + lrn
+    return rev + 2 * nu + lrn
 
 _cardReviewStart = 0
 estimatorMap = {}
