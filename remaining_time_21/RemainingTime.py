@@ -36,7 +36,7 @@ def getCurrentDeckEstimator():
 
 def _afterMoveToState(self, state, *args):
     if state == 'review':
-        renderBarAndResetCardTimer()
+        renderBar()
 
 AnkiQt.moveToState = wrap(AnkiQt.moveToState, _afterMoveToState, 'after')
 
@@ -61,7 +61,7 @@ def _newAnswerCard(self, ease, _old=None):
     dy = y0 - y1
     estimator = getCurrentDeckEstimator()
     estimator.update(time.time(), dy, ease, reviewedCardID)
-    renderBarAndResetCardTimer()
+    renderBar()
     return ret
 
 Reviewer._answerCard = wrap(Reviewer._answerCard, _newAnswerCard, 'around')
@@ -72,7 +72,7 @@ def _newUndoReview(self, _old=None):
     if estimator.logs:
         if estimator.logs[-1].cid == cid:
             estimator.undoUpdate()
-            renderBarAndResetCardTimer()
+            renderBar()
 
     return cid
 
@@ -97,7 +97,7 @@ def t2s(time):
     else:
         return " > day"
 
-def renderBarAndResetCardTimer():
+def renderBar():
     global _cardReviewStart
 
     currentRemainingReviews = getRemainingReviews()
