@@ -205,7 +205,7 @@ def renderBar():
             $('body').append(barEl)
         }}
 
-        barEl.html("{message} &nbsp; <a href=# onclick=\\"pycmd('_rt_pgreset');return false;\\" title='Reset progress bar for this deck'>⏪</a>")
+        barEl.html("{message} &nbsp; <a href=# onclick=\\"pycmd('_rt_pgreset');return false;\\" title='Reset progress bar for this deck'>[⥻]</a>")
 
         styleEl.html(`
         {barPositioningCSS}
