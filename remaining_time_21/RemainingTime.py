@@ -19,14 +19,23 @@ def getRemainingReviews():
     return rev + nu + lrn
 
 _cardReviewStart = 0
-estimator = ExponentialSmoother()
+estimatorMap = {}
+
+def getCurrentDeckEstimator():
+    did = mw.col.decks.current()['id']
+    try:
+        return estimatorMap[did]
+    except KeyError:
+        estimator = ExponentialSmoother()
+        estimatorMap[did] = estimator
+        return estimator
+
 
 ##########
 
+
 def _afterMoveToState(self, state, *args):
-    if state == 'deckBrowser':
-        estimator.reset()
-    elif state == 'review':
+    if state == 'review':
         renderBarAndResetCardTimer()
 
 AnkiQt.moveToState = wrap(AnkiQt.moveToState, _afterMoveToState, 'after')
@@ -50,6 +59,7 @@ def _newAnswerCard(self, ease, _old=None):
     ret = _old(self, ease)
     y1 = getRemainingReviews()
     dy = y0 - y1
+    estimator = getCurrentDeckEstimator()
     estimator.update(time.time(), dy, ease, reviewedCardID)
     renderBarAndResetCardTimer()
     return ret
@@ -58,6 +68,7 @@ Reviewer._answerCard = wrap(Reviewer._answerCard, _newAnswerCard, 'around')
 
 def _newUndoReview(self, _old=None):
     cid = _old(self)
+    estimator = getCurrentDeckEstimator()
     if estimator.logs:
         if estimator.logs[-1].cid == cid:
             estimator.undoUpdate()
@@ -95,6 +106,7 @@ def renderBarAndResetCardTimer():
 
     _cardReviewStart = time.time()
 
+    estimator = getCurrentDeckEstimator()
     elapsedTime = estimator.elapsedTime
     remainingTime = currentRemainingReviews / estimator.getSlope()
     progress = elapsedTime / (elapsedTime + remainingTime)
