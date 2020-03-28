@@ -3,6 +3,7 @@ from aqt.main import AnkiQt
 from aqt.reviewer import Reviewer
 from anki.collection import _Collection
 from anki.hooks import addHook, wrap
+from aqt.utils import askUser
 from base64 import b64encode
 from .ExponentialSmoother import ExponentialSmoother
 import time
@@ -65,6 +66,16 @@ def _newAnswerCard(self, ease, _old=None):
     return ret
 
 Reviewer._answerCard = wrap(Reviewer._answerCard, _newAnswerCard, 'around')
+
+def _newLinkHandler(self, url, _old=None):
+    if url == "_rt_pgreset":
+        if askUser("Really reset progres bar for this deck?"):
+            getCurrentDeckEstimator().reset()
+            renderBar()
+    else:
+        _old(self, url)
+
+Reviewer._linkHandler = wrap(Reviewer._linkHandler, _newLinkHandler, 'around')
 
 def _newUndoReview(self, _old=None):
     cid = _old(self)
@@ -194,7 +205,7 @@ def renderBar():
             $('body').append(barEl)
         }}
 
-        barEl.text("{message}")
+        barEl.html("{message} &nbsp; <a href=# onclick=\\"pycmd('_rt_pgreset');return false;\\" title='Reset progress bar for this deck'>⏪</a>")
 
         styleEl.html(`
         {barPositioningCSS}
