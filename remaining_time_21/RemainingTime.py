@@ -128,9 +128,20 @@ def renderBar():
         t2s(elapsedTime + remainingTime)
     )
 
+    showAtBottom = config.get('showAtBottom', False)
+    useDarkMode = config.get('darkMode', False)
+
+    if useDarkMode:
+        backgroundColor = 'white'
+        foregroundColor = 'black'
+    else:
+        backgroundColor = 'black'
+        foregroundColor = 'white'
+
     pathSVGs = []
     timeSum = sum(log.dt for log in estimator.logs)
     rectX = 0
+
     for log in estimator.logs:
         rectW = log.dt / timeSum * progress
         if log.dt < clampMinTime:
@@ -148,14 +159,13 @@ def renderBar():
 
     svgContent = f'''
     <svg width="1" height="1" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0 0 h1 V1 h-1 Z" fill="white" />
+        <path d="M0 0 h1 V1 h-1 Z" fill="{backgroundColor}" />
         {''.join(pathSVGs)}
     </svg>
     '''
 
     b64svg = b64encode(svgContent.encode('utf-8')).decode('ascii')
 
-    showAtBottom = config.get('showAtBottom', False)
     barPositioningCSS = (
         '''
         body.card {
@@ -221,13 +231,21 @@ def renderBar():
             height: 1rem;
             line-height: 1rem;
             font-size: .8rem;
-            color: black !important;
+            color: {foregroundColor} !important;
 
             background: url('data:image/svg+xml;base64,{b64svg}');
             background-repeat: no-repeat;
             background-size: cover;
 
             text-align: center;
+        }}
+
+        #remainingTimeBar a {{
+            text-decoration: none;
+            background-color: orange;
+            color: black;
+            padding: 0 2px 1px 2px;
+            font-weight: bold;
         }}
         `)
     }})()
