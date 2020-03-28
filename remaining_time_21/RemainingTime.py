@@ -129,14 +129,14 @@ def renderBar():
     )
 
     showAtBottom = config.get('showAtBottom', False)
-    useDarkMode = config.get('darkMode', False)
+    useDarkMode = config.get('useDarkMode', False)
 
     if useDarkMode:
-        backgroundColor = 'white'
-        foregroundColor = 'black'
-    else:
         backgroundColor = 'black'
         foregroundColor = 'white'
+    else:
+        backgroundColor = 'white'
+        foregroundColor = 'black'
 
     pathSVGs = []
     timeSum = sum(log.dt for log in estimator.logs)
