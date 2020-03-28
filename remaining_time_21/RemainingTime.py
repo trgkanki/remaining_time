@@ -242,8 +242,7 @@ def renderBar():
 
         #remainingTimeBar a {{
             text-decoration: none;
-            background-color: orange;
-            color: black;
+            color: orange;
             padding: 0 2px 1px 2px;
             font-weight: bold;
         }}
