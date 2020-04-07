@@ -94,7 +94,7 @@ _Collection._undoReview = wrap(_Collection._undoReview, _newUndoReview, 'around'
 ## Drawing settings
 clampMinTime = 10
 clampMaxTime = 120
-minAlpha = 0.2
+minAlpha = 0.3
 maxAlpha = 0.7
 
 againColor = (239, 103, 79)  # Again
@@ -147,7 +147,7 @@ def renderBar():
         if log.dt < clampMinTime:
             rectAlpha = maxAlpha
         elif log.dt > clampMaxTime:
-            rectAlpha = minAlpha
+            rectAlpha = minAlpha / 2
         else:
             rectAlpha = maxAlpha - (log.dt - clampMinTime) / (clampMaxTime - clampMinTime) * (maxAlpha - minAlpha)
         rectColor = str(againColor if log.ease == 1 else goodColor)[1:-1]
