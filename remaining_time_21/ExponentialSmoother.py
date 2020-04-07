@@ -22,7 +22,6 @@ class ExponentialSmoother:
             dt = epoch - self.logs[-1].epoch
         else:
             dt = epoch - self._startTime
-        dt = min(dt, 300)  # Set maximum dt to 300 (5min)
         self.logs.append(LogEntry(epoch, dt, dy, ease, cid))
         self.elapsedTime = time.time() - self._startTime
 
@@ -45,7 +44,7 @@ class ExponentialSmoother:
         # Only take last 100 review session for estimation.
         for i, log in enumerate(self.logs[-100:]):
             r = 1.005 ** i
-            totTime += r * log.dt
+            totTime += r * min(log.dt, 300)
             totY += r * log.dy
 
         if totTime < 1:
