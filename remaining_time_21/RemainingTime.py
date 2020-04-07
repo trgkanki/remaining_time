@@ -172,6 +172,14 @@ def renderBar():
             padding-top: 1rem;
         }
 
+        #_flag {
+            padding-top: 1rem;
+        }
+
+        #_mark {
+            padding-top: 1rem;
+        }
+
         #remainingTimeBar {
             position: fixed;
 
@@ -183,7 +191,7 @@ def renderBar():
         }
         ''' if not showAtBottom else
         '''
-        body.card {
+        #qa {
             padding-bottom: 1rem;
         }
 
