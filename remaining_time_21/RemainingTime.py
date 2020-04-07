@@ -168,7 +168,7 @@ def renderBar():
 
     barPositioningCSS = (
         '''
-        body.card {
+        #qa {
             padding-top: 1rem;
         }
 
