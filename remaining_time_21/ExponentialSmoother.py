@@ -1,5 +1,9 @@
 import time
 
+cutoffDt = 300
+historyDecay = 1 / 1.005
+historyLength = 100
+
 class LogEntry:
     def __init__(self, epoch, dt, dy, ease, cid):
         self.epoch = epoch
@@ -22,7 +26,6 @@ class ExponentialSmoother:
             dt = epoch - self.logs[-1].epoch
         else:
             dt = epoch - self._startTime
-        dt = min(dt, 300)  # Set maximum dt to 300 (5min)
         self.logs.append(LogEntry(epoch, dt, dy, ease, cid))
         self.elapsedTime = time.time() - self._startTime
 
@@ -42,11 +45,19 @@ class ExponentialSmoother:
         totTime = 0
         totY = 0
 
-        # Only take last 100 review session for estimation.
-        for i, log in enumerate(self.logs[-100:]):
-            r = 1.005 ** i
-            totTime += r * log.dt
-            totY += r * log.dy
+        for i, log in enumerate(self.logs[-historyLength:]):
+            r = (1 / historyDecay) ** i
+            if log.dt <= cutoffDt:
+                totTime += r * log.dt
+                totY += r * log.dy
+            else:
+                # If user paused more than `cutoffDt` time, don't use dy
+                # If user reviewed a lot of card on the other device
+                # during the pause, dy may be massive. We don't want to
+                # account that. Also, if user just procrastinated a lot
+                # and left the review session, dy/dt should be close to
+                # zero, and it's safe to set dy to 0.
+                totTime += r * cutoffDt
 
         if totTime < 1:
             return 1
