@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "template for trgkanki's addon",
   "scripts": {
-    "jsdev": "webpack",
+    "jsdev": "webpack -w",
     "build": "cd src; bestzip ../dist.zip *; cd ..",
     "dist": "npm-run-all dist:pre build dist:post",
     "dist:pre": "npm-auto-version",
