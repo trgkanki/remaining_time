@@ -1,0 +1,38 @@
+{
+  "name": "addon_template",
+  "version": "0.1.0",
+  "description": "template for trgkanki's addon",
+  "scripts": {
+    "jsdev": "webpack",
+    "build": "cd src; bestzip ../dist.zip *; cd ..",
+    "dist": "npm-run-all dist:pre build dist:post",
+    "dist:pre": "npm-auto-version",
+    "dist:post": "git push origin --tags"
+  },
+  "keywords": [
+    "anki",
+    "anki-addon"
+  ],
+  "author": "trgk",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/webpack-env": "^1.15.1",
+    "@typescript-eslint/eslint-plugin": "^2.28.0",
+    "@typescript-eslint/parser": "^2.28.0",
+    "bestzip": "^2.1.5",
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "husky": "^4.2.5",
+    "lint-staged": "^10.1.3",
+    "npm-run-all": "^4.1.5",
+    "ts-loader": "^6.2.2",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-env": "^0.8.0"
+  }
+}
