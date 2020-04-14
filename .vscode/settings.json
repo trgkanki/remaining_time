@@ -1,3 +1,25 @@
 {
-  "python.linting.enabled": true
+  "python.linting.enabled": true,
+  "grammarly.overrides": [
+    {
+      "files": [
+        "**/README.md"
+      ],
+      "config": {
+        "audience": "knowledgeable",
+        "dialect": "american",
+        "domain": "general",
+        "emotions": [
+          "neutral",
+          "friendly",
+          "analytical"
+        ],
+        "goals": [
+          "inform",
+          "describe"
+        ],
+        "emotion": "mild"
+      }
+    }
+  ]
 }
