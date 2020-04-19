@@ -1,4 +1,5 @@
 {
+  "python.linting.enabled": true,
   "cSpell.words": [
     "jssrc"
   ]
