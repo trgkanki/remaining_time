@@ -13,7 +13,7 @@
     "anki-addon"
   ],
   "author": "trgk",
-  "license": "ISC",
+  "license": "AGPL3",
   "devDependencies": {
     "@types/jquery": "^3.3.34",
     "@types/webpack-env": "^1.15.1",
