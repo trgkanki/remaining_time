@@ -8,18 +8,25 @@
 
 from aqt.editor import Editor
 from anki.hooks import wrap
+from aqt.utils import askUser
+from .jsBridge import evalJsExpr
 
 import os
+import json
 
 def readResource(filename):
     scriptDir = os.path.dirname(os.path.realpath(__file__))
     inputFilePath = os.path.join(scriptDir, filename)
-    return open(inputFilePath, 'r', encoding='utf-8').read()
-
+    with open(inputFilePath, 'r', encoding='utf-8') as f:
+        return f.read()
 
 def onLoadNote(self, focusTo=None):
     mainJs = readResource('main.min.js')
     self.web.eval(mainJs)
+
+    def cb(data):
+        askUser(json.dumps(data))
+    evalJsExpr(self.web, '1 + 1', cb)
 
 
 Editor.loadNote = wrap(Editor.loadNote, onLoadNote, 'after')
