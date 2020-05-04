@@ -1,6 +1,6 @@
 {
   "name": "addon_template",
-  "version": "0.1.0",
+  "version": "20.5.4i8",
   "description": "template for trgkanki's addon",
   "scripts": {
     "dev:js": "webpack -w",

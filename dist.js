@@ -40,10 +40,11 @@ function zipDist (destination) {
   await checkCleanRepo()
 
   const repoName = await getRepoName()
-  const version = utcVersion()
+  const version = utcVersion({ apple: true })
 
   // Update __init__.py + VERSION
   console.log(`Updating to "${repoName} v${version}"`)
+  shelljs.sed('-i', /"version": "(.+?)"/, `"version": "${version}"`, 'package.json')
   shelljs.sed('-i', /^# .+v(\d+)\.(\d+)\.(\d+)\.(\d+)$/m, `# ${repoName} v${version}`, 'src/__init__.py')
   fs.writeFileSync('src/VERSION', version)
 
