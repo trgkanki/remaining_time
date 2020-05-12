@@ -8,7 +8,7 @@ _handlerMap = {}
 _addonMessageRegex = re.compile(r"addonmsg:(\d+):(.+)")
 
 
-def _onBridgeMessage(handled, message: str, context):
+def _onBridgeMessage(handled, message, context):
     matches = _addonMessageRegex.match(message)
     if matches:
         handlerKey = matches.group(1)
