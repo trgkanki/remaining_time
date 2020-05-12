@@ -8,21 +8,13 @@
 
 from aqt.editor import Editor
 from anki.hooks import wrap
-from aqt.utils import askUser
+from .utils.JSEval import execJSFile
 import os
 import json
 
 
-def readResource(filename):
-    scriptDir = os.path.dirname(os.path.realpath(__file__))
-    inputFilePath = os.path.join(scriptDir, filename)
-    with open(inputFilePath, "r", encoding="utf-8") as f:
-        return f.read()
-
-
 def onLoadNote(self, focusTo=None):
-    mainJs = readResource("main.min.js")
-    self.web.eval(mainJs)
+    execJSFile(self.web, "js/main.min.js")
 
 
 Editor.loadNote = wrap(Editor.loadNote, onLoadNote, "after")

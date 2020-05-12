@@ -2,43 +2,10 @@ from aqt import gui_hooks
 from aqt.utils import showInfo
 
 import json
-import re
-import uuid
 import traceback
 
-_handlerMap = {}
-_addonMessageRegex = re.compile(r"addonmsg:(\d+):(.+)")
 
-
-def _onBridgeMessage(handled, message, context):
-    matches = _addonMessageRegex.match(message)
-    if matches:
-        handlerKey = matches.group(1)
-        message = matches.group(2)
-        if handlerKey in _handlerMap:
-            _handlerMap[handlerKey](json.loads(message))
-            del _handlerMap[handlerKey]
-            return (True, None)
-
-    return handled
-
-
-gui_hooks.webview_did_receive_js_message.append(_onBridgeMessage)
-
-
-def evalJsExpr(web, funcexpr, cb):
-    handlerKey = str(uuid.uuid4().int)
-    _handlerMap[handlerKey] = cb
-    web.eval(
-        """
-    Promise.resolve(%s).then(msg => {
-        pycmd(`addonmsg:%s:${JSON.stringify(msg)}`)
-    })"""
-        % (funcexpr, handlerKey)
-    )
-
-
-def JSCallableFunc(func):
+def JSCallable(func):
     """ Decorator for js-callable python function """
     funcname = func.__name__
     msgPrefix = 'pyfunc:%s:' % funcname
@@ -69,4 +36,5 @@ def JSCallableFunc(func):
 
     gui_hooks.webview_did_receive_js_message.append(_onBridgeMessage)
 
+    # return function as-is. We don't need to modify them really
     return func

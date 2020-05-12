@@ -1,6 +1,6 @@
-from ..jsBridge import JSCallableFunc
+from ..utils.JSCallable import JSCallable
 
-@JSCallableFunc
+@JSCallable
 def test(a, b):
     return a + b
 

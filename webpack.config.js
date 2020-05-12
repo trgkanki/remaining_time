@@ -6,7 +6,7 @@ module.exports = {
   },
   output: {
     filename: 'main.min.js',
-    path: path.resolve(__dirname, 'src'),
+    path: path.resolve(__dirname, 'src/js'),
     libraryTarget: 'window',
     library: 'mainLib'
   },
