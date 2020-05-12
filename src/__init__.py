@@ -8,6 +8,7 @@
 
 from aqt.editor import Editor
 from anki.hooks import wrap
+
 from .utils.JSEval import execJSFile
 import os
 import json
