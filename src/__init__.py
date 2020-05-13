@@ -9,13 +9,8 @@
 from aqt.editor import Editor
 from anki.hooks import wrap
 
-from .utils.JSEval import execJSFile
-import os
-import json
-
-
 def onLoadNote(self, focusTo=None):
-    execJSFile(self.web, "js/main.min.js")
+    pass
 
 
 Editor.loadNote = wrap(Editor.loadNote, onLoadNote, "after")
