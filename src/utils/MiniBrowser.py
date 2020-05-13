@@ -43,6 +43,8 @@ class MiniBrowser(QDialog):
         # Populate content
         self.web = AnkiWebView()
         self.web._page._isMiniBrowser = True
+        # Support window.close
+        self.web._page.windowCloseRequested.connect(self.close)
         l = QVBoxLayout()
         l.setContentsMargins(0, 0, 0, 0)
         l.addWidget(self.web)
