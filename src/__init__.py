@@ -8,6 +8,7 @@
 
 from aqt.editor import Editor
 from anki.hooks import wrap
+from aqt.utils import askUser
 
 from .utils.JSEval import execJSFile
 import os
@@ -19,3 +20,5 @@ def onLoadNote(self, focusTo=None):
 
 
 Editor.loadNote = wrap(Editor.loadNote, onLoadNote, "after")
+
+
