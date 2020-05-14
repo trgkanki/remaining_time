@@ -12,7 +12,6 @@ def getCurrentAddonName():
 
 def getConfig(key, default=None):
     addonName = getCurrentAddonName()
-    askUser(addonName)
     config = mw.addonManager.getConfig(addonName)
     if not config:
         return default
