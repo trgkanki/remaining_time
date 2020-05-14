@@ -8,9 +8,12 @@
 
 from aqt.editor import Editor
 from anki.hooks import wrap
+from aqt.utils import askUser
 
 def onLoadNote(self, focusTo=None):
     pass
 
 
 Editor.loadNote = wrap(Editor.loadNote, onLoadNote, "after")
+
+
