@@ -1,4 +1,4 @@
-from ..utils.JSCallable import JSCallable
+from .utils.JSCallable import JSCallable
 
 @JSCallable
 def test(a, b):

@@ -1,4 +1,4 @@
-from ..utils.JSEval import evalJS
+from .utils.JSEval import evalJS
 
 def cb(data):
     # Data should be 2
