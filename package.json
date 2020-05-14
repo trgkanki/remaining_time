@@ -41,5 +41,7 @@
       "black"
     ]
   },
-  "dependencies": {}
+  "dependencies": {
+    "shelljs": "^0.8.4"
+  }
 }
