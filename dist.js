@@ -68,6 +68,7 @@ function zipDist (destination) {
   await getStdout('git add -A')
   await getStdout(`git commit -m ":bookmark: v${version}`)
   await getStdout(`git tag v${version}`)
+  await getStdout('git push --tags')
 
   console.log('Dist + commit done!')
 })().catch(err => {
