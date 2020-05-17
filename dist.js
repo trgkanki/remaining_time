@@ -1,8 +1,10 @@
-const bestzip = require('bestzip')
 const exec = require('child_process').exec
 const utcVersion = require('utc-version')
 const shelljs = require('shelljs')
 const fs = require('fs')
+const NodeZip = require('node-zip')
+const walk = require('walkdir')
+const path = require('path')
 
 function getStdout (command) {
   return new Promise((resolve, reject) => {
@@ -29,11 +31,20 @@ async function getRepoName () {
 }
 
 function zipDist (destination) {
-  return bestzip({
-    source: '*',
-    cwd: 'src/',
-    destination
-  })
+  const zip = new NodeZip()
+  const paths = walk.sync('src')
+  for (const fPath of paths) {
+    if (fPath.indexOf('__pycache__') !== -1) continue
+    if (!fs.lstatSync(fPath).isFile()) continue
+
+    const relPath = path.relative('src/', fPath).replace('\\', '/')
+    const data = fs.readFileSync(fPath)
+    zip.file(relPath, data)
+    console.log(' Adding to archive: ' + relPath)
+  }
+
+  const data = zip.generate({ base64: false, compression: 'DEFLATE' })
+  fs.writeFileSync(destination, data, 'binary')
 }
 
 (async function () {
@@ -50,13 +61,14 @@ function zipDist (destination) {
 
   // Dist zip
   fs.mkdirSync('dist', { recursive: true })
-  await zipDist(`../dist/${repoName}_v${version}.zip`)
-  await zipDist('../dist.zip')
+  await zipDist(`dist/${repoName}_v${version}.zip`)
+  await zipDist('dist.zip')
 
   // Add tag
   await getStdout('git add -A')
   await getStdout(`git commit -m ":bookmark: v${version}`)
   await getStdout(`git tag v${version}`)
+  await getStdout('git push --tags')
 
   console.log('Dist + commit done!')
 })().catch(err => {
