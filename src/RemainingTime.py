@@ -229,7 +229,8 @@ def renderBar():
         {barPositioningCSS}
 
         body.card {{
-            padding-top: 1rem;
+            padding-top: 2em;
+            position: relative;
         }}
 
         #remainingTimeBar {{
