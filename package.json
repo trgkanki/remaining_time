@@ -3,8 +3,8 @@
   "version": "20.5.4i8",
   "description": "template for trgkanki's addon",
   "scripts": {
-    "dev:js": "webpack -w",
-    "build:js": "webpack",
+    "dev:js": "webpack -w --progress",
+    "build:js": "webpack --progress",
     "build": "npm-run-all build:js",
     "dist": "node dist.js"
   },
