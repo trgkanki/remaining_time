@@ -10,7 +10,7 @@ module.exports = {
     libraryTarget: 'window',
     library: 'mainLib'
   },
-  mode: 'production',
+  mode: process.env.NODE_ENV || 'production',
   devtool: 'source-map',
   module: {
     rules: [
