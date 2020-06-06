@@ -16,9 +16,10 @@ import json
 
 
 def onLoadNote(self, focusTo=None):
-    execJSFile(self.web, "js/main.min.js")
-
+    # main.min.j should be loaded only once
+    execJSFile(self.web, "js/main.min.js", once=True)
+    execJSFile(self.web, "js/main.min.js", once=True)
+    execJSFile(self.web, "js/main.min.js", once=True)
 
 Editor.loadNote = wrap(Editor.loadNote, onLoadNote, "after")
-
 
