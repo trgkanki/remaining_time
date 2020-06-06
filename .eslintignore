@@ -1,0 +1,7 @@
+node_modules/
+*.scss
+*.css
+*.manifest
+*.min.js
+
+webpack.config.js
