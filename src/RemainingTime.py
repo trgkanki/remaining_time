@@ -1,12 +1,16 @@
 from aqt import mw
 from aqt.main import AnkiQt
 from aqt.reviewer import Reviewer
+from aqt.theme import ThemeManager
 from anki.collection import _Collection
 from anki.hooks import addHook, wrap
 from aqt.utils import askUser
 from base64 import b64encode
 from .ExponentialSmoother import ExponentialSmoother
 import time
+
+from .utils.JSEval import evalJS, execJSFile
+from .utils.configrw import getConfig
 
 config = mw.addonManager.getConfig(__name__)
 if config is None:
@@ -128,7 +132,6 @@ def renderBar():
         t2s(elapsedTime + remainingTime)
     )
 
-    showAtBottom = config.get('showAtBottom', False)
     useDarkMode = config.get('useDarkMode', False)
 
     if useDarkMode:
@@ -166,95 +169,26 @@ def renderBar():
 
     b64svg = b64encode(svgContent.encode('utf-8')).decode('ascii')
 
-    barPositioningCSS = (
-        '''
-        #qa {
-            padding-top: 1rem;
-        }
+    def cb():
+        mw.web.eval(f'''
+        window.__remainingTime.updateProgressBar(
+            "{b64svg}",
+            "{message}"
+        )''')
 
-        #_flag {
-            padding-top: 1rem;
-        }
+    execJSFile(mw.web, 'js/main.min.js', cb, once=True)
 
-        #_mark {
-            padding-top: 1rem;
-        }
 
-        #remainingTimeBar {
-            position: fixed;
+# Theme manager
 
-            left: 0;
-            right: 0;
-            top: 0;
+def new_body_class(self, _old):
+    showAtBottom = getConfig('showAtBottom', False)
+    if showAtBottom:
+        rtClass = 'remaining-time-bar-bottom'
+    else:
+        rtClass = 'remaining-time-bar-top'
 
-            border-bottom: 1px solid #aaa;
-        }
-        ''' if not showAtBottom else
-        '''
-        #qa {
-            padding-bottom: 1rem;
-        }
+    classes = _old(self)
+    return classes + ' ' + rtClass
 
-        #remainingTimeBar {
-            position: fixed;
-
-            left: 0;
-            right: 0;
-            bottom: 0;
-
-            border-top: 1px solid #aaa;
-        }
-        '''
-    )
-
-    mw.web.eval(f'''
-    (function () {{
-        let styleEl = $('#remainingTimeStylesheet')
-        if (styleEl.length === 0) {{
-            styleEl = $('<style></style>')
-            styleEl.attr('id', 'remainingTimeStylesheet')
-            $('head').append(styleEl)
-        }}
-
-        let barEl = $('#remainingTimeBar')
-        if (barEl.length === 0) {{
-            barEl = $('<div></div>')
-            barEl.attr('id', 'remainingTimeBar')
-            $('body').append(barEl)
-        }}
-
-        barEl.html("{message} &nbsp; <a href=#resetRT onclick=\\"pycmd('_rt_pgreset');return false;\\" title='Reset progress bar for this deck'>[⥻]</a>")
-
-        styleEl.html(`
-        {barPositioningCSS}
-
-        body.card {{
-            padding-top: 2em;
-            position: relative;
-        }}
-
-        #remainingTimeBar {{
-            font-family: sans-serif;
-            z-index: 100;
-
-            height: 1rem;
-            line-height: 1rem;
-            font-size: .8rem;
-            color: {foregroundColor} !important;
-
-            background: url('data:image/svg+xml;base64,{b64svg}');
-            background-repeat: no-repeat;
-            background-size: cover;
-
-            text-align: center;
-        }}
-
-        #remainingTimeBar a {{
-            text-decoration: none;
-            color: orange;
-            padding: 0 2px 1px 2px;
-            font-weight: bold;
-        }}
-        `)
-    }})()
-    ''')
+ThemeManager.body_class = wrap(ThemeManager.body_class, new_body_class, 'asround')

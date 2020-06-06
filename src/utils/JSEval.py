@@ -26,26 +26,28 @@ def _onBridgeMessage(handled, message, context):
 
 gui_hooks.webview_did_receive_js_message.append(_onBridgeMessage)
 
-def execJSFile(web, jspath, *, once=False):
-    if once:
-        if not hasattr(web, '__plugin_jsTable'):
-            web.__plugin_jsTable = set()
-
-        checkKey = ''.join([getCurrentAddonName(), '#', jspath])
-        if checkKey in web.__plugin_jsTable:
-            return
-
+def execJSFile(web, jspath, cb, *, once=False):
     js = readResource(jspath)
-    web.eval(js)
     if once:
-        web.__plugin_jsTable.add(checkKey)
+        checkKey = ''.join([getCurrentAddonName(), '#', jspath])
+        js = """
+        if (!window.__plugin_jsTable) window.__plugin_jsTable = {}
+        if (!window.__plugin_jsTable["%s"]) {
+            window.__plugin_jsTable["%s"] = true
+            %s
+        }
+        """ % (checkKey, checkKey, js)
 
+    if cb:
+        web.evalWithCallback(js, lambda res: cb())
+    else:
+        web.eval(js)
 
-def execJSFileOnce(web, jspath):
+def execJSFileOnce(web, jspath, cb):
     """
     Excute JS file only once. useful for webpack-based modules
     """
-    return execJSFile(web, jspath, once=True)
+    return execJSFile(web, jspath, cb, once=True)
 
 def evalJS(web, funcexpr, cb):
     # Register handler

@@ -8,7 +8,7 @@ module.exports = {
     filename: 'main.min.js',
     path: path.resolve(__dirname, 'src/js'),
     libraryTarget: 'window',
-    library: 'mainLib'
+    library: '__remainingTime'
   },
   mode: process.env.NODE_ENV || 'production',
   devtool: 'source-map',

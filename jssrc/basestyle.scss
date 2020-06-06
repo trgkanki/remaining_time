@@ -1,0 +1,68 @@
+.card {
+  position: relative;
+}
+
+#remainingTimeBar {
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  color: #000;
+  font-family: sans-serif;
+  font-size: 0.8rem;
+  // Top/bottom set at body.remaining-time-bar-(.+) part
+  height: 1rem;
+  left: 0;
+  line-height: 1rem;
+
+  position: fixed;
+  right: 0;
+  // background set by <script>
+
+  text-align: center;
+  z-index: 100;
+
+  a {
+    color: #fa0;
+    font-weight: bold;
+    padding: 0 2px 1px;
+    text-decoration: none;
+  }
+}
+
+// Color overrides for night mode
+/* stylelint-disable-next-line selector-class-pattern */
+.nightMode {
+  #remainingTimeBar {
+    color: #fff;
+  }
+}
+
+//
+.remaining-time-bar-top {
+  #qa {
+    padding-top: 1rem;
+  }
+
+  #_flag {
+    padding-top: 1rem;
+  }
+
+  #_mark {
+    padding-top: 1rem;
+  }
+
+  #remainingTimeBar {
+    border-bottom: 1px solid #aaa;
+    top: 0;
+  }
+}
+
+.remaining-time-bar-bottom {
+  #qa {
+    padding-bottom: 1rem;
+  }
+
+  #remainingTimeBar {
+    border-top: 1px solid #aaa;
+    bottom: 0;
+  }
+}
