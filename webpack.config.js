@@ -17,8 +17,21 @@ module.exports = {
       {
         test: /\.ts$/,
         use: ['ts-loader']
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          'css-loader',
+          'sass-loader'
+        ]
+      },
+      {
+        test: /\.css$/,
+        use: [
+          'css-loader'
+        ]
       }
-    ]
+    ],
   },
   resolve: {
     modules: [
