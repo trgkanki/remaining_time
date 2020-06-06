@@ -35,6 +35,9 @@
     "sass": "^1.26.8",
     "sass-loader": "^8.0.2",
     "shelljs": "^0.8.4",
+    "stylelint": "^13.6.0",
+    "stylelint-config-sass-guidelines": "^7.0.0",
+    "stylelint-scss": "^3.17.2",
     "ts-loader": "^6.2.2",
     "typescript": "^3.8.3",
     "utc-version": "^2.0.1",
@@ -54,6 +57,9 @@
     ],
     "*.{py}": [
       "black"
+    ],
+    "*.{scss,css}": [
+      "stylelint --fix"
     ]
   },
   "dependencies": {}
