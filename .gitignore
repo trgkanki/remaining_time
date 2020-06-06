@@ -422,3 +422,7 @@ $RECYCLE.BIN/
 # anki_template
 dist.zip
 meta.json
+
+# .min.js is a compiled thing
+*.min.js
+*.js.map
