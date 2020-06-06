@@ -31,7 +31,7 @@ module.exports = {
           'css-loader'
         ]
       }
-    ],
+    ]
   },
   resolve: {
     modules: [
