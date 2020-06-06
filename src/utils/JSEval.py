@@ -1,5 +1,6 @@
 from aqt import gui_hooks
 from aqt.utils import showInfo
+from .configrw import getCurrentAddonName
 
 import json
 import re
@@ -25,9 +26,26 @@ def _onBridgeMessage(handled, message, context):
 
 gui_hooks.webview_did_receive_js_message.append(_onBridgeMessage)
 
-def execJSFile(web, jspath):
+def execJSFile(web, jspath, *, once=False):
+    if once:
+        if not hasattr(web, '__plugin_jsTable'):
+            web.__plugin_jsTable = set()
+
+        checkKey = ''.join([getCurrentAddonName(), '#', jspath])
+        if checkKey in web.__plugin_jsTable:
+            return
+
     js = readResource(jspath)
     web.eval(js)
+    if once:
+        web.__plugin_jsTable.add(checkKey)
+
+
+def execJSFileOnce(web, jspath):
+    """
+    Excute JS file only once. useful for webpack-based modules
+    """
+    return execJSFile(web, jspath, once=True)
 
 def evalJS(web, funcexpr, cb):
     # Register handler
