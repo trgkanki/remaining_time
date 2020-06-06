@@ -4,4 +4,4 @@ node_modules/
 *.manifest
 *.min.js
 
-webpack.config.js
+!.eslintrc.js
