@@ -1,10 +1,11 @@
 const shelljs = require('shelljs')
 const fs = require('fs')
-const { getRepoName, getCommitsSinceTag, getLatestReleaseVersion } = require('./gitCommand')
 const tmp = require('tmp')
 const format = require('date-fns/format')
+
+const { getRepoName, getCommitsSinceTag, getLatestReleaseVersion } = require('./gitCommand')
+const { renderMarkdownHTML } = require('./markedHTMLRenderer')
 const { getStdout } = require('./execCommand')
-const marked = require('marked')
 
 exports.updateFilesVersionString = async function (newVersion) {
   const repoName = await getRepoName()
@@ -16,7 +17,7 @@ exports.updateFilesVersionString = async function (newVersion) {
   }
 
   await appendChangelog(newVersion, changelogMessage)
-  await compileChangelogMarkdown()
+  await compileChangelogMarkdown(repoName)
 
   shelljs.sed('-i', /"version": "(.+?)"/, `"version": "${newVersion}"`, 'package.json')
   shelljs.sed('-i', /^# .+v(\d+)\.(\d+)\.(\d+)\.(\d+)$/m, `# ${repoName} v${newVersion}`, 'src/__init__.py')
@@ -45,7 +46,7 @@ async function getChangelogMarkdown (version) {
 
 async function appendChangelog (version, changelogMd) {
   const dateString = format(new Date(), 'yyyy-MM-dd')
-  const changelogMarkerComment = '[comment]: # DO NOT MODIFY. new changelog goes here'
+  const changelogMarkerComment = '[comment]: # (DO NOT MODIFY. new changelog goes here)'
   const changelogSectionMd = `${changelogMarkerComment}\n\n## ${version} (${dateString})\n\n` + changelogMd
 
   const changelogPath = 'CHANGELOG.md'
@@ -60,12 +61,12 @@ async function appendChangelog (version, changelogMd) {
   }
 }
 
-async function compileChangelogMarkdown () {
+async function compileChangelogMarkdown (repoName) {
   const changelogPath = 'CHANGELOG.md'
   const outputPath = 'src/CHANGELOG.html'
 
   fs.writeFileSync(outputPath,
-    marked(fs.readFileSync(changelogPath, { encoding: 'utf-8' })),
+    renderMarkdownHTML(repoName, fs.readFileSync(changelogPath, { encoding: 'utf-8' })),
     { encoding: 'utf-8' }
   )
 }
