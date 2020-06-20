@@ -2,14 +2,24 @@ const utcVersion = require('utc-version')
 const { checkCleanRepo, getRepoName } = require('./gitCommand')
 const { zipDist } = require('./zipDist')
 const { getStdout } = require('./execCommand')
-const { updateFilesVersionString } = require('./versionUpdater')
+const { updateFilesVersionString } = require('./versionWriter')
+const { updateChangelog, inputChangelog } = require('./changelog')
+
 const fs = require('fs')
+const tmp = require('tmp')
 
 ;(async function () {
   await checkCleanRepo()
 
   const repoName = await getRepoName()
   const version = utcVersion({ apple: true })
+
+  const changelogMessage = await inputChangelog()
+  if (!changelogMessage) {
+    throw Error('Empty changelog message')
+  }
+  console.log(changelogMessage)
+  await updateChangelog(version, changelogMessage)
 
   // Update __init__.py + VERSION
   await updateFilesVersionString(version)
@@ -19,9 +29,17 @@ const fs = require('fs')
   await zipDist(`dist/${repoName}_v${version}.zip`)
   await zipDist('dist.zip')
 
-  // Add tag
+  // Commit
   await getStdout('git add -A')
-  await getStdout(`git commit -m ":bookmark: v${version}"`)
+  const commitMessageFname = tmp.tmpNameSync()
+  fs.writeFileSync(commitMessageFname, `:bookmark: v${version}\n\n${changelogMessage}`)
+  try {
+    await getStdout(`git commit -F "${commitMessageFname}"`)
+  } finally {
+    fs.unlinkSync(commitMessageFname)
+  }
+
+  // Add tag
   await getStdout(`git tag v${version}`)
   await getStdout('git push --tags')
 
