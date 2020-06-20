@@ -15,8 +15,8 @@ export interface LogEntry {
 
 export class Estimator {
   logs: LogEntry[] = []
-  _elapsedTime = 0
-  _startTime: number = 0
+  elapsedTime = 0
+  _startTime = 0
   _lastAnswerEase = 0
 
   constructor () {
@@ -25,7 +25,7 @@ export class Estimator {
 
   reset () {
     this.logs = []
-    this._elapsedTime = 0
+    this.elapsedTime = 0
     this._startTime = Date.now() / 1000
   }
 
@@ -35,12 +35,12 @@ export class Estimator {
       logLength ? epoch - this.logs[logLength - 1].epoch
         : epoch - this._startTime
     this.logs.push({ epoch, dt, dy, ease })
-    this._elapsedTime = Date.now() / 1000 - this._startTime
+    this.elapsedTime = Date.now() / 1000 - this._startTime
   }
 
   undoUpdate () {
     this.logs.pop()
-    this._elapsedTime = Date.now() / 1000 - this._startTime
+    this.elapsedTime = Date.now() / 1000 - this._startTime
   }
 
   updateLastEntryEase (ease: number) {
