@@ -6,7 +6,7 @@
     "dev:js": "cross-env NODE_ENV=development webpack -w --progress",
     "build:js": "webpack --progress",
     "build": "npm-run-all build:js",
-    "dist": "node dist.js"
+    "dist": "node packager"
   },
   "keywords": [
     "anki",
@@ -21,6 +21,7 @@
     "@typescript-eslint/parser": "^2.28.0",
     "cross-env": "^7.0.2",
     "css-loader": "^3.5.3",
+    "date-fns": "^2.14.0",
     "eslint": "^6.8.0",
     "eslint-config-standard": "^14.1.1",
     "eslint-plugin-import": "^2.20.2",
@@ -30,6 +31,8 @@
     "husky": "^4.2.5",
     "jquery": "^3.5.0",
     "lint-staged": "^10.1.3",
+    "marked": "^1.1.0",
+    "natural-compare-lite": "^1.4.0",
     "node-zip": "^1.1.1",
     "npm-run-all": "^4.1.5",
     "sass": "^1.26.8",
@@ -39,6 +42,7 @@
     "stylelint": "^13.6.0",
     "stylelint-config-sass-guidelines": "^7.0.0",
     "stylelint-scss": "^3.17.2",
+    "tmp": "^0.2.1",
     "ts-loader": "^6.2.2",
     "typescript": "^3.8.3",
     "utc-version": "^2.0.1",

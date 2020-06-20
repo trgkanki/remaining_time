@@ -10,10 +10,8 @@ from aqt.editor import Editor
 from anki.hooks import wrap
 from aqt.utils import askUser
 
+from .utils import openChangelog
 from .utils.JSEval import execJSFile
-import os
-import json
-
 
 def onLoadNote(self, focusTo=None):
     # main.min.j should be loaded only once
