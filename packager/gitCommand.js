@@ -1,5 +1,5 @@
 const { getStdout } = require('./execCommand')
-require('natural-compare-lite')
+const natCompare = require('natural-compare-lite')
 
 exports.checkCleanRepo = async function () {
   const gitStatus = await getStdout('git status')
@@ -22,7 +22,7 @@ exports.getLatestReleaseVersion = async function () {
   for (const tag of tags) {
     // v20.5.9i105
     if (/^v(\d+)\.(\d+)\.(\d+)i(\d+)$/.test(tag)) {
-      if (String.naturalCompare(lastTag, tag) < 0) lastTag = tag
+      if (natCompare(lastTag, tag) < 0) lastTag = tag
     }
   }
   return lastTag || undefined
