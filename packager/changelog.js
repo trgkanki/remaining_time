@@ -1,30 +1,12 @@
-const shelljs = require('shelljs')
-const fs = require('fs')
 const tmp = require('tmp')
+const fs = require('fs')
 const format = require('date-fns/format')
 
-const { getRepoName, getCommitsSinceTag, getLatestReleaseVersion } = require('./gitCommand')
+const { getLatestReleaseVersion, getCommitsSinceTag, getRepoName } = require('./gitCommand')
 const { renderMarkdownHTML } = require('./markedHTMLRenderer')
 const { getStdout } = require('./execCommand')
 
-exports.updateFilesVersionString = async function (newVersion) {
-  const repoName = await getRepoName()
-  console.log(`Updating to "${repoName} v${newVersion}"`)
-
-  const changelogMessage = await getChangelogMarkdown(newVersion)
-  if (!changelogMessage) {
-    throw Error('Empty changelog message')
-  }
-
-  await appendChangelog(newVersion, changelogMessage)
-  await compileChangelogMarkdown(repoName)
-
-  shelljs.sed('-i', /"version": "(.+?)"/, `"version": "${newVersion}"`, 'package.json')
-  shelljs.sed('-i', /^# .+v(\d+)\.(\d+)\.(\d+)\.(\d+)$/m, `# ${repoName} v${newVersion}`, 'src/__init__.py')
-  fs.writeFileSync('src/VERSION', newVersion)
-}
-
-async function getChangelogMarkdown (version) {
+exports.inputChangelog = async function () {
   const lastVersion = await getLatestReleaseVersion()
   const commitLogs = await getCommitsSinceTag(lastVersion)
 
@@ -44,7 +26,7 @@ async function getChangelogMarkdown (version) {
   }
 }
 
-async function appendChangelog (version, changelogMd) {
+exports.updateChangelog = async function (version, changelogMd) {
   const dateString = format(new Date(), 'yyyy-MM-dd')
   const changelogMarkerComment = '[comment]: # (DO NOT MODIFY. new changelog goes here)'
   const changelogSectionMd = `${changelogMarkerComment}\n\n## ${version} (${dateString})\n\n` + changelogMd
@@ -59,9 +41,11 @@ async function appendChangelog (version, changelogMd) {
     const initialFileContent = `# Changelog of ${repoName}\n\n${changelogSectionMd}\n`
     fs.writeFileSync(changelogPath, initialFileContent, { encoding: 'utf-8' })
   }
+
+  compileChangelogMarkdown(await getRepoName())
 }
 
-async function compileChangelogMarkdown (repoName) {
+function compileChangelogMarkdown (repoName) {
   const changelogPath = 'CHANGELOG.md'
   const outputPath = 'src/CHANGELOG.html'
 

@@ -2,14 +2,24 @@ const utcVersion = require('utc-version')
 const { checkCleanRepo, getRepoName } = require('./gitCommand')
 const { zipDist } = require('./zipDist')
 const { getStdout } = require('./execCommand')
-const { updateFilesVersionString } = require('./versionUpdater')
+const { updateFilesVersionString } = require('./versionWriter')
+const { updateChangelog, inputChangelog } = require('./changelog')
+
 const fs = require('fs')
+const tmp = require('tmp')
 
 ;(async function () {
   await checkCleanRepo()
 
   const repoName = await getRepoName()
   const version = utcVersion({ apple: true })
+
+  const changelogMessage = await inputChangelog()
+  if (!changelogMessage) {
+    throw Error('Empty changelog message')
+  }
+  console.log(changelogMessage)
+  await updateChangelog(version, changelogMessage)
 
   // Update __init__.py + VERSION
   await updateFilesVersionString(version)
