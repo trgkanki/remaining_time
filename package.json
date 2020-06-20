@@ -4,7 +4,7 @@
   "description": "template for trgkanki's addon",
   "scripts": {
     "build": "",
-    "dist": "node dist.js"
+    "dist": "node packager"
   },
   "keywords": [
     "anki",
