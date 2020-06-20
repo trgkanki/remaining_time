@@ -3,8 +3,28 @@ module.exports = {
     browser: true,
     es6: true
   },
-  extends: [
-    'standard'
+  overrides: [
+    {
+      files: ['*.js', '*.jsx'],
+      extends: [
+        'standard'
+      ]
+    },
+    {
+      files: ['*.ts', '*.tsx'],
+      extends: [
+        'eslint:recommended',
+        'plugin:@typescript-eslint/eslint-recommended',
+        'plugin:@typescript-eslint/recommended',
+        'standard'
+      ],
+      rules: {
+        // disable the rule for all files
+        '@typescript-eslint/explicit-function-return-type': 'off',
+        '@typescript-eslint/no-explicit-any': 'off',
+        'no-undef': 'off'
+      }
+    }
   ],
   globals: {
     Atomics: 'readonly',
@@ -17,9 +37,5 @@ module.exports = {
   },
   plugins: [
     '@typescript-eslint'
-  ],
-  rules: {
-    // disable the rule for all files
-    '@typescript-eslint/explicit-function-return-type': 'off'
-  }
+  ]
 }

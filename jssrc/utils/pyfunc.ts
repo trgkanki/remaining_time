@@ -16,9 +16,6 @@ export function callPyFunc (
 ): Promise<any> {
   return new Promise<any>((resolve, reject) => {
     const cmdstr = `pyfunc:${funcname}:${JSON.stringify(args)}`
-    // TODO: fix eslint error w/o eslint-disable-next-line hack
-    // See also: @types/global.d.ts
-    // eslint-disable-next-line no-undef
     pycmd(cmdstr, (ret) => {
       const error = ret.error as (string | null)
       if (error) return reject(new Error(error))
