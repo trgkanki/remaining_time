@@ -4,13 +4,19 @@ const { getRepoName, getCommitsSinceTag, getLatestReleaseVersion } = require('./
 const tmp = require('tmp')
 const format = require('date-fns/format')
 const { getStdout } = require('./execCommand')
+const marked = require('marked')
 
 exports.updateFilesVersionString = async function (newVersion) {
   const repoName = await getRepoName()
   console.log(`Updating to "${repoName} v${newVersion}"`)
 
   const changelogMessage = await getChangelogMarkdown(newVersion)
+  if (!changelogMessage) {
+    throw Error('Empty changelog message')
+  }
+
   await appendChangelog(newVersion, changelogMessage)
+  await compileChangelogMarkdown()
 
   shelljs.sed('-i', /"version": "(.+?)"/, `"version": "${newVersion}"`, 'package.json')
   shelljs.sed('-i', /^# .+v(\d+)\.(\d+)\.(\d+)\.(\d+)$/m, `# ${repoName} v${newVersion}`, 'src/__init__.py')
@@ -52,4 +58,14 @@ async function appendChangelog (version, changelogMd) {
     const initialFileContent = `# Changelog of ${repoName}\n\n${changelogSectionMd}\n`
     fs.writeFileSync(changelogPath, initialFileContent, { encoding: 'utf-8' })
   }
+}
+
+async function compileChangelogMarkdown () {
+  const changelogPath = 'CHANGELOG.md'
+  const outputPath = 'src/CHANGELOG.html'
+
+  fs.writeFileSync(outputPath,
+    marked(fs.readFileSync(changelogPath, { encoding: 'utf-8' })),
+    { encoding: 'utf-8' }
+  )
 }
