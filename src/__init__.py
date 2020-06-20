@@ -10,6 +10,8 @@ from aqt.editor import Editor
 from anki.hooks import wrap
 from aqt.utils import askUser
 
+from .utils import openChangelog
+
 def onLoadNote(self, focusTo=None):
     pass
 
