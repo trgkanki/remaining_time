@@ -17,7 +17,6 @@ def showChangelogOnUpdate():
     addonName = getCurrentAddonName()
 
     addonMeta = mw.addonManager.addon_meta(addonName)
-    askUser(addonMeta.human_version)
     if addonMeta.human_version != addonVersion:
         addonMeta.human_version = addonVersion
         mw.addonManager.write_addon_meta(addonMeta)
