@@ -10,7 +10,7 @@ exports.zipDist = function (destination) {
     if (fPath.indexOf('__pycache__') !== -1) continue
     if (!fs.lstatSync(fPath).isFile()) continue
 
-    const relPath = path.relative('src/', fPath).replace('\\', '/')
+    const relPath = path.relative('src/', fPath).replace(/\\/g, '/')
     const data = fs.readFileSync(fPath)
     zip.file(relPath, data)
     console.log(' Adding to archive: ' + relPath)
