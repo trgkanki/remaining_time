@@ -4,11 +4,16 @@ const { zipDist } = require('./zipDist')
 const { getStdout } = require('./execCommand')
 const { updateFilesVersionString } = require('./versionWriter')
 const { updateChangelog, inputChangelog } = require('./changelog')
+const gitBranchIs = require('git-branch-is')
 
 const fs = require('fs')
 const tmp = require('tmp')
 
 ;(async function () {
+  if (!await gitBranchIs('develop')) {
+    throw new Error('You can issue a release only from the develop branch')
+  }
+
   await checkCleanRepo()
 
   const repoName = await getRepoName()
@@ -42,6 +47,11 @@ const tmp = require('tmp')
   // Add tag
   await getStdout(`git tag v${version}`)
   await getStdout('git push --tags')
+
+  // Merge to master
+  await getStdout('git checkout master')
+  await getStdout('git merge develop')
+  await getStdout('git checkout develop')
 
   console.log('Dist + commit done!')
 })().catch(err => {
