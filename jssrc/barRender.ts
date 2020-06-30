@@ -1,5 +1,10 @@
+import $ from 'jquery'
+
 import { Estimator } from './estimator'
-import { getRemainingReviews } from './utils'
+import { getRemainingReviews, t2s } from './utils'
+import { Base64 } from 'js-base64'
+
+import './basestyle.scss'
 
 // Drawing settings
 const clampMinTime = 10
@@ -13,7 +18,7 @@ const goodColor = '114, 166, 249' // Good/Easy
 // TODO: support dark mode
 const backgroundColor = 'black'
 
-export function renderBarSVG (estimator: Estimator): string {
+function renderProgressBarSVG (estimator: Estimator): string {
   let timeSum = 0
   for (const { dt } of estimator.logs) {
     timeSum += dt
@@ -43,4 +48,40 @@ export function renderBarSVG (estimator: Estimator): string {
       ${pathSVGs.join('')}
   </svg>
   `
+}
+
+export function updateProgressBar (b64svg: string, progressBarMessage: string) {
+  let $barEl = $('#remainingTimeBar')
+  if ($barEl.length === 0) {
+    $barEl = $('<div></div>')
+    $barEl.attr('id', 'remainingTimeBar')
+    $('body').append($barEl)
+  }
+  $barEl.html(`${progressBarMessage} &nbsp; <a href=#resetRT onclick="pycmd('_rt_pgreset');return false;" title='Reset progress bar for this deck'>[⥻]</a>`)
+
+  let styleEl = document.getElementById('remainingTimeStylesheet')
+  if (!styleEl) {
+    styleEl = document.createElement('style')
+    styleEl.id = 'remainingTimeStylesheet'
+    document.head.appendChild(styleEl)
+  }
+  styleEl.textContent = `
+    #remainingTimeBar {
+      background: url('data:image/svg+xml;base64,${b64svg}')
+    }
+  `
+}
+
+export function renderBar () {
+  const currentRemainingReviews = getRemainingReviews()
+  if (currentRemainingReviews === 0) return
+
+  const estimator = Estimator.instance()
+  const elapsedTime = estimator.elapsedTime
+  const remainingTime = currentRemainingReviews / estimator.getSlope()
+  const message = `Elapsed ${t2s(elapsedTime)},  Remaining ${t2s(remainingTime)}, Total ${t2s(elapsedTime + remainingTime)}`
+
+  const svgContent = renderProgressBarSVG(estimator)
+  const b64svg = Base64.encode(svgContent)
+  updateProgressBar(b64svg, message)
 }

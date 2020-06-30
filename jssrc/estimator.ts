@@ -13,11 +13,21 @@ export interface LogEntry {
   ease: number;
 }
 
+const ESTIMATOR_SCHEMA_VERSION = 0
+
+// Persistence
+let cache: Estimator
+function getLocalStorageKey () {
+  return `__rt__estimator__${ESTIMATOR_SCHEMA_VERSION}__`
+}
+
+// Implementation
 export class Estimator {
   logs: LogEntry[] = []
   elapsedTime = 0
   _startTime = 0
   _lastAnswerEase = 0
+  version = ESTIMATOR_SCHEMA_VERSION
 
   constructor () {
     this.reset()
@@ -73,5 +83,28 @@ export class Estimator {
 
     if (totTime < 1) return 1
     return Math.max(totY / totTime, 1e-6)
+  }
+
+  save () {
+    localStorage.setItem(
+      getLocalStorageKey(),
+      JSON.stringify(this)
+    )
+  }
+
+  static instance (): Estimator {
+    if (cache) return cache
+
+    const content = localStorage.getItem(getLocalStorageKey())
+    if (!content) cache = new Estimator()
+    else {
+      const obj = JSON.parse(content)
+      if (obj.version === ESTIMATOR_SCHEMA_VERSION) {
+        cache = Object.create(Estimator.prototype, Object.getOwnPropertyDescriptors(obj))
+      } else {
+        cache = new Estimator()
+      }
+    }
+    return cache
   }
 }
