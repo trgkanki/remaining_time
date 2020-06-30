@@ -1,7 +1,7 @@
 import $ from 'jquery'
 
 import { Estimator } from './estimator'
-import { getRemainingReviews, t2s } from './utils'
+import { getRemainingReviews, t2s, getRemainingCardLoad as reviewLoad } from './utils'
 import { Base64 } from 'js-base64'
 
 import './basestyle.scss'
@@ -18,13 +18,13 @@ const goodColor = '114, 166, 249' // Good/Easy
 // TODO: support dark mode
 const backgroundColor = 'black'
 
-function renderProgressBarSVG (estimator: Estimator): string {
+async function renderProgressBarSVG (estimator: Estimator) {
   let timeSum = 0
   for (const { dt } of estimator.logs) {
     timeSum += dt
   }
 
-  const currentRemainingReviews = getRemainingReviews()
+  const currentRemainingReviews = await getRemainingReviews()
   const elapsedTime = estimator.elapsedTime
   const remainingTime = currentRemainingReviews / estimator.getSlope()
   const progress = elapsedTime / (elapsedTime + remainingTime)
@@ -50,13 +50,14 @@ function renderProgressBarSVG (estimator: Estimator): string {
   `
 }
 
-export function updateProgressBar (b64svg: string, progressBarMessage: string) {
+export function renderProgressBar (b64svg: string, progressBarMessage: string) {
   let $barEl = $('#remainingTimeBar')
   if ($barEl.length === 0) {
     $barEl = $('<div></div>')
     $barEl.attr('id', 'remainingTimeBar')
     $('body').append($barEl)
   }
+  // TODO: port _rt_pgreset to JS space
   $barEl.html(`${progressBarMessage} &nbsp; <a href=#resetRT onclick="pycmd('_rt_pgreset');return false;" title='Reset progress bar for this deck'>[⥻]</a>`)
 
   let styleEl = document.getElementById('remainingTimeStylesheet')
@@ -72,16 +73,17 @@ export function updateProgressBar (b64svg: string, progressBarMessage: string) {
   `
 }
 
-export function renderBar () {
-  const currentRemainingReviews = getRemainingReviews()
-  if (currentRemainingReviews === 0) return
+export async function renderBar () {
+  const currentRemainingReviews = await getRemainingReviews()
+  const remainingLoad = reviewLoad(currentRemainingReviews)
+  if (remainingLoad === 0) return
 
   const estimator = Estimator.instance()
   const elapsedTime = estimator.elapsedTime
-  const remainingTime = currentRemainingReviews / estimator.getSlope()
+  const remainingTime = remainingLoad / estimator.getSlope()
   const message = `Elapsed ${t2s(elapsedTime)},  Remaining ${t2s(remainingTime)}, Total ${t2s(elapsedTime + remainingTime)}`
 
-  const svgContent = renderProgressBarSVG(estimator)
+  const svgContent = await renderProgressBarSVG(estimator)
   const b64svg = Base64.encode(svgContent)
-  updateProgressBar(b64svg, message)
+  renderProgressBar(b64svg, message)
 }

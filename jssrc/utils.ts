@@ -1,8 +1,24 @@
-export function getRemainingReviews () {
-  const nu = Number(AnkiDroidJS.ankiGetNewCardCount())
-  const lrn = Number(AnkiDroidJS.ankiGetLrnCardCount())
-  const rev = Number(AnkiDroidJS.ankiGetRevCardCount())
-  return nu * 2 + rev + lrn
+import { callPyFunc } from './utils/pyfunc'
+
+export interface RemainingCardCounts {
+  nu: number;
+  lrn: number;
+  rev: number;
+}
+export async function getRemainingReviews (): Promise<RemainingCardCounts> {
+  if (AnkiDroidJS) {
+    const nu = Number(AnkiDroidJS.ankiGetNewCardCount())
+    const lrn = Number(AnkiDroidJS.ankiGetLrnCardCount())
+    const rev = Number(AnkiDroidJS.ankiGetRevCardCount())
+    return { nu, lrn, rev }
+  } else {
+    const [nu, lrn, rev] = await callPyFunc('getCurrentRemainingCardCount')
+    return { nu, lrn, rev }
+  }
+}
+
+export function getRemainingCardLoad ({ nu, lrn, rev }: RemainingCardCounts) {
+  return nu * 2 + lrn + rev
 }
 
 /**
