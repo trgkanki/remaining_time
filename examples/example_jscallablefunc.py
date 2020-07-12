@@ -1,8 +1,10 @@
 from .utils.JSCallable import JSCallable
 
+
 @JSCallable
 def test(a, b):
     return a + b
+
 
 """
 // JS counterpart code

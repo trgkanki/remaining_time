@@ -19,12 +19,16 @@ from .resource import getResourcePath
 # directly here, we have to hook this.
 # Note that this is very hacky way, and this might break in the future.
 
+
 def newAcceptNavigationRequest(self, url, navType, isMainFrame, *, _old):
-    if hasattr(self, '_isMiniBrowser'):
+    if hasattr(self, "_isMiniBrowser"):
         return True
     return _old(self, url, navType, isMainFrame)
 
-AnkiWebPage.acceptNavigationRequest = wrap(AnkiWebPage.acceptNavigationRequest, newAcceptNavigationRequest, "around")
+
+AnkiWebPage.acceptNavigationRequest = wrap(
+    AnkiWebPage.acceptNavigationRequest, newAcceptNavigationRequest, "around"
+)
 
 
 class MiniBrowser(QDialog):
@@ -59,11 +63,11 @@ class MiniBrowser(QDialog):
             self.resize(800, 600)
             self.show()
 
-        elif size == 'maximized' or size == 'maximize':
+        elif size == "maximized" or size == "maximize":
             self.resize(800, 600)
             self.showMaximized()
 
-        elif size == 'minimized' or size == 'minimize':
+        elif size == "minimized" or size == "minimize":
             self.resize(800, 600)
             self.showMinimized()
 

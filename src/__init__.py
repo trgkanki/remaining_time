@@ -13,11 +13,12 @@ from aqt.utils import askUser
 from .utils import openChangelog
 from .utils.JSEval import execJSFile
 
+
 def onLoadNote(self, focusTo=None):
     # main.min.j should be loaded only once
     execJSFile(self.web, "js/main.min.js", once=True)
     execJSFile(self.web, "js/main.min.js", once=True)
     execJSFile(self.web, "js/main.min.js", once=True)
 
-Editor.loadNote = wrap(Editor.loadNote, onLoadNote, "after")
 
+Editor.loadNote = wrap(Editor.loadNote, onLoadNote, "after")
