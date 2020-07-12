@@ -12,10 +12,9 @@ from aqt.utils import askUser
 
 from .utils import openChangelog
 
+
 def onLoadNote(self, focusTo=None):
     pass
 
 
 Editor.loadNote = wrap(Editor.loadNote, onLoadNote, "after")
-
-
