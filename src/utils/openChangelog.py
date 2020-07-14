@@ -21,7 +21,7 @@ def showChangelogOnUpdate():
     addonMeta = mw.addonManager.addonMeta(addonName)
     if addonMeta["human_version"] != addonVersion:
         addonMeta["human_version"] = addonVersion
-        mw.addonManager.writeAddonMeta(addonMeta)
+        mw.addonManager.writeAddonMeta(addonName, addonMeta)
 
         changelogPath = getResourcePath("CHANGELOG.html")
         if os.path.exists(changelogPath):
