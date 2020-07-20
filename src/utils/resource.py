@@ -25,3 +25,19 @@ def readResource(filename, binary=False):
     else:
         with open(inputFilePath, "r", encoding="utf-8") as f:
             return f.read()
+
+
+def updateMedia(name, newData, replaceExisting=True):
+    col = mw.col
+    media = col.media
+    targetFile = os.path.join(media.dir(), name)
+
+    if os.path.exists(targetFile):
+        if not replaceExisting:
+            return
+        with open(targetFile, "rb") as f:
+            if f.read() == newData:
+                return  # Identical data already exists
+        os.unlink(targetFile)
+
+    col.media.writeData(name, newData)
