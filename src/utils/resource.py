@@ -15,8 +15,13 @@ def getResourcePath(filename):
     return os.path.abspath(inputFilePath)
 
 
-def readResource(filename):
+def readResource(filename, binary=False):
     inputFilePath = getResourcePath(filename)
 
-    with open(inputFilePath, "r", encoding="utf-8") as f:
-        return f.read()
+    if binary:
+        with open(inputFilePath, "rb") as f:
+            return f.read()
+
+    else:
+        with open(inputFilePath, "r", encoding="utf-8") as f:
+            return f.read()
