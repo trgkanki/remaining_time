@@ -5,3 +5,4 @@ node_modules/
 *.min.js
 
 webpack.config.js
+!.eslintrc.js
