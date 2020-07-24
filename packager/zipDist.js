@@ -3,12 +3,23 @@ const walk = require('walkdir')
 const fs = require('fs')
 const path = require('path')
 
+const ignoreList = [
+  '__pycache__',
+  'meta.json'
+]
+
 exports.zipDist = function (destination) {
   const zip = new NodeZip()
   const paths = walk.sync('src')
   for (const fPath of paths) {
-    if (fPath.indexOf('__pycache__') !== -1) continue
-    if (!fs.lstatSync(fPath).isFile()) continue
+    let ignore = false
+    for (const pattern of ignoreList) {
+      if (fPath.indexOf(pattern) !== -1) {
+        ignore = true
+        break
+      }
+    }
+    if (ignore) continue
 
     const relPath = path.relative('src/', fPath).replace(/\\/g, '/')
     const data = fs.readFileSync(fPath)
