@@ -12,8 +12,7 @@ function merge_message {
   echo ":twisted_rightwards_arrows: merge from template/$1 ($dateString)"
 }
 
-# if [[ `git status` == *"nothing to commit, working tree clean"* ]]; then
-if true; then
+if [[ `git status` == *"nothing to commit, working tree clean"* ]]; then
   upstreamBranch=`cat BASEBRANCH 2> /dev/null`
   upstreamBranch="$(sed -e 's/[[:space:]]*$//' <<<${upstreamBranch})"  # Strip whitespace
   if ! [ -z "$1" ]; then
