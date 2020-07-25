@@ -6,7 +6,7 @@
     "dev:js": "cross-env NODE_ENV=development webpack -w --progress",
     "build:js": "webpack --progress",
     "build": "npm-run-all build:js",
-    "dist": "node packager"
+    "dist": "npm run build && node packager"
   },
   "keywords": [
     "anki",

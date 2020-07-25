@@ -31,8 +31,8 @@ const tmp = require('tmp')
 
   // Dist zip
   fs.mkdirSync('dist', { recursive: true })
-  await zipDist(`dist/${repoName}_v${version}.zip`)
-  await zipDist(`dist_${repoName}.zip`)
+  await zipDist(`dist/${repoName}_v${version}.ankiaddon`)
+  await zipDist(`dist_${repoName}.ankiaddon`)
 
   // Commit
   await getStdout('git add -A')

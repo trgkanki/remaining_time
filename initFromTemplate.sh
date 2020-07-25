@@ -20,8 +20,11 @@ git init
 git remote add template https://github.com/trgkanki/addon_template
 git fetch --all
 git checkout -b develop
+echo $2 > BASEBRANCH
+git add -A
 git commit --allow-empty -m ':tada: initial empty commit (for merge head)'
 git merge template/$2 --squash --allow-unrelated-histories
 sed -i "s#Squashed commit of the following:#$(merge_message $2)#" .git/SQUASH_MSG
 git commit --no-edit
+npm i
 echo 'Project generated from template'
