@@ -8,6 +8,7 @@ from aqt.utils import askUser
 from base64 import b64encode
 from .ExponentialSmoother import ExponentialSmoother
 import time
+import datetime
 
 from .utils.JSEval import evalJS, execJSFile
 from .utils.configrw import getConfig
@@ -18,16 +19,19 @@ if config is None:
 
 ##########
 
+
 def getRemainingReviews():
     counts = list(mw.col.sched.counts(mw.reviewer.card))
     nu, lrn, rev = counts[:3]
     return rev + 2 * nu + lrn
 
+
 _cardReviewStart = 0
 estimatorMap = {}
 
+
 def getCurrentDeckEstimator():
-    did = mw.col.decks.current()['id']
+    did = mw.col.decks.current()["id"]
     try:
         return estimatorMap[did]
     except KeyError:
@@ -40,13 +44,15 @@ def getCurrentDeckEstimator():
 
 
 def _afterMoveToState(self, state, *args):
-    if state == 'review':
+    if state == "review":
         renderBar()
 
-AnkiQt.moveToState = wrap(AnkiQt.moveToState, _afterMoveToState, 'after')
+
+AnkiQt.moveToState = wrap(AnkiQt.moveToState, _afterMoveToState, "after")
 
 
 ##########
+
 
 def _newAnswerCard(self, ease, _old=None):
     if self.mw.state != "review":
@@ -69,7 +75,9 @@ def _newAnswerCard(self, ease, _old=None):
     renderBar()
     return ret
 
-Reviewer._answerCard = wrap(Reviewer._answerCard, _newAnswerCard, 'around')
+
+Reviewer._answerCard = wrap(Reviewer._answerCard, _newAnswerCard, "around")
+
 
 def _newLinkHandler(self, url, _old=None):
     if url == "_rt_pgreset":
@@ -79,7 +87,9 @@ def _newLinkHandler(self, url, _old=None):
     else:
         _old(self, url)
 
-Reviewer._linkHandler = wrap(Reviewer._linkHandler, _newLinkHandler, 'around')
+
+Reviewer._linkHandler = wrap(Reviewer._linkHandler, _newLinkHandler, "around")
+
 
 def _newUndoReview(self, _old=None):
     cid = _old(self)
@@ -91,7 +101,8 @@ def _newUndoReview(self, _old=None):
 
     return cid
 
-_Collection._undoReview = wrap(_Collection._undoReview, _newUndoReview, 'around')
+
+_Collection._undoReview = wrap(_Collection._undoReview, _newUndoReview, "around")
 
 ##########
 
@@ -104,6 +115,7 @@ maxAlpha = 0.7
 againColor = (239, 103, 79)  # Again
 goodColor = (114, 166, 249)  # Good/Easy
 
+
 def t2s(time):
     if time < 60:
         return "%ds" % time
@@ -111,6 +123,13 @@ def t2s(time):
         return "%dm" % (time / 60)
     else:
         return " > day"
+
+
+def addSecs(tm, secs):
+    fulldate = datetime.datetime(100, 1, 1, tm.hour, tm.minute, tm.second)
+    fulldate = fulldate + datetime.timedelta(seconds=secs)
+    return fulldate.time()
+
 
 def renderBar():
     global _cardReviewStart
@@ -126,20 +145,22 @@ def renderBar():
     remainingTime = currentRemainingReviews / estimator.getSlope()
     progress = elapsedTime / (elapsedTime + remainingTime)
 
-    message = "Elapsed %s,  Remaining %s, Total %s" % (
+    ETA = addSecs(datetime.datetime.now().time(), remainingTime)
+
+    message = "Elapsed %s,  Remaining %s, ETA %s" % (
         t2s(elapsedTime),
         t2s(remainingTime),
-        t2s(elapsedTime + remainingTime)
+        ETA.strftime("%H:%M") if remainingTime < 86400 else ">day",
     )
 
-    useDarkMode = config.get('useDarkMode', False)
+    useDarkMode = config.get("useDarkMode", False)
 
     if useDarkMode:
-        backgroundColor = 'black'
-        foregroundColor = 'white'
+        backgroundColor = "black"
+        foregroundColor = "white"
     else:
-        backgroundColor = 'white'
-        foregroundColor = 'black'
+        backgroundColor = "white"
+        foregroundColor = "black"
 
     pathSVGs = []
     timeSum = sum(log.dt for log in estimator.logs)
@@ -152,7 +173,9 @@ def renderBar():
         elif log.dt > clampMaxTime:
             rectAlpha = minAlpha / 2
         else:
-            rectAlpha = maxAlpha - (log.dt - clampMinTime) / (clampMaxTime - clampMinTime) * (maxAlpha - minAlpha)
+            rectAlpha = maxAlpha - (log.dt - clampMinTime) / (
+                clampMaxTime - clampMinTime
+            ) * (maxAlpha - minAlpha)
         rectColor = str(againColor if log.ease == 1 else goodColor)[1:-1]
 
         pathSVGs.append(
@@ -160,35 +183,39 @@ def renderBar():
         )
         rectX += rectW
 
-    svgContent = f'''
+    svgContent = f"""
     <svg width="1" height="1" xmlns="http://www.w3.org/2000/svg">
         <path d="M0 0 h1 V1 h-1 Z" fill="{backgroundColor}" />
         {''.join(pathSVGs)}
     </svg>
-    '''
+    """
 
-    b64svg = b64encode(svgContent.encode('utf-8')).decode('ascii')
+    b64svg = b64encode(svgContent.encode("utf-8")).decode("ascii")
 
     def cb():
-        mw.web.eval(f'''
+        mw.web.eval(
+            f"""
         window.__remainingTime.updateProgressBar(
             "{b64svg}",
             "{message}"
-        )''')
+        )"""
+        )
 
-    execJSFile(mw.web, 'js/main.min.js', cb, once=True)
+    execJSFile(mw.web, "js/main.min.js", cb, once=True)
 
 
 # Theme manager
 
+
 def new_body_class(self, _old):
-    showAtBottom = getConfig('showAtBottom', False)
+    showAtBottom = getConfig("showAtBottom", False)
     if showAtBottom:
-        rtClass = 'remaining-time-bar-bottom'
+        rtClass = "remaining-time-bar-bottom"
     else:
-        rtClass = 'remaining-time-bar-top'
+        rtClass = "remaining-time-bar-top"
 
     classes = _old(self)
-    return classes + ' ' + rtClass
+    return classes + " " + rtClass
 
-ThemeManager.body_class = wrap(ThemeManager.body_class, new_body_class, 'asround')
+
+ThemeManager.body_class = wrap(ThemeManager.body_class, new_body_class, "asround")
