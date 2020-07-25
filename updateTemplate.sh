@@ -41,8 +41,7 @@ if [[ `git status` == *"nothing to commit, working tree clean"* ]]; then
     usage
     exit
   fi
-  git merge template/$upstreamBranch --squash
-  sed -i "s#Squashed commit of the following:#$(merge_message $upstreamBranch)#" .git/SQUASH_MSG
+  git merge template/$upstreamBranch
 else
   echo Error: Branch must be clean before merge.
   usage
