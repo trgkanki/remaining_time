@@ -35,7 +35,7 @@ if [[ `git status` == *"nothing to commit, working tree clean"* ]]; then
   fi
 
   # Try merging
-  git fetch --all
+  git fetch template
   if [ -z `git branch -r | grep " template/$upstreamBranch"` ]; then
     echo "Remote branch template/$upstreamBranch not found."
     usage
