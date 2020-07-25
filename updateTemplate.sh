@@ -35,14 +35,13 @@ if [[ `git status` == *"nothing to commit, working tree clean"* ]]; then
   fi
 
   # Try merging
-  git fetch --all
+  git fetch template
   if [ -z `git branch -r | grep " template/$upstreamBranch"` ]; then
     echo "Remote branch template/$upstreamBranch not found."
     usage
     exit
   fi
-  git merge template/$upstreamBranch --squash
-  sed -i "s#Squashed commit of the following:#$(merge_message $upstreamBranch)#" .git/SQUASH_MSG
+  git merge template/$upstreamBranch
 else
   echo Error: Branch must be clean before merge.
   usage
