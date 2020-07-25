@@ -8,6 +8,7 @@ import os
 
 from .configrw import getCurrentAddonName
 from .resource import readResource, getResourcePath
+from aqt.utils import showText
 
 
 def getCurrentAddonVersion():
@@ -26,7 +27,7 @@ def showChangelogOnUpdate():
         changelogPath = getResourcePath("CHANGELOG.html")
         if os.path.exists(changelogPath):
             with noBundledLibs():
-                QDesktopServices.openUrl(QUrl.fromLocalFile(changelogPath))
+                showText(readResource("CHANGELOG.html"), type="html", title="Changelog")
 
 
 showChangelogOnUpdate()
