@@ -20,11 +20,13 @@ exports.zipDist = function (destination) {
       }
     }
     if (ignore) continue
+    if (!fs.statSync(fPath).isFile()) continue
 
     const relPath = path.relative('src/', fPath).replace(/\\/g, '/')
+    console.log(' Adding to archive: ' + relPath)
+
     const data = fs.readFileSync(fPath)
     zip.file(relPath, data)
-    console.log(' Adding to archive: ' + relPath)
   }
 
   const data = zip.generate({ base64: false, compression: 'DEFLATE' })
