@@ -2,7 +2,7 @@ import $ from 'jquery'
 
 import { Estimator } from './estimator'
 import { getRemainingReviews, t2s, getRemainingCardLoad as reviewLoad } from './utils'
-
+import * as dateFNS from 'date-fns'
 import './basestyle.scss'
 
 // Drawing settings
@@ -36,7 +36,10 @@ export async function updateProgressBar () {
   const estimator = await Estimator.instance()
   const elapsedTime = estimator.elapsedTime
   const remainingTime = remainingLoad / estimator.getSlope()
-  const message = `Elapsed ${t2s(elapsedTime)},  Remaining ${t2s(remainingTime)}, Total ${t2s(elapsedTime + remainingTime)}`
+  const ETA = new Date()
+  ETA.setSeconds(ETA.getSeconds() + remainingTime)
+  const ETAString = (remainingTime >= 86400) ? '> day' : dateFNS.format(ETA, 'HH:mm')
+  const message = `Elapsed ${t2s(elapsedTime)},  Remaining ${t2s(remainingTime)}, ETA ${ETAString}`
 
   const progress = elapsedTime / (elapsedTime + remainingTime)
   const pathSVGs: string[] = []
