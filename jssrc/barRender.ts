@@ -11,9 +11,6 @@ const clampMaxTime = 120
 const minAlpha = 0.3
 const maxAlpha = 0.7
 
-const againColor = '239, 103, 79' // Again
-const goodColor = '114, 166, 249' // Good/Easy
-
 function updateDOM (svgHtml: string, progressBarMessage: string) {
   let $barEl = $('#rtContainer')
   if ($barEl.length === 0) {
@@ -56,8 +53,7 @@ export async function updateProgressBar () {
      (log.dt < clampMinTime) ? maxAlpha
        : (log.dt > clampMaxTime) ? minAlpha / 2
          : maxAlpha - (log.dt - clampMinTime) / (clampMaxTime - clampMinTime) * (maxAlpha - minAlpha)
-    const rectColor = (log.ease === 1) ? againColor : goodColor
-    pathSVGs.push(`<path d="M${rectX} 0 h${rectW} V1 h-${rectW} Z" fill="rgba(${rectColor}, ${rectAlpha})" shape-rendering="crispEdges" />`)
+    pathSVGs.push(`<path class="rt-log-${log.logType}" d="M${rectX} 0 h${rectW} V1 h-${rectW} Z" opacity="${rectAlpha}" shape-rendering="crispEdges" />`)
     rectX += rectW
   }
 

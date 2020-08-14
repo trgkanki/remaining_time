@@ -12,7 +12,7 @@ export interface LogEntry {
   epoch: number;
   dt: number;
   dy: number;
-  ease: number;
+  logType: string;
 }
 
 const ESTIMATOR_SCHEMA_VERSION = 0
@@ -28,7 +28,7 @@ export class Estimator {
   logs: LogEntry[] = []
   elapsedTime = 0
   _startTime = 0
-  _lastAnswerEase = 0
+  _lastAnswerType = 0
   _lastLogEpoch = 0
   version = ESTIMATOR_SCHEMA_VERSION
 
@@ -42,12 +42,12 @@ export class Estimator {
     this._startTime = Date.now() / 1000
   }
 
-  update (epoch: number, dy: number, ease: number) {
+  update (epoch: number, dy: number, logType: string) {
     const logLength = this.logs.length
     const dt =
       logLength ? epoch - this._lastLogEpoch
         : epoch - this._startTime
-    this.logs.push({ epoch, dt, dy, ease })
+    this.logs.push({ epoch, dt, dy, logType })
     this.elapsedTime = Date.now() / 1000 - this._startTime
     this._lastLogEpoch = epoch
   }
@@ -61,9 +61,9 @@ export class Estimator {
     this.elapsedTime = Date.now() / 1000 - this._startTime
   }
 
-  updateLastEntryEase (ease: number) {
+  updateLastEntryType (logType: number) {
     if (!this.logs.length) return
-    this._lastAnswerEase = ease
+    this._lastAnswerType = logType
   }
 
   getSlope () {

@@ -9,17 +9,17 @@ enum RCCTConst {
 }
 
 interface InstReset {
-  type: RCCTConst.RESET;
+  instType: RCCTConst.RESET;
 }
 
 interface InstIgnore {
-  type: RCCTConst.IGNORE;
+  instType: RCCTConst.IGNORE;
 }
 
 interface InstUpdate {
-  type: RCCTConst.UPDATE;
+  instType: RCCTConst.UPDATE;
   dy: number;
-  ease: 1 | 2;
+  logType: 'new' | 'good' | 'again';
 }
 
 type EstimatorInst = InstReset | InstIgnore | InstUpdate
@@ -29,7 +29,7 @@ export async function updateEstimator () {
   const epoch = new Date().getTime() / 1000
   const estimator = await Estimator.instance()
 
-  switch (instruction.type) {
+  switch (instruction.instType) {
     case RCCTConst.IGNORE:
       estimator.skipUpdate(epoch)
       return
@@ -40,7 +40,7 @@ export async function updateEstimator () {
       return
 
     case RCCTConst.UPDATE:
-      estimator.update(epoch, instruction.dy, instruction.ease)
+      estimator.update(epoch, instruction.dy, instruction.logType)
       estimator.save()
   }
 }
@@ -50,20 +50,13 @@ async function processRemainingCountDiff (): Promise<EstimatorInst> {
   const currentRemainingCards = await getRemainingReviews()
   try {
     const prevRemainingCards = await getRCC()
-    if (!prevRemainingCards) return { type: RCCTConst.RESET }
+    if (!prevRemainingCards) return { instType: RCCTConst.RESET }
     const previousReviewLoad = getRemainingCardLoad(prevRemainingCards)
     const nextReviewLoad = getRemainingCardLoad(currentRemainingCards)
     const dy = previousReviewLoad - nextReviewLoad
 
     const { nu: nu0, lrn: lrn0, rev: rev0 } = prevRemainingCards
     const { nu: nu1, lrn: lrn1, rev: rev1 } = currentRemainingCards
-
-    // Same → Maybe edit cards
-    if (
-      nu0 === nu1 &&
-      rev0 === rev1 &&
-      lrn0 === lrn1
-    ) return { type: RCCTConst.IGNORE }
 
     // See the new card for the first time
     if (
@@ -73,11 +66,7 @@ async function processRemainingCountDiff (): Promise<EstimatorInst> {
       rev0 === rev1 &&
       lrn0 <= lrn1
     ) {
-      if (lrn0 === lrn1) {
-        return { type: RCCTConst.UPDATE, dy, ease: 2 }
-      }
-      // Cannot determine if the review was again or good. :(
-      return { type: RCCTConst.IGNORE }
+      return { instType: RCCTConst.UPDATE, dy, logType: 'new' }
     }
 
     // Re-learn or learn the current learning card
@@ -85,8 +74,8 @@ async function processRemainingCountDiff (): Promise<EstimatorInst> {
       nu0 === nu1 &&
       rev0 === rev1
     ) {
-      if (lrn0 > lrn1) return { type: RCCTConst.UPDATE, dy, ease: 2 }
-      else return { type: RCCTConst.UPDATE, dy, ease: 1 }
+      if (lrn0 > lrn1) return { instType: RCCTConst.UPDATE, dy, logType: 'good' }
+      else return { instType: RCCTConst.UPDATE, dy, logType: 'again' }
     }
 
     // Learning review cards
@@ -95,12 +84,12 @@ async function processRemainingCountDiff (): Promise<EstimatorInst> {
       lrn0 <= lrn1 &&
       rev0 > rev1
     ) {
-      if (lrn0 === lrn1) return { type: RCCTConst.UPDATE, dy, ease: 2 }
-      else return { type: RCCTConst.UPDATE, dy, ease: 1 }
+      if (lrn0 === lrn1) return { instType: RCCTConst.UPDATE, dy, logType: 'good' }
+      else return { instType: RCCTConst.UPDATE, dy, logType: 'again' }
     }
 
     // Reset otherwise
-    return { type: RCCTConst.RESET }
+    return { instType: RCCTConst.RESET }
   } finally {
     saveRCC(currentRemainingCards)
   }
