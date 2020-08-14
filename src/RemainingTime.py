@@ -153,15 +153,6 @@ def renderBar():
         ETA.strftime("%H:%M") if remainingTime < 86400 else ">day",
     )
 
-    useDarkMode = config.get("useDarkMode", False)
-
-    if useDarkMode:
-        backgroundColor = "black"
-        foregroundColor = "white"
-    else:
-        backgroundColor = "white"
-        foregroundColor = "black"
-
     pathSVGs = []
     timeSum = sum(log.dt for log in estimator.logs)
     rectX = 0
@@ -185,7 +176,6 @@ def renderBar():
 
     svgContent = f"""
     <svg width="1" height="1" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0 0 h1 V1 h-1 Z" fill="{backgroundColor}" />
         {''.join(pathSVGs)}
     </svg>
     """

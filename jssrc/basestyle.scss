@@ -26,17 +26,13 @@
     padding: 0 2px 1px;
     text-decoration: none;
   }
-}
 
-// Color overrides for night mode
-/* stylelint-disable-next-line selector-class-pattern */
-.nightMode {
-  #remainingTimeBar {
+  /* stylelint-disable-next-line selector-class-pattern */
+  .nightMode & {
     color: #fff;
   }
 }
 
-//
 .remaining-time-bar-top {
   #qa {
     padding-top: 1rem;
