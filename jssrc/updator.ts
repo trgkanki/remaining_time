@@ -1,5 +1,6 @@
 import { Estimator } from './estimator'
 import { RemainingCardCounts, getRemainingCardLoad, getRemainingReviews } from './utils'
+import ankiLocalStorage from './utils/ankiLocalStorage'
 
 enum RCCTConst {
   RESET,
@@ -25,7 +26,7 @@ type EstimatorInst = InstReset | InstIgnore | InstUpdate
 
 export async function updateEstimator () {
   const inst = await processRemainingCountDiff()
-  const estimator = Estimator.instance()
+  const estimator = await Estimator.instance()
   switch (inst.type) {
     case RCCTConst.IGNORE:
       return
@@ -45,7 +46,7 @@ export async function updateEstimator () {
 async function processRemainingCountDiff (): Promise<EstimatorInst> {
   const currentRemainingCards = await getRemainingReviews()
   try {
-    const prevRemainingCards = getRCC()
+    const prevRemainingCards = await getRCC()
     if (!prevRemainingCards) return { type: RCCTConst.RESET }
     const previousReviewLoad = getRemainingCardLoad(prevRemainingCards)
     const nextReviewLoad = getRemainingCardLoad(currentRemainingCards)
@@ -102,12 +103,12 @@ async function processRemainingCountDiff (): Promise<EstimatorInst> {
   }
 }
 
-function getRCC () {
-  const s = localStorage.getItem('__rt__lastrcc__')
+async function getRCC () {
+  const s = await ankiLocalStorage.getItem('__rt__lastrcc__')
   if (!s) return null
   return JSON.parse(s) as RemainingCardCounts
 }
 
 function saveRCC (rcc: RemainingCardCounts) {
-  localStorage.setItem('__rt__lastrcc__', JSON.stringify(rcc))
+  ankiLocalStorage.setItem('__rt__lastrcc__', JSON.stringify(rcc))
 }

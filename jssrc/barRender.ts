@@ -25,6 +25,7 @@ function updateDOM (b64svg: string, progressBarMessage: string) {
     $barEl.attr('id', 'remainingTimeBar')
     $('body').append($barEl)
   }
+
   // TODO: port _rt_pgreset to JS space
   $barEl.html(`${progressBarMessage} &nbsp; <a href=#resetRT onclick="pycmd('_rt_pgreset');return false;" title='Reset progress bar for this deck'>[⥻]</a>`)
 
@@ -46,7 +47,7 @@ export async function updateProgressBar () {
   const remainingLoad = reviewLoad(currentRemainingReviews)
   if (remainingLoad === 0) return
 
-  const estimator = Estimator.instance()
+  const estimator = await Estimator.instance()
   const elapsedTime = estimator.elapsedTime
   const remainingTime = remainingLoad / estimator.getSlope()
   const message = `Elapsed ${t2s(elapsedTime)},  Remaining ${t2s(remainingTime)}, Total ${t2s(elapsedTime + remainingTime)}`

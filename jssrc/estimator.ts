@@ -2,6 +2,8 @@
  * Port of ExponentialSmoother.py
  */
 
+import ankiLocalStorage from './utils/ankiLocalStorage'
+
 const cutoffDt = 300
 const historyDecay = 1 / 1.005
 const historyLength = 100
@@ -86,16 +88,16 @@ export class Estimator {
   }
 
   save () {
-    localStorage.setItem(
+    ankiLocalStorage.setItem(
       getLocalStorageKey(),
       JSON.stringify(this)
     )
   }
 
-  static instance (): Estimator {
+  static async instance (): Promise<Estimator> {
     if (cache) return cache
 
-    const content = localStorage.getItem(getLocalStorageKey())
+    const content = await ankiLocalStorage.getItem(getLocalStorageKey())
     if (!content) cache = new Estimator()
     else {
       const obj = JSON.parse(content)

@@ -3,7 +3,11 @@ from .utils import openChangelog
 from .utils import uuid  # duplicate UUID checked here
 
 from .utils.JSCallable import JSCallable
+
+from .utils import ankiLocalStorage
+
 from aqt import mw
+
 
 @JSCallable
 def getCurrentRemainingCardCount():
