@@ -15,7 +15,7 @@ export function callPyFunc (
   ...args: any[]
 ): Promise<any> {
   return new Promise<any>((resolve, reject) => {
-    const cmdstr = `pyfunc:${funcname}:${JSON.stringify(args)}`
+    const cmdstr = `pyfunc:${ADDON_UUID}:${funcname}:${JSON.stringify(args)}`
     pycmd(cmdstr, (ret) => {
       const error = ret.error as (string | null)
       if (error) return reject(new Error(error))

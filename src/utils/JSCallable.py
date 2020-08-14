@@ -1,5 +1,6 @@
 from aqt import gui_hooks
 from aqt.utils import showInfo
+from .uuid import addonUUID
 
 import json
 import traceback
@@ -7,8 +8,8 @@ import traceback
 
 def JSCallable(func):
     """ Decorator for js-callable python function """
-    funcname = func.__name__
-    msgPrefix = "pyfunc:%s:" % funcname
+    funcName = func.__name__
+    msgPrefix = "pyfunc:%s:%s:" % (addonUUID(), funcName)
 
     def _onBridgeMessage(handled, message: str, context):
         if not message.startswith(msgPrefix):
@@ -20,7 +21,7 @@ def JSCallable(func):
         except json.JSONDecodeError:
             showInfo(
                 ("Error: malformed message from addon %s:\n%s")
-                % (funcname, traceback.format_exc())
+                % (funcName, traceback.format_exc())
             )
 
             return (True, {"error": "malformed message"})
