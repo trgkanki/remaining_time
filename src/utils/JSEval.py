@@ -27,7 +27,7 @@ def _onBridgeMessage(handled, message, context):
 gui_hooks.webview_did_receive_js_message.append(_onBridgeMessage)
 
 
-def execJSFile(web, jspath, cb, *, once=False):
+def execJSFile(web, jspath, cb=None, *, once=False):
     js = readResource(jspath)
     if once:
         checkKey = "".join([getCurrentAddonName(), "#", jspath])

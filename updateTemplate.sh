@@ -41,7 +41,7 @@ if [[ `git status` == *"nothing to commit, working tree clean"* ]]; then
     usage
     exit
   fi
-  git mserge template/$upstreamBranch
+  git merge template/$upstreamBranch
 else
   echo Error: Branch must be clean before merge.
   usage
