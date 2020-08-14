@@ -21,6 +21,7 @@ async function main () {
         _old(...args)
         main()
       }
+      main()
     }
 
     // on desktop, main() will be called on Python side.

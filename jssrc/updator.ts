@@ -33,8 +33,9 @@ export async function updateEstimator () {
 
   // Due to how run() is called on index.ts, on desktop anki
   // run() might be called twice with qFade(100ms) duration.
+  // on android this duration may goes up to 500ms.
   // This prevents them being counted as two reviews
-  const isInitializing = (epoch - lastEpoch < 0.3)
+  const isInitializing = (epoch - lastEpoch < 1)
   lastEpoch = epoch
   if (isInitializing) return
 
