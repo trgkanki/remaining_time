@@ -1,6 +1,5 @@
 import { Estimator } from './estimator'
 import { getRemainingReviews, t2s, getRemainingCardLoad as reviewLoad } from './utils'
-import * as dateFNS from 'date-fns'
 import './basestyle.scss'
 
 // Drawing settings
@@ -8,6 +7,15 @@ const clampMinTime = 10
 const clampMaxTime = 120
 const minAlpha = 0.3
 const maxAlpha = 0.7
+
+function zf (n: number, cnt: number) {
+  const s = n.toString()
+  return '0'.repeat(cnt - s.length) + s
+}
+
+function HHmmFormat (date: Date) {
+  return `${zf(date.getHours(), 2)}:${zf(date.getMinutes(), 2)}`
+}
 
 function updateDOM (svgHtml: string, progressBarMessage: string) {
   let barEl = document.getElementById('rtContainer')
@@ -45,7 +53,7 @@ export async function updateProgressBar () {
   const remainingTime = remainingLoad / estimator.getSlope()
   const ETA = new Date()
   ETA.setSeconds(ETA.getSeconds() + remainingTime)
-  const ETAString = (remainingTime >= 86400) ? '> day' : dateFNS.format(ETA, 'HH:mm')
+  const ETAString = (remainingTime >= 86400) ? '> day' : HHmmFormat(ETA)
   const message = `Elapsed ${t2s(elapsedTime)},  Remaining ${t2s(remainingTime)}, ETA ${ETAString}`
 
   const progress = elapsedTime / (elapsedTime + remainingTime)

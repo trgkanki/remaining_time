@@ -3,8 +3,6 @@
  */
 
 import ankiLocalStorage from './utils/ankiLocalStorage'
-import MsgPack from 'msgpack-lite'
-import base64js from 'base64-js'
 
 const cutoffDt = 300
 const historyDecay = 1 / 1.005
@@ -29,14 +27,9 @@ function getLocalStorageKey () {
 export class Estimator {
   logs: LogEntry[] = []
   elapsedTime = 0
-  _startTime = 0
+  _startTime = Date.now() / 1000
   _lastAnswerType = 0
   _lastLogEpoch = 0
-  version = ESTIMATOR_SCHEMA_VERSION
-
-  constructor () {
-    this.reset()
-  }
 
   reset () {
     this.logs = []
@@ -98,9 +91,19 @@ export class Estimator {
   }
 
   save () {
+    // serialize
+    const s = []
+    s.push(ESTIMATOR_SCHEMA_VERSION)
+    s.push(this.elapsedTime, this._startTime, this._lastAnswerType, this._lastLogEpoch)
+    for (const log of this.logs) {
+      s.push(log.epoch, log.dt, log.dy, log.logType)
+    }
+
     ankiLocalStorage.setItem(
       getLocalStorageKey(),
-      base64js.fromByteArray(MsgPack.encode(this))
+      JSON.stringify(s, function (_key, val) {
+        return val.toFixed ? Number(val.toFixed(1)) : val
+      })
     )
   }
 
@@ -110,10 +113,32 @@ export class Estimator {
     const content = await ankiLocalStorage.getItem(getLocalStorageKey())
     if (!content) cache = new Estimator()
     else {
-      const obj = MsgPack.decode(base64js.toByteArray(content))
-      if (obj.version === ESTIMATOR_SCHEMA_VERSION) {
-        cache = Object.create(Estimator.prototype, Object.getOwnPropertyDescriptors(obj))
-      } else {
+      try {
+        const s = JSON.parse(content)
+        let cursor = 0
+        if (s[cursor++] !== ESTIMATOR_SCHEMA_VERSION) {
+          throw new Error('Old schema')
+        }
+        const obj = new Estimator()
+        obj.elapsedTime = s[cursor++]
+        obj._startTime = s[cursor++]
+        obj._lastAnswerType = s[cursor++]
+        obj._lastLogEpoch = s[cursor++]
+        while (cursor < s.length) {
+          obj.logs.push({
+            epoch: s[cursor + 0],
+            dt: s[cursor + 1],
+            dy: s[cursor + 2],
+            logType: s[cursor + 3]
+          })
+          cursor += 4
+        }
+        if (!cursor === s.length) {
+          console.log(s, cursor, obj)
+          throw new Error('Length mismatch - RTT')
+        }
+        cache = obj
+      } catch {
         cache = new Estimator()
       }
     }
