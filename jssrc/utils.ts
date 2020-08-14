@@ -5,8 +5,9 @@ export interface RemainingCardCounts {
   lrn: number;
   rev: number;
 }
+
 export async function getRemainingReviews (): Promise<RemainingCardCounts> {
-  if (AnkiDroidJS) {
+  if ((window as any).AnkiDroidJS) {
     const nu = Number(AnkiDroidJS.ankiGetNewCardCount())
     const lrn = Number(AnkiDroidJS.ankiGetLrnCardCount())
     const rev = Number(AnkiDroidJS.ankiGetRevCardCount())
