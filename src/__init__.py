@@ -3,53 +3,22 @@ from .utils import uuid  # duplicate UUID checked here
 
 from .utils.JSEval import execJSFile
 from .utils.configrw import getConfig
-from .utils.JSCallable import JSCallable
 
-from .utils import ankiLocalStorage
-
-from aqt import mw
-from aqt.main import AnkiQt
 from aqt.reviewer import Reviewer
 from aqt.theme import ThemeManager
-from anki.hooks import wrap
+from anki.hooks import wrap, addHook
 
-import time
+from .mobileSupport.modelModifier import registerMobileScript
+from . import jsapi
 
-
-@JSCallable
-def getCurrentRemainingCardCount():
-    counts = list(mw.col.sched.counts(mw.reviewer.card))
-    nu, lrn, rev = counts[:3]
-    return nu, lrn, rev
+addHook("profileLoaded", registerMobileScript)
 
 
-##########
+def afterInitWeb(self):
+    execJSFile(self.web, "js/main.min.js")
 
 
-def _afterMoveToState(self, state, *args):
-    if state == "review":
-        renderBar()
-
-
-AnkiQt.moveToState = wrap(AnkiQt.moveToState, _afterMoveToState, "after")
-
-
-##########
-
-
-def afterAnswerCard(self, ease):
-    renderBar()
-
-
-Reviewer._answerCard = wrap(Reviewer._answerCard, afterAnswerCard, "after")
-
-
-def renderBar():
-    def cb():
-        mw.web.eval(f"""window.__rtt_run()""")
-
-    execJSFile(mw.web, "js/main.min.js", cb, once=True)
-
+Reviewer._initWeb = wrap(Reviewer._initWeb, afterInitWeb, "after")
 
 # Theme manager
 

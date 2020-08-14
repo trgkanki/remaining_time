@@ -1,4 +1,4 @@
-from .JSCallable import JSCallable
+from ..utils.JSCallable import JSCallable
 
 storage = {}
 

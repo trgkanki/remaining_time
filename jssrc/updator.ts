@@ -24,10 +24,19 @@ interface InstUpdate {
 
 type EstimatorInst = InstReset | InstIgnore | InstUpdate
 
+let lastEpoch = 0
+
 export async function updateEstimator () {
   const instruction = await processRemainingCountDiff()
   const epoch = new Date().getTime() / 1000
   const estimator = await Estimator.instance()
+
+  // Due to how run() is called on index.ts, on desktop anki
+  // run() might be called twice with qFade(100ms) duration.
+  // This prevents them being counted as two reviews
+  const isInitializing = (epoch - lastEpoch < 0.3)
+  lastEpoch = epoch
+  if (isInitializing) return
 
   switch (instruction.instType) {
     case RCCTConst.IGNORE:
