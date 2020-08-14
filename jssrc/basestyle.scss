@@ -2,10 +2,20 @@
   position: relative;
 }
 
+// Fix transparent background problem
+.rt-container {
+  background: #fff;
+
+  .nightMode & {
+    background: #2f2f31;
+  }
+}
+
 .rt-container {
   color: #000;
   font-family: sans-serif;
   font-size: 0.8rem;
+
   // Top/bottom set at body.remaining-time-bar-(.+) part
   height: 1rem;
   left: 0;
