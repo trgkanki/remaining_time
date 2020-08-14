@@ -12,6 +12,7 @@ from aqt.utils import askUser
 
 from .utils import openChangelog
 from .utils.JSEval import execJSFile
+from .utils import uuid  # duplicate UUID checked here
 
 
 def onLoadNote(self, focusTo=None):
