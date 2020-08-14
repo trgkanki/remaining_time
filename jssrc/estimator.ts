@@ -40,6 +40,7 @@ export class Estimator {
     this.logs = []
     this.elapsedTime = 0
     this._startTime = Date.now() / 1000
+    this.save()
   }
 
   update (epoch: number, dy: number, logType: string) {
@@ -50,6 +51,7 @@ export class Estimator {
     this.logs.push({ epoch, dt, dy, logType })
     this.elapsedTime = Date.now() / 1000 - this._startTime
     this._lastLogEpoch = epoch
+    this.save()
   }
 
   skipUpdate (epoch: number) {

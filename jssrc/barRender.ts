@@ -20,12 +20,21 @@ function updateDOM (svgHtml: string, progressBarMessage: string) {
     $('body').append($barEl)
   }
 
-  // TODO: port _rt_pgreset to JS space
   $barEl.html(`
     ${svgHtml}
     <div class='rt-message'>${progressBarMessage}</div>
-    <a class='rt-reset' href=#resetRT onclick="pycmd('_rt_pgreset');return false;" title='Reset progress bar for this deck'>[⥻]</a>
+    <a class='rt-reset' href=# title='Reset progress bar for this deck'>[⥻]</a>
   `)
+
+  const $resetButton = $barEl.find('.rt-reset')
+  $resetButton.unbind('click')
+  $resetButton.on('click', async () => {
+    if (confirm('Really reset?')) {
+      const estimator = await Estimator.instance()
+      estimator.reset()
+      updateProgressBar()
+    }
+  })
 }
 
 export async function updateProgressBar () {

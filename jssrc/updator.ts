@@ -36,12 +36,10 @@ export async function updateEstimator () {
 
     case RCCTConst.RESET:
       estimator.reset()
-      estimator.save()
       return
 
     case RCCTConst.UPDATE:
       estimator.update(epoch, instruction.dy, instruction.logType)
-      estimator.save()
   }
 }
 /// /
