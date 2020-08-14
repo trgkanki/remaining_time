@@ -2,7 +2,6 @@ import $ from 'jquery'
 
 import { Estimator } from './estimator'
 import { getRemainingReviews, t2s, getRemainingCardLoad as reviewLoad } from './utils'
-import { Base64 } from 'js-base64'
 
 import './basestyle.scss'
 
@@ -15,31 +14,21 @@ const maxAlpha = 0.7
 const againColor = '239, 103, 79' // Again
 const goodColor = '114, 166, 249' // Good/Easy
 
-// TODO: support dark mode
-const backgroundColor = 'black'
-
-function updateDOM (b64svg: string, progressBarMessage: string) {
-  let $barEl = $('#remainingTimeBar')
+function updateDOM (svgHtml: string, progressBarMessage: string) {
+  let $barEl = $('#rtContainer')
   if ($barEl.length === 0) {
     $barEl = $('<div></div>')
-    $barEl.attr('id', 'remainingTimeBar')
+    $barEl.attr('id', 'rtContainer')
+    $barEl.addClass('rt-container')
     $('body').append($barEl)
   }
 
   // TODO: port _rt_pgreset to JS space
-  $barEl.html(`${progressBarMessage} &nbsp; <a href=#resetRT onclick="pycmd('_rt_pgreset');return false;" title='Reset progress bar for this deck'>[⥻]</a>`)
-
-  let styleEl = document.getElementById('remainingTimeStylesheet')
-  if (!styleEl) {
-    styleEl = document.createElement('style')
-    styleEl.id = 'remainingTimeStylesheet'
-    document.head.appendChild(styleEl)
-  }
-  styleEl.textContent = `
-    #remainingTimeBar {
-      background: url('data:image/svg+xml;base64,${b64svg}')
-    }
-  `
+  $barEl.html(`
+    ${svgHtml}
+    <div class='rt-message'>${progressBarMessage}</div>
+    <a class='rt-reset' href=#resetRT onclick="pycmd('_rt_pgreset');return false;" title='Reset progress bar for this deck'>[⥻]</a>
+  `)
 }
 
 export async function updateProgressBar () {
@@ -72,11 +61,10 @@ export async function updateProgressBar () {
     rectX += rectW
   }
 
-  const b64svg = Base64.encode(`
-  <svg width="1" height="1" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0 0 h1 V1 h-1 Z" fill="${backgroundColor}" />
+  const svgHtml = `
+  <svg class='rt-bar' viewBox="0 0 1 1" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg">
       ${pathSVGs.join('')}
   </svg>
-  `)
-  updateDOM(b64svg, message)
+  `
+  updateDOM(svgHtml, message)
 }

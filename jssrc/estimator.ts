@@ -29,6 +29,7 @@ export class Estimator {
   elapsedTime = 0
   _startTime = 0
   _lastAnswerEase = 0
+  _lastLogEpoch = 0
   version = ESTIMATOR_SCHEMA_VERSION
 
   constructor () {
@@ -44,10 +45,15 @@ export class Estimator {
   update (epoch: number, dy: number, ease: number) {
     const logLength = this.logs.length
     const dt =
-      logLength ? epoch - this.logs[logLength - 1].epoch
+      logLength ? epoch - this._lastLogEpoch
         : epoch - this._startTime
     this.logs.push({ epoch, dt, dy, ease })
     this.elapsedTime = Date.now() / 1000 - this._startTime
+    this._lastLogEpoch = epoch
+  }
+
+  skipUpdate (epoch: number) {
+    this._lastLogEpoch = epoch
   }
 
   undoUpdate () {

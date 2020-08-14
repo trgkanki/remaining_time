@@ -25,10 +25,13 @@ interface InstUpdate {
 type EstimatorInst = InstReset | InstIgnore | InstUpdate
 
 export async function updateEstimator () {
-  const inst = await processRemainingCountDiff()
+  const instruction = await processRemainingCountDiff()
+  const epoch = new Date().getTime() / 1000
   const estimator = await Estimator.instance()
-  switch (inst.type) {
+
+  switch (instruction.type) {
     case RCCTConst.IGNORE:
+      estimator.skipUpdate(epoch)
       return
 
     case RCCTConst.RESET:
@@ -37,7 +40,7 @@ export async function updateEstimator () {
       return
 
     case RCCTConst.UPDATE:
-      estimator.update(new Date().getTime() / 1000, inst.dy, inst.ease)
+      estimator.update(epoch, instruction.dy, instruction.ease)
       estimator.save()
   }
 }
