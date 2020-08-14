@@ -7,6 +7,11 @@ exports.renderMarkdownHTML = function (repoName, markdown) {
 <head>
 <title>Changelog of ${repoName}</title>
 <style>
+html,
+body {
+  background-color: #fff;
+}
+
 .container {
   max-width: 1080px;
   margin: auto;
