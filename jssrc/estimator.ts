@@ -3,6 +3,8 @@
  */
 
 import ankiLocalStorage from './utils/ankiLocalStorage'
+import MsgPack from 'msgpack-lite'
+import base64js from 'base64-js'
 
 const cutoffDt = 300
 const historyDecay = 1 / 1.005
@@ -98,7 +100,7 @@ export class Estimator {
   save () {
     ankiLocalStorage.setItem(
       getLocalStorageKey(),
-      JSON.stringify(this)
+      base64js.fromByteArray(MsgPack.encode(this))
     )
   }
 
@@ -108,7 +110,7 @@ export class Estimator {
     const content = await ankiLocalStorage.getItem(getLocalStorageKey())
     if (!content) cache = new Estimator()
     else {
-      const obj = JSON.parse(content)
+      const obj = MsgPack.decode(base64js.toByteArray(content))
       if (obj.version === ESTIMATOR_SCHEMA_VERSION) {
         cache = Object.create(Estimator.prototype, Object.getOwnPropertyDescriptors(obj))
       } else {

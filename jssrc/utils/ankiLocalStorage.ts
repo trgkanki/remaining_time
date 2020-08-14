@@ -6,26 +6,27 @@
  */
 
 import isMobile from 'is-mobile'
+import Cookies from 'js-cookie'
 import { callPyFunc } from './pyfunc'
 
 export default {
   async setItem (key: string, data: string) {
     if (isMobile()) {
-      localStorage.setItem(key, data)
+      Cookies.set(key, data)
     } else {
       await callPyFunc('localStorageSetItem', key, data)
     }
   },
   async getItem (key: string): Promise<string | null> {
     if (isMobile()) {
-      return localStorage.getItem(key)
+      return Cookies.get(key) || null
     } else {
       return callPyFunc('localStorageGetItem', key)
     }
   },
   hasItem (key: string) {
     if (isMobile()) {
-      return localStorage.hasItem(key)
+      return Cookies.get(key) !== undefined
     } else {
       return callPyFunc('localStorageHasItem', key)
     }
