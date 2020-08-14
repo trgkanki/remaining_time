@@ -1,5 +1,3 @@
-import $ from 'jquery'
-
 import { Estimator } from './estimator'
 import { getRemainingReviews, t2s, getRemainingCardLoad as reviewLoad } from './utils'
 import * as dateFNS from 'date-fns'
@@ -12,23 +10,23 @@ const minAlpha = 0.3
 const maxAlpha = 0.7
 
 function updateDOM (svgHtml: string, progressBarMessage: string) {
-  let $barEl = $('#rtContainer')
-  if ($barEl.length === 0) {
-    $barEl = $('<div></div>')
-    $barEl.attr('id', 'rtContainer')
-    $barEl.addClass('rt-container')
-    $('body').append($barEl)
+  let barEl = document.getElementById('rtContainer')
+  if (!barEl) {
+    barEl = document.createElement('div')
+    barEl.id = 'rtContainer'
+    barEl.classList.add('rt-container')
+    document.body.append(barEl)
   }
 
-  $barEl.html(`
+  barEl.innerHTML = `
     ${svgHtml}
     <div class='rt-message'>${progressBarMessage}</div>
     <a class='rt-reset' href=# title='Reset progress bar for this deck'>[⥻]</a>
-  `)
+  `
 
-  const $resetButton = $barEl.find('.rt-reset')
-  $resetButton.unbind('click')
-  $resetButton.on('click', async () => {
+  const resetButton = barEl.querySelector('.rt-reset')
+  if (!resetButton) return
+  resetButton.addEventListener('click', async () => {
     if (confirm('Really reset?')) {
       const estimator = await Estimator.instance()
       estimator.reset()
