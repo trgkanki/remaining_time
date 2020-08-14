@@ -13,7 +13,7 @@ class ReplaceBlock:
         targetString = removeReplaceBlock(
             targetString, self.startMarker, self.endMarker
         )
-        targetString = targetString + "\n\n" + self.blockRaw
+        targetString = self.blockRaw + "\n\n" + targetString
 
         if updated and oldTargetString != targetString:
             updated[0] = True
