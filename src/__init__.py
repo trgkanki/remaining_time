@@ -3,6 +3,7 @@ from .utils import uuid  # duplicate UUID checked here
 
 from .utils.JSEval import execJSFile
 from .utils.configrw import getConfig
+from .utils.resource import updateMedia, readResource
 
 from aqt.reviewer import Reviewer
 from aqt.theme import ThemeManager
@@ -15,6 +16,14 @@ addHook("profileLoaded", registerMobileScript)
 
 
 def afterInitWeb(self):
+    # TODO: remove development code
+    # always update medial/_remainingtime.min.js on webview init
+    #
+    if getConfig("runOnMobile"):
+        updateMedia(
+            "_remainingtime.min.js", readResource("js/main.min.js").encode("utf-8")
+        )
+
     execJSFile(self.web, "js/main.min.js")
 
 
