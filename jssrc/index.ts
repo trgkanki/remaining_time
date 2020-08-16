@@ -4,7 +4,21 @@ import { updateEstimator } from './updator'
 import { updateProgressBar } from './barRender'
 
 async function main () {
-  await updateEstimator()
+  // ignore running on answer side.
+  // updateEstimator thinks the user got the question wrong if new/lrn/rev
+  // haven't changed after the last updateEstimator() call. (which can happen
+  // if you got the learning card wrong) So if updateEstimator gets called
+  // both on question side and answer side, the time you spent thinking
+  // the question will be regarded as 'wrong', polluting progress bar graphics
+  //
+  // Also, on ankidroid #qa has 'question' and 'answer' classname, but on desktop
+  // #qa has neither of them. Hence we check the absence of .answer. On desktop
+  // main() will be called on question side anyway.
+
+  const qaEl = document.getElementById('qa')
+  if (qaEl && !qaEl.classList.contains('answer')) {
+    await updateEstimator()
+  }
   await updateProgressBar()
 }
 
