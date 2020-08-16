@@ -51,16 +51,7 @@ export class Estimator {
 
   skipUpdate (epoch: number) {
     this._lastLogEpoch = epoch
-  }
-
-  undoUpdate () {
-    this.logs.pop()
-    this.elapsedTime = Date.now() / 1000 - this._startTime
-  }
-
-  updateLastEntryType (logType: number) {
-    if (!this.logs.length) return
-    this._lastAnswerType = logType
+    this.save()
   }
 
   getSlope () {
@@ -91,6 +82,8 @@ export class Estimator {
   }
 
   save () {
+    console.log('estimator::save called')
+
     // serialize
     const s = []
     s.push(ESTIMATOR_SCHEMA_VERSION)
