@@ -26,7 +26,6 @@ async function main () {
   const windowAny = window as any
   if (!windowAny.__rtt_initialized) {
     windowAny.__rtt_initialized = true
-    windowAny.__rtt_run = main
 
     // AnkiDroid: to main() for each card review, we hook onPageFinished function
     if (windowAny.onPageFinished) {
