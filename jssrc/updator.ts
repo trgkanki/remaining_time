@@ -40,8 +40,6 @@ export async function updateEstimator () {
   lastEpoch = epoch
   if (isInitializing) return
 
-  console.log('inst', instruction)
-
   switch (instruction.instType) {
     case RCCTConst.IGNORE:
       estimator.skipUpdate(epoch)
@@ -59,10 +57,8 @@ export async function updateEstimator () {
 
 async function processRemainingCountDiff (): Promise<EstimatorInst> {
   const currentRemainingCards = await getRemainingReviews()
-  console.log('crc', currentRemainingCards)
   try {
     const prevRemainingCards = await getRCC()
-    console.log('prc', prevRemainingCards)
     if (!prevRemainingCards) return { instType: RCCTConst.RESET }
     const previousReviewLoad = getRemainingCardLoad(prevRemainingCards)
     const nextReviewLoad = getRemainingCardLoad(currentRemainingCards)

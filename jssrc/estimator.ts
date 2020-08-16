@@ -82,8 +82,6 @@ export class Estimator {
   }
 
   save () {
-    console.log('estimator::save called')
-
     // serialize
     const s = []
     s.push(ESTIMATOR_SCHEMA_VERSION)
@@ -127,7 +125,6 @@ export class Estimator {
           cursor += 4
         }
         if (!cursor === s.length) {
-          console.log(s, cursor, obj)
           throw new Error('Length mismatch - RTT')
         }
         cache = obj
