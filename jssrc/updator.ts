@@ -1,6 +1,7 @@
 import { Estimator } from './estimator'
 import { RemainingCardCounts, getRemainingCardLoad, getRemainingReviews } from './utils'
 import ankiLocalStorage from './utils/ankiLocalStorage'
+import { onSameReviewSession } from './isDoingReview'
 
 enum RCCTConst {
   RESET,
@@ -19,7 +20,7 @@ interface InstIgnore {
 interface InstUpdate {
   instType: RCCTConst.UPDATE;
   dy: number;
-  logType: 'new' | 'good' | 'again';
+  logType: 'new' | 'good' | 'again' | 'unknown';
 }
 
 type EstimatorInst = InstReset | InstIgnore | InstUpdate
@@ -94,6 +95,16 @@ async function processRemainingCountDiff (): Promise<EstimatorInst> {
     ) {
       if (lrn0 === lrn1) return { instType: RCCTConst.UPDATE, dy, logType: 'good' }
       else return { instType: RCCTConst.UPDATE, dy, logType: 'again' }
+    }
+
+    // maybe undo?
+    if (
+      nu0 <= nu1 &&
+      rev0 <= rev1
+    ) {
+      if (await onSameReviewSession()) {
+        return { instType: RCCTConst.UPDATE, dy, logType: 'unknown' }
+      }
     }
 
     // Reset otherwise
