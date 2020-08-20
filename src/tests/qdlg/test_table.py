@@ -24,7 +24,7 @@ def qDlgClass():
             with Td():
                 Text("Password")
             with Td():
-                password = LineEdit().setPasswordInput(True)
+                password = LineEdit().passwordInput()
 
         with Tr():
             with Td(colspan=2):

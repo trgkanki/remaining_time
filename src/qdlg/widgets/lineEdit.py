@@ -17,7 +17,7 @@ class LineEdit:
             self.edit.setText(newText)
             return self
 
-    def setPasswordInput(self, enabled: bool):
+    def passwordInput(self, enabled=True):
         if enabled:
             self.edit.setEchoMode(QLineEdit.Password)
         else:
