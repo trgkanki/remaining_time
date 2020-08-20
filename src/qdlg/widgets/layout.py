@@ -1,5 +1,6 @@
 from ..stack import qDlgStackTop
 from ..container import QDlgContainer
+from ..utils import addLayoutOrWidget
 
 from PyQt5.Qt import QVBoxLayout, QHBoxLayout
 
@@ -11,7 +12,7 @@ class LayoutBase(QDlgContainer):
         qDlgStackTop().addChild(self.layout)
 
     def addChild(self, child):
-        self.layout.addWidget(child)
+        return addLayoutOrWidget(self.layout, child)
 
 
 class VStack(LayoutBase):

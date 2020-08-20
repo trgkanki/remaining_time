@@ -1,6 +1,7 @@
 from PyQt5.Qt import QDialog, QVBoxLayout, Qt
 
 from .stack import pushQDlgStack, popQDlgStack
+from .utils import addLayoutOrWidget
 
 
 class QDlgWithCallback(QDialog):
@@ -50,6 +51,6 @@ def QDlg(title, size=None):
             dlg.exec_()
 
         def addChild(self, child):
-            self.layout.addWidget(child)
+            addLayoutOrWidget(self.layout, child)
 
     return _QDlg
