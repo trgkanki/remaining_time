@@ -12,3 +12,6 @@ class Button:
     def onClick(self, callback):
         self.button.clicked.connect(callback)
         return self
+
+    def setDefault(self, enabled=True):
+        self.button.setDefault(enabled)
