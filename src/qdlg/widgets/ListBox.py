@@ -4,13 +4,14 @@ from ..container import QDlgContainer
 from ..observable import isObservable
 from ..observable.list import ObservableList
 from ..modelHandler import configureModel
+from .Style import StylableWidget
 
 from PyQt5.Qt import QListWidget, QListWidgetItem, Qt
 
 from typing import Union, List, Any
 
 
-class ListBox:
+class ListBox(StylableWidget):
     def __init__(
         self,
         data: Union[list, ObservableList],
@@ -18,35 +19,36 @@ class ListBox:
         renderer=lambda x: x,
         multiselect=False
     ):
-        self.listBox = QListWidget()
+        super().__init__()
+        self.widget = QListWidget()
         self._data = data
         self._multiselect = multiselect
         self._renderer = renderer
 
         if multiselect:
-            self.listBox.setSelectionMode(QListWidget.ExtendedSelection)
+            self.widget.setSelectionMode(QListWidget.ExtendedSelection)
 
         if isObservable(data):
             data._registerItemObserver(self._refillData)
 
         self._refillData()
-        qDlgStackTop().addChild(self.listBox)
+        qDlgStackTop().addChild(self.widget)
 
     def _refillData(self):
-        listBox = self.listBox
+        widget = self.widget
 
-        listBox.clear()
+        widget.clear()
         for d in self._data:
             item = QListWidgetItem()
             item.setText(self._renderer(d))
             item.setData(Qt.UserRole, d)
-            listBox.addItem(item)
+            widget.addItem(item)
 
     def select(self, newValues=None):
-        listBox = self.listBox
+        widget = self.widget
 
         if newValues is None:
-            selItems = listBox.selectedItems()
+            selItems = widget.selectedItems()
             if not selItems:
                 return None
 
@@ -59,8 +61,8 @@ class ListBox:
             if not self._multiselect:
                 newValues = [newValues]
 
-            for index in range(listBox.count()):
-                item = listBox.item(index)
+            for index in range(widget.count()):
+                item = widget.item(index)
                 if item.data(Qt.UserRole) in newValues:
                     item.setSelected(True)
                 else:
@@ -72,7 +74,7 @@ class ListBox:
         def _():
             callback(self.select())
 
-        self.listBox.itemSelectionChanged.connect(_)
+        self.widget.itemSelectionChanged.connect(_)
         return self
 
     def model(self, obj, *, attr=None, index=None):

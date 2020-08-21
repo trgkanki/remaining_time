@@ -1,5 +1,6 @@
 from .layout import VStack, HStack  # NOQA\
 
+from .Style import Style  # NOQA
 from .Text import Text  # NOQA
 from .Button import Button  # NOQA
 from .LineEdit import LineEdit  # NOQA

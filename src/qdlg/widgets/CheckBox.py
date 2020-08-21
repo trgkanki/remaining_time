@@ -1,23 +1,24 @@
 from ..stack import qDlgStackTop
 from ..utils import continuationHelper
 from ..modelHandler import configureModel
+from .Style import StylableWidget
 
 from PyQt5.Qt import QCheckBox
 
 
-class CheckBox:
+class CheckBox(StylableWidget):
     def __init__(self, initialEnabled=False):
-        self.checkBox = QCheckBox()
-        self.checkBox.setChecked(initialEnabled)
-        qDlgStackTop().addChild(self.checkBox)
+        super().__init__()
+        self.widget = QCheckBox()
+        self.widget.setChecked(initialEnabled)
+        qDlgStackTop().addChild(self.widget)
 
     def onChange(self, callback):
-        self.checkBox.toggled.connect(callback)
+        self.widget.toggled.connect(callback)
         return self
 
     checked = continuationHelper(
-        lambda self: self.checkBox.isChecked(),
-        lambda self, v: self.checkBox.setChecked(v),
+        lambda self: self.widget.isChecked(), lambda self, v: self.widget.setChecked(v),
     )
 
     def model(self, obj, *, attr=None, index=None):
