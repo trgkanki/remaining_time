@@ -4,6 +4,7 @@ of the addon!
 """
 
 import os
+from aqt import mw
 
 
 def getResourcePath(filename):
