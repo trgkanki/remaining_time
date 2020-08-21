@@ -40,7 +40,11 @@ class ObservableList(list):
     clear = _forwardMethod("clear", True)
 
     def __setitem__(self, index, item):
-        self._data[index] = observable(item)
+        if isinstance(index, slice):
+            item = [observable(d) for d in item]
+        else:
+            item = observable(item)
+        self._data[index] = item
         self.notify()
 
     def append(self, item):
