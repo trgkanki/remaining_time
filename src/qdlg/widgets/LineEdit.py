@@ -36,5 +36,5 @@ class LineEdit:
         self.edit.editingFinished.connect(lambda: callback(self.text()))
         return self
 
-    def model(self, obj, attrName):
-        configureModel(obj, attrName, self.onInput, self.text)
+    def model(self, obj, *, attr=None, index=None):
+        configureModel(obj, self.onInput, self.text, attr=attr, index=index)

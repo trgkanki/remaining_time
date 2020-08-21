@@ -34,9 +34,9 @@ class RadioButton:
         lambda self, v: self.radioBox.setChecked(v),
     )
 
-    def model(self, obj, attrName):
+    def model(self, obj, attr=None, index=None):
         def setter(value):
             if value == self.value:
                 self.checked(True)
 
-        configureModel(obj, attrName, self.onSelect, setter)
+        configureModel(obj, self.onSelect, setter, attr=attr, index=index)

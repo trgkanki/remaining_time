@@ -20,5 +20,5 @@ class CheckBox:
         lambda self, v: self.checkBox.setChecked(v),
     )
 
-    def model(self, obj, attrName):
-        configureModel(obj, attrName, self.onChange, self.checked)
+    def model(self, obj, *, attr=None, index=None):
+        configureModel(obj, self.onChange, self.checked, attr=attr, index=index)
