@@ -9,12 +9,10 @@ from qdlgproxy import (  # type: ignore
     Table,
     Tr,
     Td,
-    QObservable,
 )
 from PyQt5.Qt import QApplication
 
 
-@QObservable
 class TestClass:
     def __init__(self):
         self.checked1 = False
@@ -22,7 +20,6 @@ class TestClass:
 
 @QDlg("Table test")
 def qDlgClass():
-    obj = TestClass()
     with Table():
         with Tr():
             with Td():
@@ -40,9 +37,7 @@ def qDlgClass():
             with Td(colspan=2):
                 with HStack():
                     Text("Remember me?")
-                    CheckBox().model(obj, "checked1")
-                    CheckBox().model(obj, "checked1")
-                    CheckBox().model(obj, "checked1")
+                    CheckBox()
 
         with Tr():
             with Td(colspan=2):

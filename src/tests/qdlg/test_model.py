@@ -9,12 +9,11 @@ from qdlgproxy import (  # type: ignore
     Table,
     Tr,
     Td,
-    QObservable,
+    observable,
 )
 from PyQt5.Qt import QApplication
 
 
-@QObservable
 class TestClass:
     def __init__(self):
         self.check1 = False
@@ -27,7 +26,7 @@ class TestClass:
 
 @QDlg("Table test")
 def qDlgClass():
-    obj = TestClass()
+    obj = observable(TestClass())
 
     with Table():
         with Tr():
