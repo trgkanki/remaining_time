@@ -4,22 +4,6 @@ from .stack import pushQDlgStack, popQDlgStack
 from .utils import addLayoutOrWidget
 
 
-class QDlgWithCallback(QDialog):
-    def __init__(self, onClose):
-        self.onClose = onClose
-        super().__init__()
-
-    def accept(self):
-        super().accept(self)
-        if self.onClose:
-            self.onClose(True)
-
-    def reject(self):
-        super().reject()
-        if self.onClose:
-            self.onClose(False)
-
-
 def QDlg(title, size=None):
     class _QDlg:
         def __init__(self, constructor):
@@ -48,7 +32,7 @@ def QDlg(title, size=None):
             if size:
                 dlg.resize(size[0], size[1])
             dlg.show()
-            dlg.exec_()
+            return dlg.exec_() == QDialog.Accepted
 
         def addChild(self, child):
             addLayoutOrWidget(self.layout, child)
