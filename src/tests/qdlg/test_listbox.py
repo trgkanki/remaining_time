@@ -1,21 +1,21 @@
 import sys
-from qdlgproxy import (  # type: ignore
-    QDlg,
-    ListBox,
-)
+from qdlgproxy import QDlg, ListBox, observable
 from PyQt5.Qt import QApplication
 
 
 class TestClass:
     def __init__(self):
-        self.checked1 = False
+        self.selectedList = [3]
 
 
 @QDlg("ListBox test")
 def qDlgClass():
-    s = [1, 2, 3]
-    l = ListBox(s, renderer=lambda item: "item %d" % item).onSelect(print)
-    l.select(3)
+    t = observable(TestClass())
+    s = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    ListBox(s, renderer=lambda item: "item %d" % item, multiselect=True).model(
+        t, attr="selectedList"
+    ).onSelect(print)
+    ListBox(t.selectedList, renderer=lambda item: "item %d" % item)
 
 
 app = QApplication(sys.argv)
