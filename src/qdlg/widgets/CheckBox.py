@@ -1,4 +1,5 @@
 from ..stack import qDlgStackTop
+from ..utils import continuationHelper
 from ..modelHandler import configureModel
 
 from PyQt5.Qt import QCheckBox
@@ -14,12 +15,10 @@ class CheckBox:
         self.checkBox.toggled.connect(callback)
         return self
 
-    def checked(self, newValue=None):
-        if newValue is None:
-            return self.checkBox.isChecked()
-        else:
-            self.checkBox.setChecked(newValue)
-            return self
+    checked = continuationHelper(
+        lambda self: self.checkBox.isChecked(),
+        lambda self, v: self.checkBox.setChecked(v),
+    )
 
     def model(self, obj, attrName):
         configureModel(obj, attrName, self.onChange, self.checked)

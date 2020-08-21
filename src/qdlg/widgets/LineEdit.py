@@ -1,4 +1,5 @@
 from ..stack import qDlgStackTop
+from ..utils import continuationHelper
 from ..modelHandler import configureModel
 
 from PyQt5.Qt import QLineEdit
@@ -11,12 +12,14 @@ class LineEdit:
             self.edit.setText(initialText)
         qDlgStackTop().addChild(self.edit)
 
-    def text(self, newText=None):
-        if newText is None:
-            return self.edit.text()
-        else:
-            self.edit.setText(newText)
-            return self
+    placeholderText = continuationHelper(
+        lambda self: self.edit.placeholderText(),
+        lambda self, v: self.edit.setPlaceholderText(v),
+    )
+
+    text = continuationHelper(
+        lambda self: self.edit.text(), lambda self, v: self.edit.setText(v)
+    )
 
     def passwordInput(self, enabled=True):
         if enabled:

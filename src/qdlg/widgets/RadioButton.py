@@ -1,4 +1,5 @@
 from ..stack import qDlgStackTop
+from ..utils import continuationHelper
 from ..modelHandler import configureModel
 
 from PyQt5.Qt import QRadioButton
@@ -28,12 +29,10 @@ class RadioButton:
         self.radioBox.toggled.connect(_)
         return self
 
-    def checked(self, newValue=None):
-        if newValue is None:
-            return self.radioBox.isChecked()
-        else:
-            self.radioBox.setChecked(newValue)
-            return self
+    checked = continuationHelper(
+        lambda self: self.radioBox.isChecked(),
+        lambda self, v: self.radioBox.setChecked(v),
+    )
 
     def model(self, obj, attrName):
         def setter(value):
