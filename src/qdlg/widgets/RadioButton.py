@@ -1,4 +1,5 @@
 from ..stack import qDlgStackTop
+from ..modelHandler import configureModel
 
 from PyQt5.Qt import QRadioButton
 
@@ -8,7 +9,11 @@ class RadioButton:
         self.radioBox = QRadioButton(title)
         self.radioBox.setChecked(initialEnabled)
         self.title = title
-        self.value = value
+
+        if value is None:
+            self.value = title
+        else:
+            self.value = value
         qDlgStackTop().addChild(self.radioBox)
 
     def onChange(self, callback):
@@ -18,10 +23,7 @@ class RadioButton:
     def onSelect(self, callback):
         def _(selected):
             if selected:
-                if self.value is None:
-                    callback(self.title)
-                else:
-                    callback(self.value)
+                callback(self.value)
 
         self.radioBox.toggled.connect(_)
         return self
@@ -32,3 +34,10 @@ class RadioButton:
         else:
             self.radioBox.setChecked(newValue)
             return self
+
+    def model(self, obj, attrName):
+        def setter(value):
+            if value == self.value:
+                self.checked(True)
+
+        configureModel(obj, attrName, self.onSelect, setter)

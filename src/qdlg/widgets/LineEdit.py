@@ -1,4 +1,5 @@
 from ..stack import qDlgStackTop
+from ..modelHandler import configureModel
 
 from PyQt5.Qt import QLineEdit
 
@@ -31,3 +32,6 @@ class LineEdit:
     def onChange(self, callback):
         self.edit.editingFinished.connect(lambda: callback(self.text()))
         return self
+
+    def model(self, obj, attrName):
+        configureModel(obj, attrName, self.onInput, self.text)

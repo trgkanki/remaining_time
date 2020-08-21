@@ -1,4 +1,5 @@
 from ..stack import qDlgStackTop
+from ..modelHandler import configureModel
 
 from PyQt5.Qt import QCheckBox
 
@@ -19,3 +20,6 @@ class CheckBox:
         else:
             self.checkBox.setChecked(newValue)
             return self
+
+    def model(self, obj, attrName):
+        configureModel(obj, attrName, self.onChange, self.checked)
