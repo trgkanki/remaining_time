@@ -1,6 +1,6 @@
 from PyQt5.Qt import QDialog, QVBoxLayout, Qt
 
-from .stack import pushQDlgStack, popQDlgStack
+from .stack import pushQDlgStack, popQDlgStack, qDlgStackGetDialog
 from .utils import addLayoutOrWidget
 
 
@@ -25,7 +25,7 @@ def QDlg(title, size=None):
             dlg.setLayout(layout)
 
             pushQDlgStack(self)
-            self.constructor(*args, **kwargs)
+            self.constructor(dlg, *args, **kwargs)
             popQDlgStack(self)
 
             dlg.setWindowModality(Qt.WindowModal)

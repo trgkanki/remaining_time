@@ -22,3 +22,7 @@ def popQDlgStack(el):
 
 def qDlgStackTop():
     return getQDlgStack()[-1]
+
+
+def qDlgStackGetDialog():
+    return getQDlgStack()[0]

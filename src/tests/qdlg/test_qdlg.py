@@ -4,7 +4,7 @@ from PyQt5.Qt import QApplication, QMessageBox
 
 
 @QDlg("Test dialog", size=[640, 480])
-def qDlgClass():
+def qDlgClass(dlg):
     Text("Hello world!")
 
     def onClick():

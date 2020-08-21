@@ -12,7 +12,7 @@ from PyQt5.Qt import QApplication
 
 
 @QDlg("Table test")
-def qDlgClass():
+def qDlgClass(dlg):
     with Table():
         with Tr():
             with Td():

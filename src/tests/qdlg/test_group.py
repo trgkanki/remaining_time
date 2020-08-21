@@ -13,7 +13,7 @@ from PyQt5.Qt import QApplication
 
 
 @QDlg("Table test")
-def qDlgClass():
+def qDlgClass(dlg):
     with Group("Login box"):
         with Table():
             with Tr():

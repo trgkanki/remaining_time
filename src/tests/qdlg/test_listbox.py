@@ -9,7 +9,7 @@ class TestClass:
 
 
 @QDlg("ListBox test")
-def qDlgClass():
+def qDlgClass(dlg):
     t = observable(TestClass())
     s = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     ListBox(s, renderer=lambda item: "item %d" % item, multiselect=True).model(

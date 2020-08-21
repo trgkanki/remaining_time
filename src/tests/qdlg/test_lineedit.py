@@ -4,7 +4,7 @@ from PyQt5.Qt import QApplication
 
 
 @QDlg("LineEdit test dialog", size=[640, 480])
-def qDlgClass():
+def qDlgClass(dlg):
     Text("Hello world!")
     LineEdit().onInput(lambda s: print("onInput", s)).onChange(
         lambda s: print("onChange", s)

@@ -7,7 +7,7 @@ from PyQt5.Qt import QApplication
 
 
 @QDlg("Table test")
-def qDlgClass():
+def qDlgClass(dlg):
     def onSelect(v):
         print("%s selected" % v)
 

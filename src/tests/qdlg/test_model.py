@@ -29,7 +29,7 @@ class TestClass:
 
 
 @QDlg("Table test")
-def qDlgClass():
+def qDlgClass(dlg):
     obj = observable(TestClass())
 
     with Group("orig"):
