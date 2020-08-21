@@ -12,7 +12,8 @@ class LayoutBase(QDlgContainer):
         qDlgStackTop().addChild(self.layout)
 
     def addChild(self, child):
-        return addLayoutOrWidget(self.layout, child)
+        addLayoutOrWidget(self.layout, child)
+        return self
 
 
 class VStack(LayoutBase):

@@ -13,4 +13,5 @@ class Group(QDlgContainer):
         qDlgStackTop().addChild(self.groupBox)
 
     def addChild(self, child):
-        return addLayoutOrWidget(self.layout, child)
+        addLayoutOrWidget(self.layout, child)
+        return self

@@ -15,3 +15,4 @@ class Button:
 
     def setDefault(self, enabled=True):
         self.button.setDefault(enabled)
+        return self

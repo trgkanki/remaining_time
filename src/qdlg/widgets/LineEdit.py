@@ -38,3 +38,4 @@ class LineEdit:
 
     def model(self, obj, *, attr=None, index=None):
         configureModel(obj, self.onInput, self.text, attr=attr, index=index)
+        return self

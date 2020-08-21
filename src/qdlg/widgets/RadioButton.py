@@ -40,3 +40,4 @@ class RadioButton:
                 self.checked(True)
 
         configureModel(obj, self.onSelect, setter, attr=attr, index=index)
+        return self

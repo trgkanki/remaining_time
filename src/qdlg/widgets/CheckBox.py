@@ -22,3 +22,4 @@ class CheckBox:
 
     def model(self, obj, *, attr=None, index=None):
         configureModel(obj, self.onChange, self.checked, attr=attr, index=index)
+        return self
