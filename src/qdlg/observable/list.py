@@ -28,7 +28,12 @@ class ObservableList(list):
     # Read-only methods
     __str__ = _forwardMethod("__str__", False)
     __repr__ = _forwardMethod("__repr__", False)
-    __nonzero__ = _forwardMethod("__nonzero__", False)
+    __len__ = _forwardMethod("__len__", False)
+
+    # TODO: below somehow doesn't work. need to know why
+    # __iter___ = _forwardMethod("__iter___", False)
+    def __iter__(self):
+        return iter(self._data)
 
     __getitem__ = _forwardMethod("__getitem__", False)
     index = _forwardMethod("index", False)
