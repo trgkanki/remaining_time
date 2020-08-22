@@ -1,4 +1,4 @@
-from qdlgproxy import observable
+from .obsproxy import observable
 from nose.tools import with_setup, assert_equal
 
 
