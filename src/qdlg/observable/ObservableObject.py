@@ -34,18 +34,15 @@ class ObservableObject(ObservableBase):
         self._obj = obj
         self.observableAssign(obj)
 
-    __str__ = _forwardMethod("__str__", False)
-    __repr__ = _forwardMethod("__repr__", False)
-    __hash__ = _forwardMethod("__hash__", False)
-
     ##
+    __hash__ = _forwardMethod("__hash__", False)
 
     def __getattr__(self, name):
         ret = getattr(self._obj, name)
         if inspect.ismethod(ret):
             # TODO: a proper implementation?
             # How can we make the changes in method be notified?
-            raise NotImplementedError
+            return bind(self, getattr(type(self._obj), name))
         else:
             return ret
 
