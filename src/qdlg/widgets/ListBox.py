@@ -30,12 +30,27 @@ class ListBox(StylableWidget):
     def _refillData(self):
         widget = self.widget
 
+        widget.blockSignals(True)
+
+        oldSelect = self.select()
+        if oldSelect is None:
+            oldSelect = []
+        elif not self._multiselect:
+            oldSelect = [oldSelect]
+
         widget.clear()
         for d in self._data:
             item = QListWidgetItem()
             item.setText(self._renderer(d))
             item.setData(Qt.UserRole, d)
             widget.addItem(item)
+            if d in oldSelect:
+                item.setSelected(True)
+
+        widget.blockSignals(False)
+
+        if len(widget.selectedItems()) != len(oldSelect):
+            self.widget.itemSelectionChanged.emit()
 
     def select(self, newValues=None):
         widget = self.widget
@@ -43,7 +58,10 @@ class ListBox(StylableWidget):
         if newValues is None:
             selItems = widget.selectedItems()
             if not selItems:
-                return None
+                if self._multiselect:
+                    return []
+                else:
+                    return None
 
             if self._multiselect:
                 return [selItem.data(Qt.UserRole) for selItem in selItems]
