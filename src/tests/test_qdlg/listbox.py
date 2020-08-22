@@ -64,7 +64,7 @@ def qDlgClass(dlg):
     ListBox(s, renderer=lambda item: "item %d" % item).multiselect().model(
         t, attr="selectedList"
     ).onSelect(print)
-    ListBox(t.selectedList, renderer=lambda item: "item %d" % item)
+    ListBox(t.selectedList, renderer=lambda item: "item %d" % item).sorted()
 
 
 if __name__ == "__main__":

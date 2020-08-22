@@ -18,6 +18,7 @@ class ListBox(StylableWidget):
         self._renderer = renderer
 
         self._multiselect = False
+        self._sorted = False
 
         if isObservable(data):
             data.registerObserver(self._refillData)
@@ -52,6 +53,9 @@ class ListBox(StylableWidget):
             widget.addItem(item)
             if d in oldSelect:
                 item.setSelected(True)
+
+        if self._sorted:
+            widget.sortItems()
 
         widget.scrollToTop()
         topIndex = widget.indexAt(QPoint(4, 4))
@@ -125,3 +129,7 @@ class ListBox(StylableWidget):
         self.widget.setSelectionMode(enabled)
         self._multiselect = enabled != QListWidget.SingleSelection
         return self
+
+    def sorted(self, enabled=True):
+        self._sorted = enabled
+        self._refillData()
