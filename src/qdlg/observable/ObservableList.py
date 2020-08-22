@@ -8,7 +8,7 @@ class ObservableList(ObservableBase):
 
     def __init__(self, data, *, parent):
         super().__init__(parent)
-        self._data = [makeObservable(d, parent=self) for d in data]
+        self._obj = [makeObservable(d, parent=self) for d in data]
 
     # Read-only methods
     __str__ = _forwardMethod("__str__", False)
@@ -26,31 +26,31 @@ class ObservableList(ObservableBase):
         if isinstance(index, slice):
             items = [makeObservable(d, parent=self) for d in item]
             try:
-                targets = self._data[index]
+                targets = self._obj[index]
                 for t, i in zip(targets, items):
                     t.observableAssign(i)
             except AttributeError:
-                self._data[index] = items
+                self._obj[index] = items
 
         else:
             item = makeObservable(item, parent=self)
             try:
-                self._data[index].observableAssign(item)
+                self._obj[index].observableAssign(item)
             except AttributeError:
-                self._data[index] = item
+                self._obj[index] = item
 
         self.notify()
 
     def append(self, item):
-        self._data.append(makeObservable(item, parent=self))
+        self._obj.append(makeObservable(item, parent=self))
         self.notify()
 
     def extend(self, iterable):
-        self._data.extend(makeObservable(d, parent=self) for d in iterable)
+        self._obj.extend(makeObservable(d, parent=self) for d in iterable)
         self.notify()
 
     def insert(self, index, item):
-        self._data.insert(index, makeObservable(item, parent=self))
+        self._obj.insert(index, makeObservable(item, parent=self))
         self.notify()
 
     def observableAssign(self, obj):

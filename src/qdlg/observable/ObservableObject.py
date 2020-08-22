@@ -1,4 +1,4 @@
-from .utils import bind
+from .utils import bind, _forwardMethod
 from .ObservableBase import ObservableBase
 from .makeObservable import makeObservable
 import inspect
@@ -34,8 +34,9 @@ class ObservableObject(ObservableBase):
         self._obj = obj
         self.observableAssign(obj)
 
-    def __hash__(self):
-        return hash(self._obj)
+    __str__ = _forwardMethod("__str__", False)
+    __repr__ = _forwardMethod("__repr__", False)
+    __hash__ = _forwardMethod("__hash__", False)
 
     ##
 

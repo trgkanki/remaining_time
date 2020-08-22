@@ -7,6 +7,12 @@ class TestClass:
         self.attr1 = 1
         self.attr2 = 2
 
+    def __str__(self):
+        return "str_0"
+
+    def __repr__(self):
+        return "repr_0"
+
 
 class TestClass2:
     def __init__(self, p=None):
@@ -58,3 +64,9 @@ def test_no_shared_observable():
     a = observable(TestClass2())
     with assert_raises(AssertionError):
         observable(TestClass2(a.t))
+
+
+def test_str_repr():
+    a = observable(TestClass())
+    assert str(a) == "str_0"
+    assert repr(a) == "repr_0"
