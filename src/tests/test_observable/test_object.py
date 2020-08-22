@@ -1,4 +1,5 @@
 from qdlgproxy import observable
+from nose.tools import assert_raises
 
 
 class TestClass:
@@ -8,8 +9,11 @@ class TestClass:
 
 
 class TestClass2:
-    def __init__(self):
-        self.t = TestClass()
+    def __init__(self, p=None):
+        if p is None:
+            self.t = TestClass()
+        else:
+            self.t = p
 
 
 notified = set()
@@ -48,3 +52,9 @@ def test_nested_object_notification():
     assert notified == {a, a.t}
     assert a.t.attr1 == 2  # properly changed?
     assert oldAT == a.t
+
+
+def test_no_shared_observable():
+    a = observable(TestClass2())
+    with assert_raises(AssertionError):
+        observable(TestClass2(a.t))

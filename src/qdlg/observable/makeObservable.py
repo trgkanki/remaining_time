@@ -17,7 +17,8 @@ def makeObservable(obj, *, parent):
             "Object %s of type %s is not yet be made observable." % (obj, type(obj))
         )
 
-    if isObservable(obj):
+    if isinstance(obj, ObservableBase):
+        assert obj._parent is parent
         return obj
 
     if isImmutable(obj):
