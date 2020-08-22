@@ -35,5 +35,6 @@ def qDlgClass(dlg):
                 )
 
 
-app = QApplication(sys.argv)
-qDlgClass.run()
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    qDlgClass.run()

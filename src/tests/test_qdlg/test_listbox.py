@@ -18,5 +18,6 @@ def qDlgClass(dlg):
     ListBox(t.selectedList, renderer=lambda item: "item %d" % item)
 
 
-app = QApplication(sys.argv)
-qDlgClass.run()
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    qDlgClass.run()

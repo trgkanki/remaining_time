@@ -12,6 +12,7 @@ def qDlgClass(dlg):
     Button("Cancel").onClick(dlg.reject)
 
 
-app = QApplication(sys.argv)
-print(qDlgClass.run())
-print(qDlgClass.run())
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    print(qDlgClass.run())
+    print(qDlgClass.run())

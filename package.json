@@ -4,7 +4,9 @@
   "description": "template for trgkanki's addon",
   "scripts": {
     "build": "",
-    "dist": "npm run build && node packager"
+    "dist": "npm run build && node packager",
+    "test": "npm-run-all test:py",
+    "test:py": "nosetests src/tests"
   },
   "keywords": [
     "anki",

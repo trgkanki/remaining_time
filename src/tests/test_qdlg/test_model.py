@@ -106,5 +106,6 @@ def qDlgClass(dlg):
                     Button("Dump").onClick(lambda: print(str(obj)))
 
 
-app = QApplication(sys.argv)
-qDlgClass.run()
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    qDlgClass.run()
