@@ -5,7 +5,7 @@ from ..observable import isObservable
 from ..modelHandler import configureModel
 from .Style import StylableWidget
 
-from PyQt5.Qt import QListWidget, QListWidgetItem, Qt
+from PyQt5.Qt import QListWidget, QListWidgetItem, Qt, QPoint, QAbstractItemView
 
 from typing import Union, List, Any
 
@@ -30,7 +30,15 @@ class ListBox(StylableWidget):
     def _refillData(self):
         widget = self.widget
 
-        widget.blockSignals(True)
+        oldBlockSignals = widget.blockSignals(True)
+        oldAutoScroll = widget.hasAutoScroll()
+        widget.setAutoScroll(False)
+
+        # Scroll preserving code. From
+        # https://stackoverflow.com/questions/34237006/qlistview-how-to-automatically-scroll-the-view-and-keep-current-selection-on-co
+        vScrollBar = widget.verticalScrollBar()
+        previousViewTopRow = widget.indexAt(QPoint(4, 4)).row()
+        hasScrolledToBottom = vScrollBar.value() == vScrollBar.maximum()
 
         oldSelect = self.select()
         if oldSelect is None:
@@ -47,8 +55,24 @@ class ListBox(StylableWidget):
             if d in oldSelect:
                 item.setSelected(True)
 
-        widget.blockSignals(False)
+        widget.scrollToTop()
+        topIndex = widget.indexAt(QPoint(4, 4))
+        widget.setAutoScroll(
+            oldAutoScroll
+        )  # Re-enable autoscroll before scrolling to appropriate position
+        if hasScrolledToBottom:
+            widget.scrollToBottom()
+        else:
+            widget.scrollTo(
+                topIndex.sibling(previousViewTopRow, 0), QAbstractItemView.PositionAtTop
+            )
 
+        widget.blockSignals(oldBlockSignals)
+
+        # Actually we should check that same set of items were selected before & after the change,
+        # but widget only selects less when underlying data changes, so no more data could be
+        # selected any other than oldSelect. So it's sufficient to only check the length to
+        # see if two list are same irrespective of orderings.
         if len(widget.selectedItems()) != len(oldSelect):
             self.widget.itemSelectionChanged.emit()
 
