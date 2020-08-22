@@ -9,7 +9,6 @@ def bind(instance, func, as_name=None):
     if as_name is None:
         as_name = func.__name__
     bound_method = func.__get__(instance, instance.__class__)
-    setattr(instance, as_name, bound_method)
     return bound_method
 
 

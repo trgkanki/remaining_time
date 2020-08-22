@@ -1,5 +1,6 @@
 from .obsproxy import observable
-from nose.tools import assert_raises
+from nose.tools import assert_raises, assert_equal
+import sys
 
 
 class TestClass:
@@ -12,6 +13,12 @@ class TestClass:
 
     def __repr__(self):
         return "repr_0"
+
+    def attrsum(self):
+        return self.attr1 + self.attr2
+
+    def mod(self):
+        self.attr1 = 3
 
 
 class TestClass2:
@@ -70,3 +77,14 @@ def test_str_repr():
     a = observable(TestClass())
     assert str(a) == "observable(str_0)"
     assert repr(a) == "observable(repr_0)"
+
+
+def test_obj_method_const():
+    a = observable(TestClass())
+    a.registerObserver(notifyLogger(a))
+    notified.clear()
+    assert_equal(a.attrsum(), 3)
+    assert len(notified) == 0
+    a.mod()
+    assert len(notified) == 1
+    assert_equal(a.attrsum(), 5)

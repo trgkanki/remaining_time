@@ -42,7 +42,7 @@ class ObservableObject(ObservableBase):
         if inspect.ismethod(ret):
             # TODO: a proper implementation?
             # How can we make the changes in method be notified?
-            raise NotImplementedError
+            return bind(self, getattr(type(self._obj), name))
         else:
             return ret
 
