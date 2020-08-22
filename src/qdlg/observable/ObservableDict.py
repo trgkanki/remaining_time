@@ -8,7 +8,7 @@ class ObservableDict(ObservableBase):
 
     def __init__(self, obj, *, parent):
         super().__init__(parent)
-        self.observableAssign(obj)
+        self.observableAssign(obj, notify=False)
 
     # Read-only methods
     __len__ = _forwardMethod("__len__", False)
@@ -29,8 +29,7 @@ class ObservableDict(ObservableBase):
         except (AttributeError, KeyError):
             item = makeObservable(item, parent=self)
             self._obj[key] = item
-
-        self.notify()
+            self.notify()
 
     def update(self, d):
         self._obj.update({k: makeObservable(v, parent=self) for k, v in d.items()})
@@ -38,9 +37,10 @@ class ObservableDict(ObservableBase):
 
     #######
 
-    def observableAssign(self, obj):
+    def observableAssign(self, obj, *, notify=True):
         self._obj = {k: makeObservable(v, parent=self) for k, v in obj.items()}
-        self.notify()
+        if notify:
+            self.notify()
 
     def __eq__(self, obj):
         if len(self) != len(obj):

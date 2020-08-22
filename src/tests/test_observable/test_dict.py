@@ -1,6 +1,11 @@
 from .obsproxy import observable
 from nose.tools import with_setup, assert_equal
-from .notified import registerNotification, assertNotified, resetNotification
+from .notified import (
+    registerNotification,
+    assertNotified,
+    resetNotification,
+    assertNotifiedCount,
+)
 
 a = observable({})
 
@@ -97,3 +102,29 @@ def test_nested_list_dict_bug():
     assert_equal(
         k, {"a": [{"b": 0, "c": 7}], "b": [{"b": 3, "c": 4}], "c": [{"b": 3, "c": 5}],}
     )
+
+
+def test_configurator():
+    """ Test case while making wautocomplete configurator """
+    allDecks = [
+        {"id": 1, "name": "Default"},
+        {"id": 2, "name": "Default 2"},
+        {"id": 3, "name": "Default 3"},
+        {"id": 4, "name": "Default 4"},
+        {"id": 5, "name": "Default 5"},
+        {"id": 6, "name": "Default 6"},
+    ]
+
+    addonConfig = observable(
+        {
+            "blacklistDeckIds": [],
+            "firstCommitHotkey": "tab",
+            "numberedCommitHotkey": "ctrl+?",
+        }
+    )
+
+    registerNotification(addonConfig, addonConfig["blacklistDeckIds"])
+    resetNotification()
+
+    addonConfig["blacklistDeckIds"] = allDecks[:3]
+    assertNotifiedCount(addonConfig, 1)

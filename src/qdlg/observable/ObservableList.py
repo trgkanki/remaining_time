@@ -8,7 +8,7 @@ class ObservableList(ObservableBase):
 
     def __init__(self, data, *, parent):
         super().__init__(parent)
-        self.observableAssign(data)
+        self.observableAssign(data, notify=False)
 
     # Read-only methods
     __len__ = _forwardMethod("__len__", False)
@@ -51,9 +51,10 @@ class ObservableList(ObservableBase):
         self._obj.insert(index, makeObservable(item, parent=self))
         self.notify()
 
-    def observableAssign(self, obj):
+    def observableAssign(self, obj, *, notify=True):
         self._obj = [makeObservable(d, parent=self) for d in obj]
-        self.notify()
+        if notify:
+            self.notify()
 
     def __eq__(self, obj):
         if len(self) != len(obj):

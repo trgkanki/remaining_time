@@ -32,7 +32,7 @@ class ObservableObject(ObservableBase):
         # observableAssign uses dir(self._obj) to figure out what keys to assign.
         # so we first need to set self._obj to obj
         self._obj = obj
-        self.observableAssign(obj)
+        self.observableAssign(obj, notify=False)
 
     ##
     __hash__ = _forwardMethod("__hash__", False)
@@ -60,12 +60,13 @@ class ObservableObject(ObservableBase):
         else:
             setattr(self._obj, name, value)
 
-    def observableAssign(self, obj):
+    def observableAssign(self, obj, *, notify=True):
         for name in observableAttributes(self._obj):
             old = getattr(obj, name)
             setattr(self._obj, name, makeObservable(old, parent=self))
 
-        self.notify()
+        if notify:
+            self.notify()
 
     def __eq__(self, obj):
         assignerAttributes = observableAttributes(self)
