@@ -1,6 +1,6 @@
 from .obsproxy import observable
 from nose.tools import assert_raises, assert_equal
-import sys
+from .notified import registerNotification, assertNotified, resetNotification
 
 
 class TestClass:
@@ -29,42 +29,30 @@ class TestClass2:
             self.t = p
 
 
-notified = set()
-
-
-def notifyLogger(v):
-    def _():
-        notified.add(v)
-
-    return _
-
-
 def test_object_notification():
     a = observable(TestClass())
 
-    notified.clear()
-    a.registerObserver(notifyLogger(a))
-    assert len(notified) == 0
+    resetNotification()
+    registerNotification(a)
+    assertNotified()
 
     a.attr1 = 2
-    assert notified == {a}
-    assert a.attr1 == 2  # properly changed?
+    assertNotified(a)
+    assert_equal(a.attr1, 2)  # properly changed?
 
 
 def test_nested_object_notification():
     a = observable(TestClass2())
 
-    notified.clear()
-    a.registerObserver(notifyLogger(a))
-    a.t.registerObserver(notifyLogger(a.t))
-    assert len(notified) == 0
-
+    registerNotification(a)
+    registerNotification(a.t)
+    resetNotification()
     oldAT = a.t
 
     a.t.attr1 = 2
-    assert notified == {a, a.t}
-    assert a.t.attr1 == 2  # properly changed?
-    assert oldAT == a.t
+    assertNotified(a, a.t)
+    assert_equal(a.t.attr1, 2)  # properly changed?
+    assert_equal(oldAT, a.t)
 
 
 def test_no_shared_observable():
@@ -75,16 +63,16 @@ def test_no_shared_observable():
 
 def test_str_repr():
     a = observable(TestClass())
-    assert str(a) == "observable(str_0)"
-    assert repr(a) == "observable(repr_0)"
+    assert_equal(str(a), "observable(str_0)")
+    assert_equal(repr(a), "observable(repr_0)")
 
 
 def test_obj_method_const():
     a = observable(TestClass())
-    a.registerObserver(notifyLogger(a))
-    notified.clear()
+    registerNotification(a)
+    resetNotification()
     assert_equal(a.attrsum(), 3)
-    assert len(notified) == 0
+    assertNotified()
     a.mod()
-    assert len(notified) == 1
+    assertNotified(a)
     assert_equal(a.attrsum(), 5)
