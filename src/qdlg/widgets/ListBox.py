@@ -22,7 +22,7 @@ class ListBox(StylableWidget):
             self.widget.setSelectionMode(QListWidget.ExtendedSelection)
 
         if isObservable(data):
-            data._registerItemObserver(self._refillData)
+            data.registerObserver(self._refillData)
 
         self._refillData()
         qDlgStackTop().addChild(self.widget)

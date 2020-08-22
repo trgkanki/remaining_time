@@ -54,9 +54,8 @@ class ObservableList(ObservableBase):
         self.notify()
 
     def observableAssign(self, obj):
-        raise RuntimeError(
-            "ObservableList should only be modified via methods, not via direct assignment"
-        )
+        self._obj = [makeObservable(d, parent=self) for d in obj]
+        self.notify()
 
     def __eq__(self, obj):
         for a, b in zip(self, obj):
