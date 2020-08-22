@@ -2,34 +2,26 @@ from ..stack import qDlgStackTop
 from ..utils import addLayoutOrWidget, continuationHelper
 from ..container import QDlgContainer
 from ..observable import isObservable
-from ..observable.list import ObservableList
 from ..modelHandler import configureModel
 from .Style import StylableWidget
 
-from PyQt5.Qt import QListWidget, QListWidgetItem, Qt
+from PyQt5.Qt import QListWidget, QListWidgetItem, Qt, QPoint, QAbstractItemView
 
 from typing import Union, List, Any
 
 
 class ListBox(StylableWidget):
-    def __init__(
-        self,
-        data: Union[list, ObservableList],
-        *,
-        renderer=lambda x: x,
-        multiselect=False
-    ):
+    def __init__(self, data, *, renderer=lambda x: x):
         super().__init__()
         self.widget = QListWidget()
         self._data = data
-        self._multiselect = multiselect
         self._renderer = renderer
 
-        if multiselect:
-            self.widget.setSelectionMode(QListWidget.ExtendedSelection)
+        self._multiselect = False
+        self._sorted = False
 
         if isObservable(data):
-            data._registerItemObserver(self._refillData)
+            data.registerObserver(self._refillData)
 
         self._refillData()
         qDlgStackTop().addChild(self.widget)
@@ -37,12 +29,54 @@ class ListBox(StylableWidget):
     def _refillData(self):
         widget = self.widget
 
+        oldBlockSignals = widget.blockSignals(True)
+        oldAutoScroll = widget.hasAutoScroll()
+        widget.setAutoScroll(False)
+
+        # Scroll preserving code. From
+        # https://stackoverflow.com/questions/34237006/qlistview-how-to-automatically-scroll-the-view-and-keep-current-selection-on-co
+        vScrollBar = widget.verticalScrollBar()
+        previousViewTopRow = widget.indexAt(QPoint(4, 4)).row()
+        hasScrolledToBottom = vScrollBar.value() == vScrollBar.maximum()
+
+        oldSelect = self.select()
+        if oldSelect is None:
+            oldSelect = []
+        elif not self._multiselect:
+            oldSelect = [oldSelect]
+
         widget.clear()
         for d in self._data:
             item = QListWidgetItem()
             item.setText(self._renderer(d))
             item.setData(Qt.UserRole, d)
             widget.addItem(item)
+            if d in oldSelect:
+                item.setSelected(True)
+
+        if self._sorted:
+            widget.sortItems()
+
+        widget.scrollToTop()
+        topIndex = widget.indexAt(QPoint(4, 4))
+        widget.setAutoScroll(
+            oldAutoScroll
+        )  # Re-enable autoscroll before scrolling to appropriate position
+        if hasScrolledToBottom:
+            widget.scrollToBottom()
+        else:
+            widget.scrollTo(
+                topIndex.sibling(previousViewTopRow, 0), QAbstractItemView.PositionAtTop
+            )
+
+        widget.blockSignals(oldBlockSignals)
+
+        # Actually we should check that same set of items were selected before & after the change,
+        # but widget only selects less when underlying data changes, so no more data could be
+        # selected any other than oldSelect. So it's sufficient to only check the length to
+        # see if two list are same irrespective of orderings.
+        if len(widget.selectedItems()) != len(oldSelect):
+            self.widget.itemSelectionChanged.emit()
 
     def select(self, newValues=None):
         widget = self.widget
@@ -50,7 +84,10 @@ class ListBox(StylableWidget):
         if newValues is None:
             selItems = widget.selectedItems()
             if not selItems:
-                return None
+                if self._multiselect:
+                    return []
+                else:
+                    return None
 
             if self._multiselect:
                 return [selItem.data(Qt.UserRole) for selItem in selItems]
@@ -80,3 +117,19 @@ class ListBox(StylableWidget):
     def model(self, obj, *, attr=None, index=None):
         configureModel(obj, self.onSelect, self.select, attr=attr, index=index)
         return self
+
+    # QListWidget properties
+
+    def multiselect(self, enabled=True):
+        if enabled is True:
+            enabled = QListWidget.ExtendedSelection
+        elif enabled is False:
+            enabled = QListWidget.SingleSelection
+
+        self.widget.setSelectionMode(enabled)
+        self._multiselect = enabled != QListWidget.SingleSelection
+        return self
+
+    def sorted(self, enabled=True):
+        self._sorted = enabled
+        self._refillData()

@@ -12,6 +12,12 @@ def qDlgClass(dlg):
     Button("Cancel").onClick(dlg.reject)
 
 
-app = QApplication(sys.argv)
-print(qDlgClass.run())
-print(qDlgClass.run())
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    print(qDlgClass.run())
+    print(qDlgClass.run())
+
+
+def test_wrong():
+    ## This test shouldn't be run by nosetests
+    assert False

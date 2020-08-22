@@ -6,7 +6,9 @@
     "dev:js": "cross-env NODE_ENV=development webpack -w --progress",
     "build:js": "webpack --progress",
     "build": "npm-run-all build:js",
-    "dist": "npm run build && node packager"
+    "dist": "npm run build && node packager",
+    "test": "npm-run-all test:py",
+    "test:py": "nosetests src/tests"
   },
   "keywords": [
     "anki",
@@ -53,7 +55,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "git-branch-is --not master && lint-staged"
+      "pre-commit": "git-branch-is --not master && lint-staged && npm run test"
     }
   },
   "lint-staged": {

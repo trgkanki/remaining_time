@@ -11,3 +11,13 @@ def bind(instance, func, as_name=None):
     bound_method = func.__get__(instance, instance.__class__)
     setattr(instance, as_name, bound_method)
     return bound_method
+
+
+def _forwardMethod(key, callHandlersAfter):
+    def _(self, *args, **kwargs):
+        ret = getattr(self._obj, key)(*args, **kwargs)
+        if callHandlersAfter:
+            self.notify()
+        return ret
+
+    return _
