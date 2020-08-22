@@ -8,7 +8,7 @@ class ObservableList(ObservableBase):
 
     def __init__(self, data, *, parent):
         super().__init__(parent)
-        self._obj = [makeObservable(d, parent=self) for d in data]
+        self.observableAssign(data)
 
     # Read-only methods
     __str__ = _forwardMethod("__str__", False)
