@@ -11,15 +11,13 @@ from typing import Union, List, Any
 
 
 class ListBox(StylableWidget):
-    def __init__(self, data, *, renderer=lambda x: x, multiselect=False):
+    def __init__(self, data, *, renderer=lambda x: x):
         super().__init__()
         self.widget = QListWidget()
         self._data = data
-        self._multiselect = multiselect
         self._renderer = renderer
 
-        if multiselect:
-            self.widget.setSelectionMode(QListWidget.ExtendedSelection)
+        self._multiselect = False
 
         if isObservable(data):
             data.registerObserver(self._refillData)
@@ -114,4 +112,16 @@ class ListBox(StylableWidget):
 
     def model(self, obj, *, attr=None, index=None):
         configureModel(obj, self.onSelect, self.select, attr=attr, index=index)
+        return self
+
+    # QListWidget properties
+
+    def multiselect(self, enabled=True):
+        if enabled is True:
+            enabled = QListWidget.ExtendedSelection
+        elif enabled is False:
+            enabled = QListWidget.SingleSelection
+
+        self.widget.setSelectionMode(enabled)
+        self._multiselect = enabled != QListWidget.SingleSelection
         return self

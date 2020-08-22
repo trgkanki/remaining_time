@@ -61,7 +61,7 @@ def qDlgClass(dlg):
         28,
         29,
     ]
-    ListBox(s, renderer=lambda item: "item %d" % item, multiselect=True).model(
+    ListBox(s, renderer=lambda item: "item %d" % item).multiselect().model(
         t, attr="selectedList"
     ).onSelect(print)
     ListBox(t.selectedList, renderer=lambda item: "item %d" % item)
