@@ -58,6 +58,9 @@ class ObservableList(ObservableBase):
         self.notify()
 
     def __eq__(self, obj):
+        if len(self) != len(obj):
+            return False
+
         for a, b in zip(self, obj):
             if a != b:
                 return False
