@@ -68,5 +68,5 @@ def test_no_shared_observable():
 
 def test_str_repr():
     a = observable(TestClass())
-    assert str(a) == "str_0"
-    assert repr(a) == "repr_0"
+    assert str(a) == "observable(str_0)"
+    assert repr(a) == "observable(repr_0)"

@@ -87,8 +87,8 @@ def test_list_getitem():
 
 @with_setup(setup_func, teardown_func)
 def test_list_str_repr():
-    assert_equal(str(a), "[1, 3]")
-    assert_equal(repr(a), "[1, 3]")
+    assert_equal(str(a), "observable([1, 3])")
+    assert_equal(repr(a), "observable([1, 3])")
     assert not notified
 
 

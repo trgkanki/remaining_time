@@ -11,8 +11,6 @@ class ObservableDict(ObservableBase):
         self.observableAssign(obj)
 
     # Read-only methods
-    __str__ = _forwardMethod("__str__", False)
-    __repr__ = _forwardMethod("__repr__", False)
     __len__ = _forwardMethod("__len__", False)
     __getitem__ = _forwardMethod("__getitem__", False)
     get = _forwardMethod("get", False)
