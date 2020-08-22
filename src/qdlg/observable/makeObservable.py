@@ -3,6 +3,7 @@ from .ObservableBase import ObservableBase, isObservable
 
 _immutableTypes = {int, str, bytes, bool, float}
 _unsupportedTypes = {bytearray, dict}
+_iterableType = {list, tuple}
 
 
 def isImmutable(obj):
@@ -11,6 +12,7 @@ def isImmutable(obj):
 
 def makeObservable(obj, *, parent):
     from .ObservableObject import ObservableObject
+    from .ObservableList import ObservableList
 
     if type(obj) in _unsupportedTypes:
         raise RuntimeError(
@@ -23,5 +25,8 @@ def makeObservable(obj, *, parent):
 
     if isImmutable(obj):
         return obj
+
+    if type(obj) in _iterableType:
+        return ObservableList(obj, parent=parent)
 
     return ObservableObject(obj, parent=parent)

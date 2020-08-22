@@ -10,8 +10,9 @@ _observableMethods = {"registerObserver", "notify", "observableAssign", "_obj"}
 def nonObservableAttribute(obj, attrName):
     return (
         attrName.startswith("__")
-        or inspect.ismethod(getattr(obj, attrName))
-        or attrName in _observableMethods  # ObservableList::append() thing
+        or inspect.ismethod(getattr(obj, attrName))  # User-defined method
+        or inspect.isbuiltin(getattr(obj, attrName))  # list::append thjngs
+        or attrName in _observableMethods
     )
 
 
@@ -25,7 +26,7 @@ def observableAttributes(obj):
 class ObservableObject(ObservableBase):
     _observable = True
 
-    def __init__(self, obj, *, parent=None):
+    def __init__(self, obj, *, parent):
         super().__init__(parent)
 
         # observableAssign uses dir(self._obj) to figure out what keys to assign.
