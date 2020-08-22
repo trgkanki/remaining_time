@@ -26,7 +26,7 @@ class ObservableDict(ObservableBase):
     def __setitem__(self, key, item):
         try:
             self._obj[key].observableAssign(item)
-        except AttributeError:
+        except (AttributeError, KeyError):
             item = makeObservable(item, parent=self)
             self._obj[key] = item
 

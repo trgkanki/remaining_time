@@ -106,3 +106,10 @@ def test_nested_list_dict_bug():
 
     k["a"] = [{"b": 0, "c": 7}]  # This should not throw
     assertNotified(k, k["a"])
+
+    notified.clear()
+    k["c"] = [{"b": 3, "c": 5}]  # This should not throw
+    assertNotified(k)
+    assert_equal(
+        k, {"a": [{"b": 0, "c": 7}], "b": [{"b": 3, "c": 4}], "c": [{"b": 3, "c": 5}],}
+    )
