@@ -91,3 +91,18 @@ def test_nested_dict_list_dict():
     k["a"][0]["b"] = 2
     assert_equal(k["a"][0]["b"], 2)
     assertNotified(k, k["a"], k["a"][0])
+
+
+def test_nested_list_dict_bug():
+    k = observable({"a": [{"b": 1, "c": 2}, {"b": 2, "c": 3}], "b": [{"b": 3, "c": 4}]})
+
+    notified.clear()
+    register(k)
+    register(k["a"])
+    register(k["a"][0])
+    register(k["a"][1])
+    register(k["b"])
+    register(k["b"][0])
+
+    k["a"] = [{"b": 0, "c": 7}]  # This should not throw
+    assertNotified(k, k["a"])

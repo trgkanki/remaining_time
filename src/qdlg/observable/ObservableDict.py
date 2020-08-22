@@ -24,10 +24,10 @@ class ObservableDict(ObservableBase):
     clear = _forwardMethod("clear", True)
 
     def __setitem__(self, key, item):
-        item = makeObservable(item, parent=self)
         try:
             self._obj[key].observableAssign(item)
         except AttributeError:
+            item = makeObservable(item, parent=self)
             self._obj[key] = item
 
         self.notify()
