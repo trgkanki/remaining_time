@@ -2,7 +2,6 @@ from ..stack import qDlgStackTop
 from ..utils import addLayoutOrWidget, continuationHelper
 from ..container import QDlgContainer
 from ..observable import isObservable
-from ..observable.list import ObservableList
 from ..modelHandler import configureModel
 from .Style import StylableWidget
 
@@ -12,13 +11,7 @@ from typing import Union, List, Any
 
 
 class ListBox(StylableWidget):
-    def __init__(
-        self,
-        data: Union[list, ObservableList],
-        *,
-        renderer=lambda x: x,
-        multiselect=False
-    ):
+    def __init__(self, data, *, renderer=lambda x: x, multiselect=False):
         super().__init__()
         self.widget = QListWidget()
         self._data = data
