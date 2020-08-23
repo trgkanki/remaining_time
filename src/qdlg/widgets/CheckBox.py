@@ -2,11 +2,12 @@ from ..stack import qDlgStackTop
 from ..utils import continuationHelper
 from ..modelHandler import configureModel
 from .Style import StylableWidget
+from .Shortcutable import Shortcutable
 
 from PyQt5.Qt import QCheckBox
 
 
-class CheckBox(StylableWidget):
+class CheckBox(StylableWidget, Shortcutable):
     def __init__(self, initialEnabled=False):
         super().__init__()
         self.widget = QCheckBox()
