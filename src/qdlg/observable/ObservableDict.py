@@ -8,7 +8,8 @@ class ObservableDict(ObservableBase):
 
     def __init__(self, obj, *, parent):
         super().__init__(parent)
-        self.observableAssign(obj, notify=False)
+        with self._noNotify():
+            self._observableAssign(obj)
 
     # Read-only methods
     __len__ = _forwardMethod("__len__", False)
@@ -24,23 +25,27 @@ class ObservableDict(ObservableBase):
     clear = _forwardMethod("clear", True)
 
     def __setitem__(self, key, item):
-        try:
-            self._obj[key].observableAssign(item)
-        except (AttributeError, KeyError):
-            item = makeObservable(item, parent=self)
-            self._obj[key] = item
-            self.notify()
+        with self._noNotify():
+            try:
+                self._obj[key]._observableAssign(item)
+            except (AttributeError, KeyError):
+                item = makeObservable(item, parent=self)
+                self._obj[key] = item
+
+        self.notify()
 
     def update(self, d):
-        self._obj.update({k: makeObservable(v, parent=self) for k, v in d.items()})
+        with self._noNotify():
+            self._obj.update({k: makeObservable(v, parent=self) for k, v in d.items()})
+
         self.notify()
 
     #######
 
-    def observableAssign(self, obj, *, notify=True):
-        self._obj = {k: makeObservable(v, parent=self) for k, v in obj.items()}
-        if notify:
-            self.notify()
+    def _observableAssign(self, obj):
+        with self._noNotify():
+            self._obj = {k: makeObservable(v, parent=self) for k, v in obj.items()}
+        self.notify()
 
     def __eq__(self, obj):
         if len(self) != len(obj):

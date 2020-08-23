@@ -8,7 +8,7 @@ class ObservableList(ObservableBase):
 
     def __init__(self, data, *, parent):
         super().__init__(parent)
-        self.observableAssign(data, notify=False)
+        self._observableAssign(data)
 
     # Read-only methods
     __len__ = _forwardMethod("__len__", False)
@@ -21,40 +21,44 @@ class ObservableList(ObservableBase):
     clear = _forwardMethod("clear", True)
 
     def __setitem__(self, index, item):
-        if isinstance(index, slice):
-            items = [makeObservable(d, parent=self) for d in item]
-            try:
-                targets = self._obj[index]
-                for t, i in zip(targets, items):
-                    t.observableAssign(i)
-            except AttributeError:
-                self._obj[index] = items
+        with self._noNotify():
+            if isinstance(index, slice):
+                items = [makeObservable(d, parent=self) for d in item]
+                try:
+                    targets = self._obj[index]
+                    for t, i in zip(targets, items):
+                        t._observableAssign(i)
+                except AttributeError:
+                    self._obj[index] = items
 
-        else:
-            item = makeObservable(item, parent=self)
-            try:
-                self._obj[index].observableAssign(item)
-            except AttributeError:
-                self._obj[index] = item
+            else:
+                item = makeObservable(item, parent=self)
+                try:
+                    self._obj[index]._observableAssign(item)
+                except AttributeError:
+                    self._obj[index] = item
 
         self.notify()
 
     def append(self, item):
-        self._obj.append(makeObservable(item, parent=self))
+        with self._noNotify():
+            self._obj.append(makeObservable(item, parent=self))
         self.notify()
 
     def extend(self, iterable):
-        self._obj.extend(makeObservable(d, parent=self) for d in iterable)
+        with self._noNotify():
+            self._obj.extend(makeObservable(d, parent=self) for d in iterable)
         self.notify()
 
     def insert(self, index, item):
-        self._obj.insert(index, makeObservable(item, parent=self))
+        with self._noNotify():
+            self._obj.insert(index, makeObservable(item, parent=self))
         self.notify()
 
-    def observableAssign(self, obj, *, notify=True):
-        self._obj = [makeObservable(d, parent=self) for d in obj]
-        if notify:
-            self.notify()
+    def _observableAssign(self, obj):
+        with self._noNotify():
+            self._obj = [makeObservable(d, parent=self) for d in obj]
+        self.notify()
 
     def __eq__(self, obj):
         if len(self) != len(obj):

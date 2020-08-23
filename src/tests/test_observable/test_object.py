@@ -58,6 +58,12 @@ def test_nested_object_notification():
     assert_equal(a.t.attr1, 2)  # properly changed?
     assert_equal(oldAT, a.t)
 
+    resetNotification()
+    a.t = TestClass()
+    assertNotified(
+        [(a, 1), (a.t, 1),]
+    )
+
 
 def test_no_shared_observable():
     a = observable(TestClass2())

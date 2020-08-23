@@ -147,3 +147,23 @@ def test_nested_list_object():
     assertNotified(
         [(a, 1), (a[0], 1),]
     )
+
+
+def test_notification_count():
+    """ Test case while making word autocomplete configurator """
+    allDecks = observable(
+        [
+            {"id": 1, "name": "Default"},
+            {"id": 2, "name": "Default 2"},
+            {"id": 3, "name": "Default 3"},
+            {"id": 4, "name": "Default 4"},
+            {"id": 5, "name": "Default 5"},
+            {"id": 6, "name": "Default 6"},
+        ]
+    )
+
+    registerNotification(allDecks, allDecks[0])
+    resetNotification()
+
+    allDecks[0] = {"id": 7, "name": "Default 7"}
+    assertNotified([(allDecks, 1), (allDecks[0], 1)])
