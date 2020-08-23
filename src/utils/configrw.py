@@ -1,5 +1,6 @@
 from aqt import mw
 from aqt.utils import askUser
+from ..qdlg import observable
 import os
 
 
@@ -25,4 +26,25 @@ def setConfig(key, value):
     if config is None:
         config = {}
     config[key] = value
+    mw.addonManager.writeConfig(addonName, config)
+
+
+# Configuration editor related code
+
+
+def setConfigEditor(editorFunc):
+    addonName = getCurrentAddonName()
+    config = mw.addonManager.setConfigAction(addonName, editorFunc)
+
+
+def getConfigAll():
+    addonName = getCurrentAddonName()
+    return mw.addonManager.getConfig(addonName)
+
+
+def setConfigAll(newConfig):
+    addonName = getCurrentAddonName()
+    config = mw.addonManager.getConfig(addonName)
+    for k, v in newConfig.items():
+        config[k] = v
     mw.addonManager.writeConfig(addonName, config)
