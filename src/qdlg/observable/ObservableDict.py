@@ -1,6 +1,6 @@
 from .utils import _forwardMethod
 from .ObservableBase import ObservableBase
-from .makeObservable import makeObservable
+from .makeObservable import makeObservable, unobserved
 
 
 class ObservableDict(ObservableBase):
@@ -10,6 +10,9 @@ class ObservableDict(ObservableBase):
         super().__init__(parent)
         with self._noNotify():
             self._observableAssign(obj)
+
+    def unobserved(self):
+        return {k: unobserved(v) for k, v in self._obj}
 
     # Read-only methods
     __len__ = _forwardMethod("__len__", False)

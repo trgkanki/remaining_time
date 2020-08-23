@@ -1,6 +1,6 @@
 from .utils import _forwardMethod
 from .ObservableBase import ObservableBase
-from .makeObservable import makeObservable
+from .makeObservable import makeObservable, unobserved
 
 
 class ObservableList(ObservableBase):
@@ -9,6 +9,9 @@ class ObservableList(ObservableBase):
     def __init__(self, data, *, parent):
         super().__init__(parent)
         self._observableAssign(data)
+
+    def unobserved(self):
+        return [unobserved(v) for v in self._obj]
 
     # Read-only methods
     __len__ = _forwardMethod("__len__", False)

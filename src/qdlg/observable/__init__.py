@@ -1,4 +1,4 @@
-from .makeObservable import makeObservable
+from .makeObservable import makeObservable, unobserved
 from .ObservableBase import isObservable
 
 

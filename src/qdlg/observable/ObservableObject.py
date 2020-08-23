@@ -37,6 +37,11 @@ class ObservableObject(ObservableBase):
         self._obj = obj
         self._observableAssign(obj)
 
+    def unobserved(self):
+        # Class may have custom constructor and custom semantics which we cannot follow readily.
+        # so we just give up on implementing this.
+        raise NotImplementedError
+
     ##
     __hash__ = _forwardMethod("__hash__", False)
 

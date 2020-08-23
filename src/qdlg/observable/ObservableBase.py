@@ -20,6 +20,10 @@ class ObservableBase:
         if self._parent is not None:
             self._parent.notify()
 
+    def unobserved(self):
+        """Generate non-observable copy of this object"""
+        raise NotImplementedError
+
     @contextmanager
     def _noNotify(self):
         self._suppressNotification += 1
