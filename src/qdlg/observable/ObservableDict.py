@@ -12,7 +12,7 @@ class ObservableDict(ObservableBase):
             self._observableAssign(obj)
 
     def unobserved(self):
-        return {k: unobserved(v) for k, v in self._obj}
+        return {k: unobserved(v) for k, v in self._obj.items()}
 
     # Read-only methods
     __len__ = _forwardMethod("__len__", False)
