@@ -4,18 +4,11 @@ from qdlgproxy import (  # type: ignore
     Text,
     LineEdit,
     Button,
-    CheckBox,
-    HStack,
     Table,
     Tr,
     Td,
 )
 from PyQt5.Qt import QApplication
-
-
-class TestClass:
-    def __init__(self):
-        self.checked1 = False
 
 
 @QDlg("Table test")
@@ -35,16 +28,10 @@ def qDlgClass(dlg):
 
         with Tr():
             with Td(colspan=2):
-                with HStack():
-                    Text("Remember me?")
-                    CheckBox()
-
-        with Tr():
-            with Td(colspan=2):
                 (
                     Button("Login")
                     .onClick(lambda: print(username.text(), password.text()))
-                    .setDefault()
+                    .default()
                 )
 
 

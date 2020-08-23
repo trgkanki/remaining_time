@@ -22,41 +22,41 @@ def teardown_func():
 def test_list_setitem():
     a[0] = 2
     assert_equal(a, [2, 3])
-    assertNotified(a)
+    assertNotified([(a, 1)])
 
 
 @with_setup(setup_func, teardown_func)
 def test_list_append():
     a.append(4)
-    assertNotified(a)
+    assertNotified([(a, 1)])
     assert_equal(a, [1, 3, 4])
 
 
 @with_setup(setup_func, teardown_func)
 def test_list_pop():
     a.pop()
-    assertNotified(a)
+    assertNotified([(a, 1)])
     assert_equal(a, [1])
 
 
 @with_setup(setup_func, teardown_func)
 def test_list_pop():
     a.clear()
-    assertNotified(a)
+    assertNotified([(a, 1)])
     assert_equal(a, [])
 
 
 @with_setup(setup_func, teardown_func)
 def test_list_extend():
     a.extend([4, 7])
-    assertNotified(a)
+    assertNotified([(a, 1)])
     assert_equal(a, [1, 3, 4, 7])
 
 
 @with_setup(setup_func, teardown_func)
 def test_list_insert():
     a.insert(1, 5)
-    assertNotified(a)
+    assertNotified([(a, 1)])
     assert_equal(a, [1, 5, 3])
 
 
@@ -105,7 +105,9 @@ def test_nested_list():
     resetNotification()
     a[0][0] = 0
     assert_equal(a, [[0, 2], [3, 4]])
-    assertNotified(a, a[0])
+    assertNotified(
+        [(a, 1), (a[0], 1),]
+    )
 
 
 class TestClass:
@@ -121,7 +123,9 @@ def test_nested_object_list():
     resetNotification()
     a.l[0] = 3
     assert_equal(a.l, [3, 2])
-    assertNotified(a, a.l)
+    assertNotified(
+        [(a, 1), (a.l, 1),]
+    )
 
 
 class TestClass2:
@@ -140,4 +144,26 @@ def test_nested_list_object():
     assertNotified()
     a[0].a = 3
     assert_equal(a[0].a, 3)
-    assertNotified(a, a[0])
+    assertNotified(
+        [(a, 1), (a[0], 1),]
+    )
+
+
+def test_notification_count():
+    """ Test case while making word autocomplete configurator """
+    allDecks = observable(
+        [
+            {"id": 1, "name": "Default"},
+            {"id": 2, "name": "Default 2"},
+            {"id": 3, "name": "Default 3"},
+            {"id": 4, "name": "Default 4"},
+            {"id": 5, "name": "Default 5"},
+            {"id": 6, "name": "Default 6"},
+        ]
+    )
+
+    registerNotification(allDecks, allDecks[0])
+    resetNotification()
+
+    allDecks[0] = {"id": 7, "name": "Default 7"}
+    assertNotified([(allDecks, 1), (allDecks[0], 1)])

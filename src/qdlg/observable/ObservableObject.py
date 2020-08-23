@@ -4,7 +4,7 @@ from .makeObservable import makeObservable
 import inspect
 
 
-_observableMethods = {"registerObserver", "notify", "observableAssign", "_obj"}
+_observableMethods = {"registerObserver", "notify", "_observableAssign", "_obj"}
 
 
 def nonObservableAttribute(obj, attrName):
@@ -23,16 +23,24 @@ def observableAttributes(obj):
     return sorted(n for n in dir(obj) if not nonObservableAttribute(obj, n))
 
 
+_classAttributes = {"_handlerList", "_parent", "_suppressNotification", "_obj"}
+
+
 class ObservableObject(ObservableBase):
     _observable = True
 
     def __init__(self, obj, *, parent):
         super().__init__(parent)
 
-        # observableAssign uses dir(self._obj) to figure out what keys to assign.
+        # _observableAssign uses dir(self._obj) to figure out what keys to assign.
         # so we first need to set self._obj to obj
         self._obj = obj
-        self.observableAssign(obj)
+        self._observableAssign(obj)
+
+    def unobserved(self):
+        # Class may have custom constructor and custom semantics which we cannot follow readily.
+        # so we just give up on implementing this.
+        raise NotImplementedError
 
     ##
     __hash__ = _forwardMethod("__hash__", False)
@@ -40,31 +48,30 @@ class ObservableObject(ObservableBase):
     def __getattr__(self, name):
         ret = getattr(self._obj, name)
         if inspect.ismethod(ret):
-            # TODO: a proper implementation?
-            # How can we make the changes in method be notified?
             return bind(self, getattr(type(self._obj), name))
         else:
             return ret
 
     def __setattr__(self, name, value):
-        if name == "_obj" or name == "_handlerList" or name == "_parent":
+        if name in _classAttributes:
             return super().__setattr__(name, value)
 
         if not nonObservableAttribute(self, name):
             target = getattr(self._obj, name)
-            try:
-                target.observableAssign(value)
-            except AttributeError:
-                setattr(self._obj, name, value)
+            with self._noNotify():
+                try:
+                    target._observableAssign(value)
+                except AttributeError:
+                    setattr(self._obj, name, value)
             self.notify()
         else:
             setattr(self._obj, name, value)
 
-    def observableAssign(self, obj):
-        for name in observableAttributes(self._obj):
-            old = getattr(obj, name)
-            setattr(self._obj, name, makeObservable(old, parent=self))
-
+    def _observableAssign(self, obj):
+        with self._noNotify():
+            for name in observableAttributes(self._obj):
+                old = getattr(obj, name)
+                setattr(self._obj, name, makeObservable(old, parent=self))
         self.notify()
 
     def __eq__(self, obj):

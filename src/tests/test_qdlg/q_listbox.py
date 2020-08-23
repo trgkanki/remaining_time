@@ -1,6 +1,6 @@
 import sys
 from qdlgproxy import QDlg, ListBox, observable
-from PyQt5.Qt import QApplication
+from PyQt5.Qt import QApplication, QAbstractItemView
 
 
 class TestClass:
@@ -61,9 +61,9 @@ def qDlgClass(dlg):
         28,
         29,
     ]
-    ListBox(s, renderer=lambda item: "item %d" % item).multiselect().model(
-        t, attr="selectedList"
-    ).onSelect(print)
+    ListBox(s, renderer=lambda item: "item %d" % item).multiselect(
+        QAbstractItemView.MultiSelection
+    ).model(t, attr="selectedList").onSelect(print)
     ListBox(t.selectedList, renderer=lambda item: "item %d" % item).sorted()
 
 

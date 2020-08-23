@@ -34,3 +34,10 @@ def makeObservable(obj, *, parent):
         return ObservableDict(obj, parent=parent)
 
     return ObservableObject(obj, parent=parent)
+
+
+def unobserved(obj):
+    if isinstance(obj, ObservableBase):
+        return obj.unobserved()
+    else:
+        return obj

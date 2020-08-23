@@ -14,9 +14,12 @@ def bind(instance, func, as_name=None):
 
 def _forwardMethod(key, callHandlersAfter):
     def _(self, *args, **kwargs):
-        ret = getattr(self._obj, key)(*args, **kwargs)
+        with self._noNotify():
+            ret = getattr(self._obj, key)(*args, **kwargs)
+
         if callHandlersAfter:
             self.notify()
+
         return ret
 
     return _

@@ -1,6 +1,10 @@
 from .obsproxy import observable
 from nose.tools import with_setup, assert_equal
-from .notified import registerNotification, assertNotified, resetNotification
+from .notified import (
+    registerNotification,
+    assertNotified,
+    resetNotification,
+)
 
 a = observable({})
 
@@ -21,14 +25,18 @@ def teardown_func():
 def test_dict_setitem():
     a["a"] = 3
     assert_equal(a, {"a": 3, "b": 2, "c": 3})
-    assertNotified(a)
+    assertNotified(
+        [(a, 1),]
+    )
 
 
 @with_setup(setup_func, teardown_func)
 def test_dict_delitem():
     del a["a"]
     assert_equal(a, {"b": 2, "c": 3})
-    assertNotified(a)
+    assertNotified(
+        [(a, 1),]
+    )
 
 
 @with_setup(setup_func, teardown_func)
@@ -74,7 +82,9 @@ def test_nested_dict_list_dict():
 
     k["a"][0]["b"] = 2
     assert_equal(k["a"][0]["b"], 2)
-    assertNotified(k, k["a"], k["a"][0])
+    assertNotified(
+        [(k, 1), (k["a"], 1), (k["a"][0], 1),]
+    )
 
 
 def test_nested_list_dict_bug():
@@ -89,11 +99,41 @@ def test_nested_list_dict_bug():
     registerNotification(k["b"][0])
 
     k["a"] = [{"b": 0, "c": 7}]  # This should not throw
-    assertNotified(k, k["a"])
+    assertNotified(
+        [(k, 1), (k["a"], 1),]
+    )
 
     resetNotification()
     k["c"] = [{"b": 3, "c": 5}]  # This should not throw
-    assertNotified(k)
+    assertNotified([(k, 1)])
     assert_equal(
         k, {"a": [{"b": 0, "c": 7}], "b": [{"b": 3, "c": 4}], "c": [{"b": 3, "c": 5}],}
+    )
+
+
+def test_configurator():
+    """ Test case while making wautocomplete configurator """
+    allDecks = [
+        {"id": 1, "name": "Default"},
+        {"id": 2, "name": "Default 2"},
+        {"id": 3, "name": "Default 3"},
+        {"id": 4, "name": "Default 4"},
+        {"id": 5, "name": "Default 5"},
+        {"id": 6, "name": "Default 6"},
+    ]
+
+    addonConfig = observable(
+        {
+            "blacklistDeckIds": [],
+            "firstCommitHotkey": "tab",
+            "numberedCommitHotkey": "ctrl+?",
+        }
+    )
+
+    registerNotification(addonConfig, addonConfig["blacklistDeckIds"])
+    resetNotification()
+
+    addonConfig["blacklistDeckIds"] = allDecks[:3]
+    assertNotified(
+        [(addonConfig, 1), (addonConfig["blacklistDeckIds"], 1),]
     )

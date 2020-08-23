@@ -33,7 +33,7 @@ def qDlgClass(dlg):
                     (
                         Button("Login")
                         .onClick(lambda: print(username.text(), password.text()))
-                        .setDefault()
+                        .default()
                     )
 
 

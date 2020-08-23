@@ -37,7 +37,9 @@ def test_object_notification():
     assertNotified()
 
     a.attr1 = 2
-    assertNotified(a)
+    assertNotified(
+        [(a, 1),]
+    )
     assert_equal(a.attr1, 2)  # properly changed?
 
 
@@ -50,9 +52,17 @@ def test_nested_object_notification():
     oldAT = a.t
 
     a.t.attr1 = 2
-    assertNotified(a, a.t)
+    assertNotified(
+        [(a, 1), (a.t, 1),]
+    )
     assert_equal(a.t.attr1, 2)  # properly changed?
     assert_equal(oldAT, a.t)
+
+    resetNotification()
+    a.t = TestClass()
+    assertNotified(
+        [(a, 1), (a.t, 1),]
+    )
 
 
 def test_no_shared_observable():
@@ -74,5 +84,7 @@ def test_obj_method_const():
     assert_equal(a.attrsum(), 3)
     assertNotified()
     a.mod()
-    assertNotified(a)
+    assertNotified(
+        [(a, 1),]
+    )
     assert_equal(a.attrsum(), 5)
