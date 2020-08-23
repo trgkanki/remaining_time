@@ -4,7 +4,6 @@ from .notified import (
     registerNotification,
     assertNotified,
     resetNotification,
-    assertNotifiedCount,
 )
 
 a = observable({})
@@ -26,14 +25,18 @@ def teardown_func():
 def test_dict_setitem():
     a["a"] = 3
     assert_equal(a, {"a": 3, "b": 2, "c": 3})
-    assertNotified(a)
+    assertNotified(
+        [(a, 1),]
+    )
 
 
 @with_setup(setup_func, teardown_func)
 def test_dict_delitem():
     del a["a"]
     assert_equal(a, {"b": 2, "c": 3})
-    assertNotified(a)
+    assertNotified(
+        [(a, 1),]
+    )
 
 
 @with_setup(setup_func, teardown_func)
@@ -79,7 +82,9 @@ def test_nested_dict_list_dict():
 
     k["a"][0]["b"] = 2
     assert_equal(k["a"][0]["b"], 2)
-    assertNotified(k, k["a"], k["a"][0])
+    assertNotified(
+        [(k, 1), (k["a"], 1), (k["a"][0], 1),]
+    )
 
 
 def test_nested_list_dict_bug():
@@ -94,11 +99,13 @@ def test_nested_list_dict_bug():
     registerNotification(k["b"][0])
 
     k["a"] = [{"b": 0, "c": 7}]  # This should not throw
-    assertNotified(k, k["a"])
+    assertNotified(
+        [(k, 1), (k["a"], 1),]
+    )
 
     resetNotification()
     k["c"] = [{"b": 3, "c": 5}]  # This should not throw
-    assertNotified(k)
+    assertNotified([(k, 1)])
     assert_equal(
         k, {"a": [{"b": 0, "c": 7}], "b": [{"b": 3, "c": 4}], "c": [{"b": 3, "c": 5}],}
     )
@@ -127,4 +134,6 @@ def test_configurator():
     resetNotification()
 
     addonConfig["blacklistDeckIds"] = allDecks[:3]
-    assertNotifiedCount(addonConfig, 1)
+    assertNotified(
+        [(addonConfig, 1), (addonConfig["blacklistDeckIds"], 1),]
+    )
