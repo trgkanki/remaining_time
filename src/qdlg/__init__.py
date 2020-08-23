@@ -1,3 +1,3 @@
 from .widgets import *  # NOQA
 from .qdlg import QDlg  # NOQA
-from .observable import observable  # NOQA
+from .observable import *  # NOQA
