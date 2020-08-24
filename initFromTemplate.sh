@@ -22,14 +22,13 @@ git init
 git remote add template https://github.com/trgkanki/addon_template
 git fetch --all
 git checkout -b develop
-echo $2 > BASEBRANCH
-git add -A
 git merge template/$2 -m "$(merge_message $2)"
 echo $uuid > src/UUID
 sed -i "s/\"name\": \"addon_template\",/\"name\": \"$1\",/" package.json
 sed -i "s/\"name\": \"addon_template\",/\"name\": \"$1\",/" package-lock.json
 sed -i "s/# addon_template v/# $1 v/" src/__init__.py
 npm i
-git add .
+echo $2 > BASEBRANCH
+git add -A
 git commit -m ":tata: generated from template/$2"
 echo 'Project generated from template'
