@@ -30,5 +30,5 @@ sed -i "s/# addon_template v/# $1 v/" src/__init__.py
 npm i
 echo $2 > BASEBRANCH
 git add -A
-git commit -m ":tata: generated from template/$2"
+git commit -m ":tada: generated from template/$2"
 echo 'Project generated from template'
