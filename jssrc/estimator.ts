@@ -45,6 +45,11 @@ export class Estimator {
       logLength ? epoch - this.logs[this.logs.length - 1].epoch
         : epoch - this._startTime
 
+    // Prevent estimator fallout d/t unexpected events
+    // e.g) massive new cards, changing deck of multiple cards
+    if (dy < -10) dy = -10 // could happen on massive new cards
+    if (dy > 10) dy = 10
+
     this.logs.push({ epoch, dt, dy, logType })
     this.save()
   }
