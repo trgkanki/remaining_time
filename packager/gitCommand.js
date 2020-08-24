@@ -44,6 +44,6 @@ exports.getLatestReleaseVersion = async function () {
 }
 
 exports.getCommitsSinceTag = async function (tag) {
-  if (tag) return getStdout(`git log --pretty=oneline --no-merges ${tag}...HEAD`)
-  else return getStdout('git log --pretty=oneline --no-merges')
+  if (tag) return getStdout(`git log --graph --oneline ${tag}...HEAD`)
+  else return getStdout('git log --graph --oneline')
 }
