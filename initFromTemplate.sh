@@ -24,7 +24,6 @@ git fetch --all
 git checkout -b develop
 echo $2 > BASEBRANCH
 git add -A
-git commit --allow-empty -m ':tada: initial empty commit (for merge head)'
 git merge template/$2 -m "$(merge_message $2)"
 echo $uuid > src/UUID
 sed -i "s/\"name\": \"addon_template\",/\"name\": \"$1\",/" package.json
