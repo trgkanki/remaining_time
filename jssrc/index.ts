@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/camelcase */
 
-import { updateEstimator } from './updator'
+import { updateEstimator } from './updater'
 import { updateProgressBar } from './barRender'
 
 async function main () {
@@ -11,9 +11,9 @@ async function main () {
   // both on question side and answer side, the time you spent thinking
   // the question will be regarded as 'wrong', polluting progress bar graphics
   //
-  // Also, on ankidroid #qa has 'question' and 'answer' classname, but on desktop
+  // Also, on AnkiDroid #qa has 'question' and 'answer' class name, but on desktop
   // #qa has neither of them. Hence we check the absence of .answer. On desktop
-  // main() will be called on question side anyway.
+  // main() will be called only on question side anyway.
 
   const qaEl = document.getElementById('qa')
   if (qaEl && !qaEl.classList.contains('answer')) {
