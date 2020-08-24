@@ -5,7 +5,8 @@ const path = require('path')
 
 const ignoreList = [
   '__pycache__',
-  'meta.json'
+  'meta.json',
+  'tests'
 ]
 
 exports.zipDist = function (destination) {
