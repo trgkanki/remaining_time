@@ -73,14 +73,3 @@ const tmp = require('tmp')
   console.error(err)
   process.exit(-1)
 })
-
-// bestzip({
-//   source: 'src/*',
-//   cwd: 'src/',
-//   destination: `./dist${version}.zip`
-// }).then(function () {
-//   console.log('all done!')
-// }).catch(function (err) {
-//   console.error(err.stack)
-//   process.exit(1)
-// })
