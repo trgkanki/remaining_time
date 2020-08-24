@@ -9,7 +9,7 @@ function usage {
 
 function merge_message {
   dateString=`date "+%Y.%m.%d - %H:%M"`
-  echo ":twisted_rightwards_arrows: merge from template/$1 ($dateString)"
+  echo "🔀 merge from template/$1 ($dateString)"
 }
 
 if [[ `git status` == *"nothing to commit, working tree clean"* ]]; then

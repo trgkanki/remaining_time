@@ -6,7 +6,7 @@ function usage {
 
 function merge_message {
   dateString=`date "+%Y.%m.%d - %H:%M"`
-  echo ":twisted_rightwards_arrows: merge from template/$1 ($dateString)"
+  echo "🔀 merge from template/$1 ($dateString)"
 }
 
 if [[ -z $1 || -z $2 ]]; then
@@ -30,5 +30,5 @@ sed -i "s/# addon_template v/# $1 v/" src/__init__.py
 npm i
 echo $2 > BASEBRANCH
 git add -A
-git commit -m ":tada: generated from template/$2"
+git commit -m "🎉 generated from template/$2"
 echo 'Project generated from template'
