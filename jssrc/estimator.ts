@@ -44,6 +44,7 @@ export class Estimator {
     const dt =
       logLength ? epoch - this.logs[this.logs.length - 1].epoch
         : epoch - this._startTime
+
     this.logs.push({ epoch, dt, dy, logType })
     this.save()
   }

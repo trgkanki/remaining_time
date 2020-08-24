@@ -83,6 +83,8 @@ async function processRemainingCountDiff (): Promise<EstimatorInst> {
       nu0 === nu1 &&
       rev0 === rev1
     ) {
+      // This might happen also in undo scenario, but we're, quite open to such scenario.
+      // some minor inaccuracies could be tolerated?
       if (lrn0 > lrn1) return { instType: RCCTConst.UPDATE, dy, logType: 'good' }
       else return { instType: RCCTConst.UPDATE, dy, logType: 'again' }
     }
@@ -99,8 +101,8 @@ async function processRemainingCountDiff (): Promise<EstimatorInst> {
 
     // maybe undo?
     if (
-      nu0 <= nu1 &&
-      rev0 <= rev1
+      (nu0 < nu1 && rev0 === rev1) ||
+      (rev0 < rev1 && nu0 === nu1)
     ) {
       if (await onSameReviewSession()) {
         return { instType: RCCTConst.UPDATE, dy, logType: 'unknown' }
