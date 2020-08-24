@@ -16,9 +16,9 @@ addHook("profileLoaded", registerMobileScript)
 
 
 def afterInitWeb(self):
-    # TODO: remove development code
     # always update medial/_remainingtime.min.js on webview init
-    #
+    # aids for better development
+
     if getConfig("runOnMobile"):
         updateMedia(
             "_remainingtime.min.js", readResource("js/main.min.js").encode("utf-8")
