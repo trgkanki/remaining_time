@@ -16,25 +16,24 @@ export interface LogEntry {
   logType: string;
 }
 
-const ESTIMATOR_SCHEMA_VERSION = 0
+const ESTIMATOR_SCHEMA_VERSION = 1
 
 // Persistence
 let cache: Estimator
 function getLocalStorageKey () {
-  return `__rt__estimator__${ESTIMATOR_SCHEMA_VERSION}__`
+  return '__rt__estimator__schema__'
 }
 
 // Implementation
 export class Estimator {
   logs: LogEntry[] = []
-  elapsedTime = 0
   _startTime = now()
-  _lastAnswerType = 0
-  _lastLogEpoch = 0
+  get elapsedTime () {
+    return now() - this._startTime
+  }
 
   reset () {
     this.logs = []
-    this.elapsedTime = 0
     this._startTime = now()
     this.save()
   }
@@ -43,16 +42,13 @@ export class Estimator {
     const logLength = this.logs.length
     const epoch = now()
     const dt =
-      logLength ? epoch - this._lastLogEpoch
+      logLength ? epoch - this.logs[this.logs.length - 1].epoch
         : epoch - this._startTime
     this.logs.push({ epoch, dt, dy, logType })
-    this.elapsedTime = epoch - this._startTime
-    this._lastLogEpoch = epoch
     this.save()
   }
 
   skipUpdate () {
-    this.elapsedTime = now() - this._startTime
     this.save()
   }
 
@@ -87,7 +83,7 @@ export class Estimator {
     // serialize
     const s = []
     s.push(ESTIMATOR_SCHEMA_VERSION)
-    s.push(this.elapsedTime, this._startTime, this._lastAnswerType, this._lastLogEpoch)
+    s.push(this._startTime)
     for (const log of this.logs) {
       s.push(log.epoch, log.dt, log.dy, log.logType)
     }
@@ -113,10 +109,7 @@ export class Estimator {
           throw new Error('Old schema')
         }
         const obj = new Estimator()
-        obj.elapsedTime = s[cursor++]
         obj._startTime = s[cursor++]
-        obj._lastAnswerType = s[cursor++]
-        obj._lastLogEpoch = s[cursor++]
         while (cursor < s.length) {
           obj.logs.push({
             epoch: s[cursor + 0],
