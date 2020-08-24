@@ -1,5 +1,5 @@
 import { Estimator } from './estimator'
-import { RemainingCardCounts, getRemainingCardLoad, getRemainingReviews } from './utils'
+import { RemainingCardCounts, getRemainingCardLoad, getRemainingReviews, now } from './utils'
 import ankiLocalStorage from './utils/ankiLocalStorage'
 import { onSameReviewSession } from './isDoingReview'
 
@@ -29,7 +29,7 @@ let lastEpoch = 0
 
 export async function updateEstimator () {
   const instruction = await processRemainingCountDiff()
-  const epoch = new Date().getTime() / 1000
+  const epoch = now()
   const estimator = await Estimator.instance()
 
   // Due to how run() is called on index.ts, on desktop anki
@@ -42,7 +42,7 @@ export async function updateEstimator () {
 
   switch (instruction.instType) {
     case RCCTConst.IGNORE:
-      estimator.skipUpdate(epoch)
+      estimator.skipUpdate()
       return
 
     case RCCTConst.RESET:
@@ -50,7 +50,7 @@ export async function updateEstimator () {
       return
 
     case RCCTConst.UPDATE:
-      estimator.update(epoch, instruction.dy, instruction.logType)
+      estimator.update(instruction.dy, instruction.logType)
   }
 }
 /// /

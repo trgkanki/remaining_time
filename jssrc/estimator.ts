@@ -3,6 +3,7 @@
  */
 
 import ankiLocalStorage from './utils/ankiLocalStorage'
+import { now } from './utils'
 
 const cutoffDt = 300
 const historyDecay = 1 / 1.005
@@ -27,30 +28,31 @@ function getLocalStorageKey () {
 export class Estimator {
   logs: LogEntry[] = []
   elapsedTime = 0
-  _startTime = Date.now() / 1000
+  _startTime = now()
   _lastAnswerType = 0
   _lastLogEpoch = 0
 
   reset () {
     this.logs = []
     this.elapsedTime = 0
-    this._startTime = Date.now() / 1000
+    this._startTime = now()
     this.save()
   }
 
-  update (epoch: number, dy: number, logType: string) {
+  update (dy: number, logType: string) {
     const logLength = this.logs.length
+    const epoch = now()
     const dt =
       logLength ? epoch - this._lastLogEpoch
         : epoch - this._startTime
     this.logs.push({ epoch, dt, dy, logType })
-    this.elapsedTime = Date.now() / 1000 - this._startTime
+    this.elapsedTime = epoch - this._startTime
     this._lastLogEpoch = epoch
     this.save()
   }
 
-  skipUpdate (epoch: number) {
-    this._lastLogEpoch = epoch
+  skipUpdate () {
+    this.elapsedTime = now() - this._startTime
     this.save()
   }
 
@@ -127,6 +129,8 @@ export class Estimator {
         if (!cursor === s.length) {
           throw new Error('Length mismatch - RTT')
         }
+
+        // re-update elapsed time
         cache = obj
       } catch {
         cache = new Estimator()
