@@ -55,14 +55,14 @@ Reviewer._initWeb = wrap(Reviewer._initWeb, afterInitWeb, "after")
 # Theme manager
 
 
-def new_body_class(self, _old):
+def new_body_class(self, *args, _old):
     showAtBottom = getConfig("showAtBottom", False)
     if showAtBottom:
         rtClass = "remaining-time-bar-bottom"
     else:
         rtClass = "remaining-time-bar-top"
 
-    classes = _old(self)
+    classes = _old(self, *args)
     return classes + " " + rtClass
 
 
