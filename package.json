@@ -5,9 +5,9 @@
   "scripts": {
     "dev:js": "cross-env NODE_ENV=development webpack -w --progress",
     "build:js": "webpack --progress",
-    "build": "npm-run-all build:js",
+    "build": "npm-run-all build:js && npx trgkanki-template-cli package",
     "update:template": "npx trgkanki-template-cli update",
-    "dist": "npm run build && npx trgkanki-template-cli package",
+    "dist": "npm run build && npx trgkanki-template-cli release",
     "test": "npm-run-all test:py",
     "test:py": "nosetests src/tests"
   },
@@ -48,19 +48,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "git-branch-is --not master && lint-staged && npm run test"
+      "pre-commit": "git-branch-is --not master && lint-staged"
     }
-  },
-  "lint-staged": {
-    "*.{js,ts}": [
-      "eslint --fix"
-    ],
-    "*.py": [
-      "black"
-    ],
-    "*.{scss,css}": [
-      "stylelint --fix"
-    ]
   },
   "dependencies": {}
 }
