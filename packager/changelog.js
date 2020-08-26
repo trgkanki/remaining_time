@@ -17,9 +17,18 @@ const tmp = require('tmp')
 const fs = require('fs')
 const format = require('date-fns/format')
 
-const { getLatestReleaseVersion, getCommitsSinceTag, getRepoName } = require('./gitCommand')
+const { getLatestReleaseVersion, getRepoName } = require('./gitCommand')
 const { renderMarkdownHTML } = require('./markedHTMLRenderer')
 const { getStdout } = require('./execCommand')
+const { codeToEmoji } = require('./gitmoji')
+
+async function getCommitsSinceTag (tag) {
+  const command =
+    tag ? `git log --first-parent --oneline ${tag}...HEAD`
+      : 'git log --first-parent --oneline'
+  const log = await getStdout(command)
+  return codeToEmoji(log)
+}
 
 exports.inputChangelog = async function () {
   const lastVersion = await getLatestReleaseVersion()

@@ -14,7 +14,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 const { getStdout } = require('./execCommand')
-const { codeToEmoji } = require('./gitmoji')
 const natCompare = require('natural-compare-lite')
 
 exports.checkCleanRepo = async function () {
@@ -42,12 +41,4 @@ exports.getLatestReleaseVersion = async function () {
     }
   }
   return lastTag || undefined
-}
-
-exports.getCommitsSinceTag = async function (tag) {
-  const command =
-    tag ? `git log --first-parent --oneline ${tag}...HEAD`
-      : 'git log --first-parent --oneline'
-  const log = await getStdout(command)
-  return codeToEmoji(log)
 }
