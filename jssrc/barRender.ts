@@ -35,7 +35,7 @@ function updateDOM (svgHtml: string, progressBarMessage: string) {
   const resetButton = barEl.querySelector('.rt-reset')
   if (!resetButton) return
   resetButton.addEventListener('click', async () => {
-    if (confirm('Really reset?')) {
+    if (confirm('[Remaining time] Press OK to reset the progress bar.')) {
       const estimator = await Estimator.instance()
       estimator.reset()
       updateProgressBar()
