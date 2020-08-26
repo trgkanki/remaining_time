@@ -4,8 +4,8 @@
   "description": "template for trgkanki's addon",
   "scripts": {
     "build": "",
-    "update:template": "npx trgkanki-template update",
-    "dist": "npm run build && npx trgkanki-template package",
+    "update:template": "npx trgkanki-template-cli update",
+    "dist": "npm run build && npx trgkanki-template-cli package",
     "test": "npm-run-all test:py",
     "test:py": "nosetests src/tests"
   },
