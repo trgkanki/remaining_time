@@ -34,13 +34,5 @@
       "pre-commit": "git-branch-is --not master && lint-staged && npm run test"
     }
   },
-  "lint-staged": {
-    "*.{js}": [
-      "eslint --fix"
-    ],
-    "*.py": [
-      "black"
-    ]
-  },
   "dependencies": {}
 }
