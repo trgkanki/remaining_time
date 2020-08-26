@@ -31,7 +31,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "git-branch-is --not master && lint-staged && npm run test"
+      "pre-commit": "git-branch-is --not master && lint-staged"
     }
   },
   "dependencies": {}
