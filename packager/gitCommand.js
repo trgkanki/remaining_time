@@ -44,6 +44,8 @@ exports.getLatestReleaseVersion = async function () {
 }
 
 exports.getCommitsSinceTag = async function (tag) {
-  if (tag) return getStdout(`git log --graph --oneline ${tag}...HEAD`)
-  else return getStdout('git log --graph --oneline')
+  const command =
+    tag ? `git log --first-parent --oneline ${tag}...HEAD`
+      : 'git log --first-parent --oneline'
+  return getStdout(command)
 }
