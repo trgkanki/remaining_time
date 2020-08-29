@@ -7,6 +7,7 @@
     "build:js": "webpack --progress",
     "build": "npm-run-all build:js && npx trgkanki-template-cli package",
     "update:template": "npx trgkanki-template-cli update",
+    "link": "npx trgkanki-template-cli link",
     "dist": "npm run build && npx trgkanki-template-cli release",
     "test": "npm-run-all test:py",
     "test:py": "nosetests src/tests"
