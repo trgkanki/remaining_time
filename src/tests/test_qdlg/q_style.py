@@ -13,13 +13,29 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from .layout import VStack, HStack  # NOQA\
+import sys
+from qdlgproxy import (  # type: ignore
+    QDlg,
+    Button,
+    HStack,
+)
+from PyQt5.Qt import QApplication
 
-from .Text import Text  # NOQA
-from .Button import Button  # NOQA
-from .LineEdit import LineEdit  # NOQA
-from .CheckBox import CheckBox  # NOQA
-from .RadioButton import RadioButton  # NOQA
-from .ListBox import ListBox  # NOQA
-from .Table import Table, Tr, Td  # NOQA
-from .Group import Group  # NOQA
+style = """
+    QPushButton {
+        margin: 50px;
+    }
+"""
+
+
+@QDlg("OK/reject test")
+def qDlgClass(dlg):
+    dlg.setStyleSheet(style)
+    with HStack():
+        Button("OK").onClick(dlg.accept).style(style)
+        Button("Cancel").onClick(dlg.reject).style("padding: 30px;")
+
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    qDlgClass.run()
