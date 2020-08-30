@@ -21,6 +21,8 @@ class Shortcutable:
         kSeq = QKeySequence(keySequence)
         self.widget.setShortcut(kSeq)
         self.widget.setToolTip(kSeq.toString())
+        return self
 
     def default(self):
         self.widget.setDefault(True)
+        return self
