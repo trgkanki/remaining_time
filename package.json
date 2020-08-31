@@ -9,7 +9,7 @@
     "link": "npx trgkanki-template-cli link",
     "dist": "npx trgkanki-template-cli release",
     "test": "npm-run-all test:py",
-    "test:py": "nosetests src/tests"
+    "test:py": "python3 -m nose src/tests"
   },
   "keywords": [
     "anki",
