@@ -148,3 +148,4 @@ class ListBox(StylableWidget):
     def sorted(self, enabled=True):
         self._sorted = enabled
         self._refillData()
+        return self

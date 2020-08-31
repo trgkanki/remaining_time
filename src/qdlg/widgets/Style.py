@@ -14,17 +14,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-class Style:
-    margin = None
-
-    def margin(self, vertical, horizontal=None):
-        if horizontal is None:
-            horizontal = vertical
-        self.margin = (horizontal, vertical)
-
-
 class StylableWidget:
-    def apply(style):
-        if style.margin:
-            horizontal, vertical = style.margin
-            self.widget.setContentsMargins(horizontal, vertical, horizontal, vertical)
+    def style(self, style: str):
+        self.widget.setStyleSheet(style)
+        return self
+
+
+class StylableLayout:
+    def style(self, style: str):
+        self.layout.setStyleSheet(str)
+        return self
