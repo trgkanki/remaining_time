@@ -29,7 +29,7 @@ function updateDOM (svgHtml: string, progressBarMessage: string) {
   barEl.innerHTML = `
     ${svgHtml}
     <div class='rt-message'>${progressBarMessage}</div>
-    <a class='rt-reset' href=# title='Reset progress bar for this deck'>[⥻]</a>
+    <a class='rt-reset' href=#resetRT title='Reset progress bar for this deck'>[⥻]</a>
   `
 
   const resetButton = barEl.querySelector('.rt-reset')
