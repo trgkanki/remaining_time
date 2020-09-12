@@ -16,7 +16,11 @@
 from aqt import mw
 from aqt.utils import askUser
 from ..qdlg import observable
+from .resource import updateMedia
+from .uuid import addonUUID
+
 import os
+import json
 
 
 def getCurrentAddonName():
@@ -42,6 +46,7 @@ def setConfig(key, value):
         config = {}
     config[key] = value
     mw.addonManager.writeConfig(addonName, config)
+    _syncJSConfig()
 
 
 # Configuration editor related code
@@ -63,3 +68,20 @@ def setConfigAll(newConfig):
     for k, v in newConfig.items():
         config[k] = v
     mw.addonManager.writeConfig(addonName, config)
+    _syncJSConfig()
+
+
+# Js interop.
+
+
+def _syncJSConfig():
+    config = getConfigAll()
+    if config is None:  # addon doesn't have a config
+        return
+
+    configPathName = "_addon_config_%s.json" % addonUUID().replace("-", "_")
+    updateMedia(configPathName, json.dumps(config))
+
+
+# sync on startup
+_syncJSConfig()
