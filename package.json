@@ -1,6 +1,6 @@
 {
     "name": "addon_template",
-    "version": "20.8.25i52",
+    "version": "20.9.12i225",
     "description": "template for trgkanki's addon",
     "scripts": {
         "postinstall": "python3 -m pip install -r requirements.txt",
