@@ -15,10 +15,9 @@
 
 from aqt import mw
 from aqt.utils import askUser
-from ..qdlg import observable
-from .resource import updateMedia
-from .uuid import addonUUID
+from anki.hooks import addHook
 
+from .resource import updateMedia
 import os
 import json
 
@@ -75,6 +74,8 @@ def setConfigAll(newConfig):
 
 
 def _syncJSConfig():
+    from .uuid import addonUUID
+
     config = getConfigAll()
     if config is None:  # addon doesn't have a config
         return
@@ -84,4 +85,4 @@ def _syncJSConfig():
 
 
 # sync on startup
-_syncJSConfig()
+addHook("profileloaded", _syncJSConfig)
