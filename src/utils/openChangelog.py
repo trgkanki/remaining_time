@@ -16,7 +16,14 @@
 from aqt import mw
 from aqt.utils import askUser
 from aqt.utils import openLink
-from aqt.qt import QDesktopServices, QUrl
+from aqt.qt import (
+    QDesktopServices,
+    QUrl,
+    QDialog,
+    QVBoxLayout,
+    QDialogButtonBox,
+    QTextBrowser,
+)
 from anki.utils import noBundledLibs
 
 import os
@@ -42,7 +49,16 @@ def showChangelogOnUpdate():
         changelogPath = getResourcePath("CHANGELOG.html")
         if os.path.exists(changelogPath):
             with noBundledLibs():
-                showText(readResource("CHANGELOG.html"), type="html", title="Changelog")
+                diag, _ = showText(
+                    readResource("CHANGELOG.html"),
+                    type="html",
+                    title="Changelog",
+                    run=False,
+                    minWidth=800,
+                    minHeight=600,
+                )
+                diag.setParent(None)
+                diag.exec_()
 
 
 showChangelogOnUpdate()

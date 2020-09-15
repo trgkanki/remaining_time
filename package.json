@@ -5,8 +5,9 @@
   "scripts": {
     "postinstall": "python3 -m pip install -r requirements.txt",
     "dev:js": "cross-env NODE_ENV=development webpack -w --progress",
-    "build:js": "webpack --progress",
-    "build": "npm-run-all build:js && npx trgkanki-template-cli package",
+    "compile:js": "webpack --progress",
+    "compile": "npm-run-all compile:js",
+    "build": "npm run compile && npx trgkanki-template-cli package",
     "update:template": "npx trgkanki-template-cli update",
     "link": "npx trgkanki-template-cli link",
     "dist": "npx trgkanki-template-cli release",
