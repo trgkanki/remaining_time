@@ -1,6 +1,8 @@
 import { Estimator } from './estimator'
 import { getRemainingReviews, t2s, getRemainingCardLoad as reviewLoad } from './utils'
 import './basestyle.scss'
+// eslint-disable-next-line
+const innerCSSText = require('!!raw-loader!sass-loader!./basestyle.scss').default as string
 
 // Drawing settings
 const clampMinTime = 10
@@ -26,13 +28,24 @@ function updateDOM (svgHtml: string, progressBarMessage: string) {
     document.body.append(barEl)
   }
 
-  barEl.innerHTML = `
-    ${svgHtml}
-    <div class='rt-message'>${progressBarMessage}</div>
-    <a class='rt-reset' href=#resetRT title='Reset progress bar for this deck'>[⥻]</a>
+  // Shadow DOM to isolate styling from external CSS
+  const shadowRoot = barEl.shadowRoot || barEl.attachShadow({ mode: 'open' })
+  shadowRoot.innerHTML = `
+  <div class='rt-container' id='rtContainer'>
+  <style>${innerCSSText}</style>
+  ${svgHtml}
+  <div class='rt-message'>${progressBarMessage}</div>
+  <a class='rt-reset' href=#resetRT title='Reset progress bar for this deck'>[⥻]</a>
+  </div>
   `
+  // since shadow DOM isloates CSS hierarchy, we should manually add night mode classes
+  // back to shadow dom root
+  if (document.body.classList.contains('nightMode')) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    shadowRoot.getElementById('rtContainer')!.classList.add('nightMode')
+  }
 
-  const resetButton = barEl.querySelector('.rt-reset')
+  const resetButton = shadowRoot.querySelector('.rt-reset')
   if (!resetButton) return
   resetButton.addEventListener('click', async () => {
     if (confirm('[Remaining time] Press OK to reset the progress bar.')) {

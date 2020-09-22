@@ -6,7 +6,8 @@
 .rt-container {
   background: #fff;
 
-  .nightMode & {
+  .nightMode &,
+  &.nightMode {
     background: #2f2f31;
   }
 }
@@ -36,7 +37,8 @@
   }
 
   /* stylelint-disable-next-line selector-class-pattern */
-  .nightMode & {
+  .nightMode &,
+  &.nightMode {
     color: #fff;
   }
 
