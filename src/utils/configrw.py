@@ -80,9 +80,11 @@ def _syncJSConfig():
     if config is None:  # addon doesn't have a config
         return
 
-    configPathName = "_addon_config_%s.json" % addonUUID().replace("-", "_")
-    updateMedia(configPathName, json.dumps(config))
+    # Due to CORB, we cannot use `.json` as file extension.
+    configPathName = "_addon_config_%s.js" % addonUUID().replace("-", "_")
+    jsonp = f"""window._ADDON_CONFIG_CALLBACK_{addonUUID().replace("-", "")}({json.dumps(config)})"""
+    updateMedia(configPathName, jsonp.encode("utf-8"))
 
 
 # sync on startup
-addHook("profileloaded", _syncJSConfig)
+addHook("profileLoaded", _syncJSConfig)
