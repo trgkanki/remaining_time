@@ -1,6 +1,7 @@
 import { Estimator } from './estimator'
 import { getRemainingReviews, t2s, getRemainingCardLoad as reviewLoad } from './utils'
 import './basestyle.scss'
+import { getAddonConfig } from './utils/addonConfig'
 // eslint-disable-next-line
 const innerCSSText = require('!!raw-loader!sass-loader!./basestyle.scss').default as string
 
@@ -17,6 +18,11 @@ function zf (n: number, cnt: number) {
 
 function HHmmFormat (date: Date) {
   return `${zf(date.getHours(), 2)}:${zf(date.getMinutes(), 2)}`
+}
+
+function HHmmFormat12 (date: Date) {
+  const amPm = date.getHours() >= 12 ? 'PM' : 'AM'
+  return `${zf((date.getHours() - 1) % 12 + 1, 2)}:${zf(date.getMinutes(), 2)} ${amPm}`
 }
 
 function updateDOM (svgHtml: string, progressBarMessage: string) {
@@ -64,10 +70,20 @@ export async function updateProgressBar () {
   const estimator = await Estimator.instance()
   const elapsedTime = estimator.elapsedTime
   const remainingTime = remainingLoad / estimator.getSlope()
+  const totalTime = elapsedTime + remainingTime
+  const CPM = (estimator.getSlope() * 60).toFixed(2)
   const ETA = new Date()
   ETA.setSeconds(ETA.getSeconds() + remainingTime)
-  const ETAString = (remainingTime >= 86400) ? '> day' : HHmmFormat(ETA)
-  const message = `Elapsed ${t2s(elapsedTime)},  Remaining ${t2s(remainingTime)}, ETA ${ETAString}`
+  const ETAString24 = (remainingTime >= 86400) ? '> day' : HHmmFormat(ETA)
+  const ETAString12 = (remainingTime >= 86400) ? '> day' : HHmmFormat12(ETA)
+
+  let message = (await getAddonConfig()).messageFormat as string
+  message = message.replace('%(elapsedTime)', t2s(elapsedTime))
+  message = message.replace('%(remainingTime)', t2s(remainingTime))
+  message = message.replace('%(totalTime)', t2s(totalTime))
+  message = message.replace('%(ETA)', ETAString24)
+  message = message.replace('%(ETA12)', ETAString12)
+  message = message.replace('%(CPM)', CPM)
 
   const progress = elapsedTime / (elapsedTime + remainingTime)
   const pathSVGs: string[] = []

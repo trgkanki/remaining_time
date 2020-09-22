@@ -1,4 +1,5 @@
 {
   "showAtBottom": false,
-  "runOnMobile": false
+  "runOnMobile": false,
+  "messageFormat": "Elapsed %(elapsedTime),  Remaining %(remainingTime), ETA %(ETA)"
 }

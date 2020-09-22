@@ -13,11 +13,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import { requestJSONP } from './jsonp'
+
 /**
  * Retrieve addon config set on Anki side. Python side uploads addon config to
  * user's media folder.
  */
-export async function getAddonConfig (): Promise<any> {
-  const data = await fetch(`/_addon_config_${ADDON_UUID.replace('-', '_')}.json`)
-  return await data.json()
+export async function getAddonConfig (key?: string): Promise<any> {
+  // Due to CORB, we cannot use `.json` as file extension.
+  const jsURL = `/_addon_config_${ADDON_UUID.replace(/-/g, '_')}.js`
+  const callbackName = `_ADDON_CONFIG_CALLBACK_${ADDON_UUID.replace(/-/g, '')}`
+  const res = await requestJSONP(jsURL, callbackName)
+  if (key) return res[key]
+  else return res
 }
