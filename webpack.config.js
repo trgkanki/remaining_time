@@ -17,7 +17,6 @@ module.exports = {
     library: '__remainingTime'
   },
   mode: process.env.NODE_ENV || 'production',
-  devtool: 'source-map',
   module: {
     rules: [
       {
