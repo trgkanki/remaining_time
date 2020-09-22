@@ -2,6 +2,12 @@
 
 [comment]: # (DO NOT MODIFY. new changelog goes here)
 
+## 20.9.22i38 (2020-09-22)
+
+- Fixes `main.min.map` related inspector error
+- Fixes card CSS interfering w/ progress bar styling
+- Progress bar message now customizable on addon config.
+
 ## 20.9.12i225 (2020-09-13)
 
 - Fixes confirm message so that user can 
