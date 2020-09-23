@@ -1,5 +1,12 @@
 # Changelog of remaining_time
 
+In case you're using this addon well, consider supporting me via patreon!
+If you encounter any bugs, submit through [Github issues](https://github.com/trgkanki/remaining_time/issues) page.
+
+[![github](https://cdn.jsdelivr.net/gh/trgkanki/trgkanki-template-cli@develop/res/github_small.png)](https://github.com/trgkanki/remaining_time/issues)
+[![patreon](https://cdn.jsdelivr.net/gh/trgkanki/trgkanki-template-cli@develop/res/patreon_small.png)](https://www.patreon.com/trgk)
+
+
 [comment]: # (DO NOT MODIFY. new changelog goes here)
 
 ## 20.9.22i38 (2020-09-22)
