@@ -1,11 +1,25 @@
 # Changelog of remaining_time
 
-In case you're using this addon well, consider supporting me via patreon!
+In case you're using this addon well, consider supporting me via [patreon](https://www.patreon.com/trgk)!
 If you encounter any bugs, submit through [Github issues](https://github.com/trgkanki/remaining_time/issues) page.
 
 [![github](https://cdn.jsdelivr.net/gh/trgkanki/trgkanki-template-cli@develop/res/github_small.png)](https://github.com/trgkanki/remaining_time/issues)
 [![patreon](https://cdn.jsdelivr.net/gh/trgkanki/trgkanki-template-cli@develop/res/patreon_small.png)](https://www.patreon.com/trgk)
 
+<details>
+  <summary>🎉 Special thanks to ...</summary>
+  
+  ## Patreons
+  - abed
+  - Sven
+
+  # Developers
+  - [Glutaminate](https://github.com/glutanimate/)
+  - [Dae](github.com/dae/)
+
+</details>
+
+---------
 
 [comment]: # (DO NOT MODIFY. new changelog goes here)
 
