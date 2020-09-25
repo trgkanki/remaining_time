@@ -21,7 +21,7 @@ import { requestJSONP } from './jsonp'
  */
 export async function getAddonConfig (key?: string): Promise<any> {
   // Due to CORB, we cannot use `.json` as file extension.
-  const jsURL = `/_addon_config_${ADDON_UUID.replace(/-/g, '_')}.js`
+  const jsURL = `_addon_config_${ADDON_UUID.replace(/-/g, '_')}.js`
   const callbackName = `_ADDON_CONFIG_CALLBACK_${ADDON_UUID.replace(/-/g, '')}`
   const res = await requestJSONP(jsURL, callbackName)
   if (key) return res[key]
