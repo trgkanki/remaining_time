@@ -23,6 +23,10 @@ If you encounter any bugs, submit through [Github issues](https://github.com/trg
 
 [comment]: # (DO NOT MODIFY. new changelog goes here)
 
+## 20.9.25i145 (2020-09-25)
+
+Fix issues with AnkiDroid support.
+
 ## 20.9.22i38 (2020-09-22)
 
 - Fixes `main.min.map` related inspector error
