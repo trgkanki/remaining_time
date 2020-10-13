@@ -2,6 +2,7 @@ import { Estimator } from './estimator'
 import { RemainingCardCounts, getRemainingCardLoad, getRemainingReviews, now } from './utils'
 import ankiLocalStorage from './utils/ankiLocalStorage'
 import { onSameReviewSession } from './isDoingReview'
+import { debugLog } from './utils/debugLog'
 
 enum RCCTConst {
   RESET,
@@ -32,6 +33,8 @@ export async function updateEstimator () {
   const epoch = now()
   const estimator = await Estimator.instance()
 
+  debugLog(' - Output instruction: %s', JSON.stringify(instruction))
+
   // Due to how run() is called on index.ts, on desktop anki
   // run() might be called twice with qFade(100ms) duration.
   // on android this duration may goes up to 500ms.
@@ -54,6 +57,7 @@ export async function updateEstimator () {
   }
   estimator.save()
 }
+
 /// /
 
 async function processRemainingCountDiff (): Promise<EstimatorInst> {
@@ -67,6 +71,8 @@ async function processRemainingCountDiff (): Promise<EstimatorInst> {
 
     const { nu: nu0, lrn: lrn0, rev: rev0 } = prevRemainingCards
     const { nu: nu1, lrn: lrn1, rev: rev1 } = currentRemainingCards
+
+    debugLog('RCC - prev: %s, current: %s', JSON.stringify(prevRemainingCards), JSON.stringify(currentRemainingCards))
 
     // See the new card for the first time
     if (
