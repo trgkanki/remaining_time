@@ -1,5 +1,8 @@
 # Remaining Time 2.1 - Configuration
 
+## debug (default: false)
+Enable debug mode.
+
 ## showAtBottom (default: false)
 
 When this is true, the progress bar will show at the bottom.

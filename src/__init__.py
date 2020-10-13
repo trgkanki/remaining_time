@@ -27,10 +27,13 @@ from .utils import uuid  # duplicate UUID checked here
 from .utils.JSEval import execJSFile
 from .utils.configrw import getConfig
 from .utils.resource import updateMedia, readResource
+from .utils.debug import openLogWithPreferredEditor, isDebugMode
 
 from aqt.reviewer import Reviewer
 from aqt.theme import ThemeManager
 from anki.hooks import wrap, addHook
+from aqt.qt import QAction
+from aqt import mw
 
 from .mobileSupport.modelModifier import registerMobileScript
 from . import jsapi
@@ -67,3 +70,10 @@ def new_body_class(self, *args, _old):
 
 
 ThemeManager.body_class = wrap(ThemeManager.body_class, new_body_class, "around")
+
+## debug menu
+
+if isDebugMode():
+    action = QAction("Show addon log: Remaining time", mw)
+    action.triggered.connect(openLogWithPreferredEditor)
+    mw.form.menuHelp.addAction(action)
