@@ -57,6 +57,7 @@ function updateDOM (svgHtml: string, progressBarMessage: string) {
     if (confirm('[Remaining time] Press OK to reset the progress bar.')) {
       const estimator = await Estimator.instance()
       estimator.reset()
+      estimator.save()
       updateProgressBar()
     }
   })
