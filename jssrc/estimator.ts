@@ -35,7 +35,6 @@ export class Estimator {
   reset () {
     this.logs = []
     this._startTime = now()
-    this.save()
   }
 
   update (dy: number, logType: string) {
@@ -51,11 +50,6 @@ export class Estimator {
     if (dy > 10) dy = 10
 
     this.logs.push({ epoch, dt, dy, logType })
-    this.save()
-  }
-
-  skipUpdate () {
-    this.save()
   }
 
   getSlope () {

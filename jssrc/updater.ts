@@ -42,16 +42,17 @@ export async function updateEstimator () {
 
   switch (instruction.instType) {
     case RCCTConst.IGNORE:
-      estimator.skipUpdate()
-      return
+      break
 
     case RCCTConst.RESET:
       estimator.reset()
-      return
+      break
 
     case RCCTConst.UPDATE:
       estimator.update(instruction.dy, instruction.logType)
+      break
   }
+  estimator.save()
 }
 /// /
 
