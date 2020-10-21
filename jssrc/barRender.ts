@@ -121,11 +121,11 @@ export async function updateProgressBar () {
               (clampedDt - segmentAlphaConsts.clampMinTime) / (segmentAlphaConsts.clampMaxTime - segmentAlphaConsts.clampMinTime)
             )
 
-    pathSVGs.push(`<path class="rt-log-${log.logType}" d="M${rectX} 0 h${rectW} V1 h-${rectW} Z" opacity="${rectAlpha}" shape-rendering="crispEdges" />`)
+    pathSVGs.push(`<path class="rt-log-segment rt-log-${log.logType}" d="M${rectX} 0 h${rectW} V1 h-${rectW} Z" opacity="${rectAlpha}" />`)
 
     // X sign for long segment
     if (log.dt > longSegmentClampMinTime) {
-      pathSVGs.push(`<path class="rt-log-indicator-long" d="M${rectX} .1 l${rectW} .8 Z M${rectX} .9 l${rectW} -.8 Z" />`)
+      pathSVGs.push(`<path class="rt-log-segment-truncated" d="M${rectX} .1 l${rectW} .8 Z M${rectX} .9 l${rectW} -.8 Z" />`)
     }
     rectX += rectW
   }
