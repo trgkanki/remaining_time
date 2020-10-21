@@ -1,7 +1,8 @@
 import { Estimator } from './estimator'
 import { getRemainingReviews, t2s, getRemainingCardLoad as reviewLoad } from './utils'
-import './basestyle.scss'
 import { getAddonConfig } from './utils/addonConfig'
+import './basestyle.scss'
+
 // eslint-disable-next-line
 const innerCSSText = require('!!raw-loader!sass-loader!./basestyle.scss').default as string
 
@@ -121,7 +122,35 @@ export async function updateProgressBar () {
               (clampedDt - segmentAlphaConsts.clampMinTime) / (segmentAlphaConsts.clampMaxTime - segmentAlphaConsts.clampMinTime)
             )
 
-    pathSVGs.push(`<path class="rt-log-segment rt-log-${log.logType}" d="M${rectX} 0 h${rectW} V1 h-${rectW} Z" opacity="${rectAlpha}" />`)
+    // To utilize @typescript-eslint/switch-exhaustiveness-check rule, we use switch here
+    // instead of more straightforward dictionary method.
+    let logTooltip: string
+    switch (log.logType) {
+      case 'again':
+        logTooltip = 'Wrong'
+        break
+      case 'good':
+        logTooltip = 'Correct'
+        break
+      case 'new':
+        logTooltip = 'New card'
+        break
+      case 'rev-good':
+        logTooltip = '(Review) Correct'
+        break
+      case 'rev-again':
+        logTooltip = '(Review) Wrong'
+        break
+      case 'unknown':
+        logTooltip = '[unrecognized]'
+        break
+    }
+    logTooltip = `${logTooltip} (${t2s(log.dt)})`
+
+    pathSVGs.push(`
+      <path class="rt-log-segment rt-log-${log.logType}" d="M${rectX} 0 h${rectW} V1 h-${rectW} Z" opacity="${rectAlpha}">
+        <title>${logTooltip}</title>
+      </path>`)
 
     // X sign for long segment
     if (log.dt > longSegmentClampMinTime) {
