@@ -19,6 +19,7 @@ module.exports = {
         'standard'
       ],
       rules: {
+        '@typescript-eslint/switch-exhaustiveness-check': 'error',
         // disable the rule for all files
         '@typescript-eslint/explicit-function-return-type': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
@@ -33,6 +34,7 @@ module.exports = {
   },
   parser: '@typescript-eslint/parser',
   parserOptions: {
+    project: './tsconfig.json',
     ecmaVersion: 2018,
     sourceType: 'module'
   },

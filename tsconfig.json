@@ -31,7 +31,8 @@
     "jssrc/**/*.ts",
     "jssrc/**/*.tsx",
     "tests/**/*.ts",
-    "tests/**/*.tsx"
+    "tests/**/*.tsx",
+    ".eslintrc.js"
   ],
   "exclude": [
     "node_modules",

@@ -4,6 +4,7 @@
 
 import ankiLocalStorage from './utils/ankiLocalStorage'
 import { now } from './utils'
+import { InstLogType } from './updater'
 
 const cutoffDt = 300
 const historyDecay = 1 / 1.005
@@ -13,7 +14,7 @@ export interface LogEntry {
   epoch: number;
   dt: number;
   dy: number;
-  logType: string;
+  logType: InstLogType;
 }
 
 const ESTIMATOR_SCHEMA_VERSION = 1
@@ -37,7 +38,7 @@ export class Estimator {
     this._startTime = now()
   }
 
-  update (dy: number, logType: string) {
+  update (dy: number, logType: InstLogType) {
     const logLength = this.logs.length
     const epoch = now()
     const dt =

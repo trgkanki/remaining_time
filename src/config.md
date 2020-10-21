@@ -21,3 +21,4 @@ Format the messages. `%(variableName)` gets replaced to values below
 - `%(CPM)`: Cards per minute.
 - `%(ETA)`: Estimated time arrival. Expected review finish time
 - `%(ETA12)`: Same as `ETA`, except that it's in 12-hour format (ex: `12:00 PM`)
+- `%(RR)`: Retention rate for reviewed cards only. (ex: `80.0%`)

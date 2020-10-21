@@ -18,10 +18,12 @@ interface InstIgnore {
   instType: RCCTConst.IGNORE;
 }
 
+export type InstLogType = 'new' | 'good' | 'again' | 'rev-good' | 'rev-again' | 'unknown'
+
 interface InstUpdate {
   instType: RCCTConst.UPDATE;
   dy: number;
-  logType: 'new' | 'good' | 'again' | 'unknown';
+  logType: InstLogType;
 }
 
 type EstimatorInst = InstReset | InstIgnore | InstUpdate
@@ -102,8 +104,8 @@ async function processRemainingCountDiff (): Promise<EstimatorInst> {
       lrn0 <= lrn1 &&
       rev0 > rev1
     ) {
-      if (lrn0 === lrn1) return { instType: RCCTConst.UPDATE, dy, logType: 'good' }
-      else return { instType: RCCTConst.UPDATE, dy, logType: 'again' }
+      if (lrn0 === lrn1) return { instType: RCCTConst.UPDATE, dy, logType: 'rev-good' }
+      else return { instType: RCCTConst.UPDATE, dy, logType: 'rev-again' }
     }
 
     // maybe undo?

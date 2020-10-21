@@ -78,6 +78,10 @@ export async function updateProgressBar () {
   const ETAString24 = (remainingTime >= 86400) ? '> day' : HHmmFormat(ETA)
   const ETAString12 = (remainingTime >= 86400) ? '> day' : HHmmFormat12(ETA)
 
+  const correctRevCount = estimator.logs.filter(x => x.logType === 'rev-good').length
+  const againReviewCount = estimator.logs.filter(x => x.logType === 'rev-again').length
+  const retentionRateString = `${(100 * correctRevCount / (correctRevCount + againReviewCount)).toFixed(1)}%`
+
   let message = (await getAddonConfig()).messageFormat as string
   message = message.replace('%(elapsedTime)', t2s(elapsedTime))
   message = message.replace('%(remainingTime)', t2s(remainingTime))
@@ -85,6 +89,7 @@ export async function updateProgressBar () {
   message = message.replace('%(ETA)', ETAString24)
   message = message.replace('%(ETA12)', ETAString12)
   message = message.replace('%(CPM)', CPM)
+  message = message.replace('%(RR)', retentionRateString)
 
   const progress = elapsedTime / (elapsedTime + remainingTime)
   const pathSVGs: string[] = []
