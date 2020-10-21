@@ -23,6 +23,12 @@ If you encounter any bugs, submit through [Github issues](https://github.com/trg
 
 [comment]: # (DO NOT MODIFY. new changelog goes here)
 
+## 20.10.21i160 (2020-10-22)
+
+- Fix: showAtBottom now works on mobile
+- Feature: `%(RR)` for retention rate format
+- Debug: added support for debug log (see menu `Help > Show addon log: Remaining Time`)
+
 ## 20.9.25i145 (2020-09-25)
 
 Fix issues with AnkiDroid support.

@@ -15,7 +15,7 @@
 
 # -*- coding: utf-8 -*-
 #
-# remaining_time v20.9.25i145
+# remaining_time v20.10.21i160
 #
 # Copyright: trgk (phu54321@naver.com)
 # License: GNU AGPL, version 3 or later;
