@@ -1,5 +1,11 @@
+/* eslint-disable import/no-webpack-loader-syntax */
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/camelcase */
+
+import { getAddonConfig } from './utils/addonConfig'
+
+const rtbarTopCSS = require('!!raw-loader!./res/rtbar-top.css').default as string
+const rtbarBottomCSS = require('!!raw-loader!./res/rtbar-bottom.css').default as string
 
 (function () {
   const windowAny = window as any
@@ -13,6 +19,18 @@
 
     // eslint-disable-next-line no-inner-declarations
     async function main () {
+      // showAtBottom implementation
+      // note: Anki overwrites document.body.classList right after the HTML is loaded,
+      // so we cannot just add classname to body for UI styling.
+      const injectedCSS = (await getAddonConfig('showAtBottom')) ? rtbarBottomCSS : rtbarTopCSS
+      let style = document.getElementById('rt-vertical-positioner')
+      if (!style) {
+        style = document.createElement('style')
+        style.id = 'rt-vertical-positioner'
+        document.head.appendChild(style)
+      }
+      style.innerHTML = injectedCSS
+
       // ignore running on answer side.
       // updateEstimator thinks the user got the question wrong if new/lrn/rev
       // haven't changed after the last updateEstimator() call. (which can happen
@@ -23,7 +41,6 @@
       // Also, on AnkiDroid #qa has 'question' and 'answer' class name, but on desktop
       // #qa has neither of them. Hence we check the absence of .answer. On desktop
       // main() will be called only on question side anyway.
-
       const qaEl = document.getElementById('qa')
       if (qaEl && !qaEl.classList.contains('answer')) {
         await updateEstimator()

@@ -30,7 +30,6 @@ from .utils.resource import updateMedia, readResource
 from .utils.debug import openLogWithPreferredEditor, isDebugMode
 
 from aqt.reviewer import Reviewer
-from aqt.theme import ThemeManager
 from anki.hooks import wrap, addHook
 from aqt.qt import QAction
 from aqt import mw
@@ -55,21 +54,6 @@ def afterInitWeb(self):
 
 Reviewer._initWeb = wrap(Reviewer._initWeb, afterInitWeb, "after")
 
-# Theme manager
-
-
-def new_body_class(self, *args, _old):
-    showAtBottom = getConfig("showAtBottom", False)
-    if showAtBottom:
-        rtClass = "remaining-time-bar-bottom"
-    else:
-        rtClass = "remaining-time-bar-top"
-
-    classes = _old(self, *args)
-    return classes + " " + rtClass
-
-
-ThemeManager.body_class = wrap(ThemeManager.body_class, new_body_class, "around")
 
 ## debug menu
 
