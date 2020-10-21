@@ -63,3 +63,19 @@ def setConfigAll(newConfig):
     for k, v in newConfig.items():
         config[k] = v
     mw.addonManager.writeConfig(addonName, config)
+
+
+# Config update callback
+_configUpdateCallbacks = []
+
+
+def onConfigUpdate(func):
+    _configUpdateCallbacks.append(func)
+
+
+def cbConfigUpdated(_):
+    for f in _configUpdateCallbacks:
+        f()
+
+
+mw.addonManager.setConfigUpdatedAction(getCurrentAddonName(), cbConfigUpdated)
