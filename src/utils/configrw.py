@@ -73,6 +73,22 @@ def setConfigAll(newConfig):
     _syncJSConfig()
 
 
+# Config update callback
+_configUpdateCallbacks = []
+
+
+def onConfigUpdate(func):
+    _configUpdateCallbacks.append(func)
+
+
+def cbConfigUpdated(_):
+    for f in _configUpdateCallbacks:
+        f()
+
+
+mw.addonManager.setConfigUpdatedAction(getCurrentAddonName(), cbConfigUpdated)
+
+
 # Js interop.
 
 
@@ -89,5 +105,5 @@ def _syncJSConfig():
     updateMedia(configPathName, jsonp.encode("utf-8"))
 
 
-# sync on startup
 addHook("profileLoaded", _syncJSConfig)
+onConfigUpdate(_syncJSConfig)
