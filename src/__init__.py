@@ -23,16 +23,14 @@
 
 from .utils import openChangelog
 from .utils import uuid  # duplicate UUID checked here
+from .utils import debugLog  # debug log registered here
 
 from .utils.JSEval import execJSFile
 from .utils.configrw import getConfig
 from .utils.resource import updateMedia, readResource
-from .utils.debug import openLogWithPreferredEditor, isDebugMode
 
 from aqt.reviewer import Reviewer
 from anki.hooks import wrap, addHook
-from aqt.qt import QAction
-from aqt import mw
 
 from .mobileSupport.modelModifier import registerMobileScript
 from . import jsapi
@@ -53,11 +51,3 @@ def afterInitWeb(self):
 
 
 Reviewer._initWeb = wrap(Reviewer._initWeb, afterInitWeb, "after")
-
-
-## debug menu
-
-if isDebugMode():
-    action = QAction("Show addon log: Remaining time", mw)
-    action.triggered.connect(openLogWithPreferredEditor)
-    mw.form.menuHelp.addAction(action)

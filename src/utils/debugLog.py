@@ -2,6 +2,9 @@ from .resource import getResourcePath
 from .JSCallable import JSCallable
 from .configrw import getCurrentAddonName, getConfig
 
+from aqt.qt import QAction
+from aqt import mw
+
 from datetime import datetime
 import subprocess
 import os
@@ -38,4 +41,12 @@ def log(s: str, *args) -> None:
             f.write("[%s]\t%s\n" % (now.strftime("%Y-%m-%d %H:%M:%S"), s))
 
 
-log("Addon loaded")
+def _registerOpenLogMenu():
+    if isDebugMode():
+        addonName = mw.addonManager.addonName(getCurrentAddonName())
+        action = QAction("Show addon log: %s" % addonName, mw)
+        action.triggered.connect(openLogWithPreferredEditor)
+        mw.form.menuHelp.addAction(action)
+
+
+_registerOpenLogMenu()
