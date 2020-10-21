@@ -11,7 +11,7 @@ When this is true, the progress bar will show at the bottom.
 
 Set plugin to run also on mobile. *Note) only compatible w/ AnkiDroid.*
 
-## messageFormat (default: `"Elapsed %(elapsedTime),  Remaining %(remainingTime), ETA %(ETA24)"`)
+## messageFormat (default: `"Elapsed %(elapsedTime),  Remaining %(remainingTime), ETA %(ETA)"`)
 
 Format the messages. `%(variableName)` gets replaced to values below
 
