@@ -28,6 +28,7 @@ from aqt.utils import askUser
 from .utils import openChangelog
 from .utils.JSEval import execJSFile
 from .utils import uuid  # duplicate UUID checked here
+from .utils import debugLog  # debug log registered here
 
 
 def onLoadNote(self, focusTo=None):
