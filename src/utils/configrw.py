@@ -22,12 +22,15 @@ import os
 import json
 
 
-def getCurrentAddonName():
-    fPath = os.path.dirname(os.path.abspath(__file__))
-    fPath = fPath.replace(os.sep, "/")
-    fPathParts = fPath.split("/")
-    addons21Index = fPathParts.index("addons21")
-    return fPathParts[addons21Index + 1]
+def getCurrentAddonName(*, _cache=[]):
+    if not _cache:
+        fPath = os.path.dirname(os.path.abspath(__file__))
+        fPath = fPath.replace(os.sep, "/")
+        fPathParts = fPath.split("/")
+        addons21Index = fPathParts.index("addons21")
+        _cache.append(fPathParts[addons21Index + 1])
+
+    return _cache[0]
 
 
 def getConfig(key, default=None):
@@ -70,6 +73,22 @@ def setConfigAll(newConfig):
     _syncJSConfig()
 
 
+# Config update callback
+_configUpdateCallbacks = []
+
+
+def onConfigUpdate(func):
+    _configUpdateCallbacks.append(func)
+
+
+def cbConfigUpdated(_):
+    for f in _configUpdateCallbacks:
+        f()
+
+
+mw.addonManager.setConfigUpdatedAction(getCurrentAddonName(), cbConfigUpdated)
+
+
 # Js interop.
 
 
@@ -86,5 +105,5 @@ def _syncJSConfig():
     updateMedia(configPathName, jsonp.encode("utf-8"))
 
 
-# sync on startup
 addHook("profileLoaded", _syncJSConfig)
+onConfigUpdate(_syncJSConfig)
