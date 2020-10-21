@@ -6,10 +6,14 @@ import { getAddonConfig } from './utils/addonConfig'
 const innerCSSText = require('!!raw-loader!sass-loader!./basestyle.scss').default as string
 
 // Drawing settings
-const clampMinTime = 10
-const clampMaxTime = 120
-const minAlpha = 0.3
-const maxAlpha = 0.7
+const segmentAlphaConsts = {
+  clampMinTime: 10,
+  clampMaxTime: 120,
+  minAlpha: 0.3,
+  maxAlpha: 0.7
+}
+
+const longSegmentClampMinTime = 1800
 
 function zf (n: number, cnt: number) {
   const s = n.toString()
@@ -23,6 +27,10 @@ function HHmmFormat (date: Date) {
 function HHmmFormat12 (date: Date) {
   const amPm = date.getHours() >= 12 ? 'PM' : 'AM'
   return `${zf((date.getHours() - 1) % 12 + 1, 2)}:${zf(date.getMinutes(), 2)} ${amPm}`
+}
+
+function linearInterpolate (start: number, end: number, t: number) {
+  return start + (end - start) * t
 }
 
 function updateDOM (svgHtml: string, progressBarMessage: string) {
@@ -101,12 +109,24 @@ export async function updateProgressBar () {
   }
 
   for (const log of estimator.logs) {
-    const rectW = log.dt / timeSum * progress
+    const clampedDt = Math.min(log.dt, longSegmentClampMinTime)
+    const rectW = clampedDt / timeSum * progress
     const rectAlpha =
-     (log.dt < clampMinTime) ? maxAlpha
-       : (log.dt > clampMaxTime) ? minAlpha / 2
-         : maxAlpha - (log.dt - clampMinTime) / (clampMaxTime - clampMinTime) * (maxAlpha - minAlpha)
+      log.dt > longSegmentClampMinTime ? segmentAlphaConsts.minAlpha / 4
+        : (clampedDt < segmentAlphaConsts.clampMinTime) ? segmentAlphaConsts.maxAlpha
+          : (clampedDt > segmentAlphaConsts.clampMaxTime) ? segmentAlphaConsts.minAlpha / 2
+            : linearInterpolate(
+              segmentAlphaConsts.maxAlpha,
+              segmentAlphaConsts.minAlpha,
+              (clampedDt - segmentAlphaConsts.clampMinTime) / (segmentAlphaConsts.clampMaxTime - segmentAlphaConsts.clampMinTime)
+            )
+
     pathSVGs.push(`<path class="rt-log-${log.logType}" d="M${rectX} 0 h${rectW} V1 h-${rectW} Z" opacity="${rectAlpha}" shape-rendering="crispEdges" />`)
+
+    // X sign for long segment
+    if (log.dt > longSegmentClampMinTime) {
+      pathSVGs.push(`<path class="rt-log-indicator-long" d="M${rectX} .1 l${rectW} .8 Z M${rectX} .9 l${rectW} -.8 Z" />`)
+    }
     rectX += rectW
   }
 

@@ -71,6 +71,12 @@
 
   .rt-log-new { fill: rgb(103, 239, 79); }
   .rt-log-unknown { fill: rgb(135, 135, 135); }
+
+  .rt-log-indicator-long {
+    stroke: rgb(135, 135, 135);
+    opacity: 0.7;
+    stroke-width: 0.005;
+  }
 }
 
 .remaining-time-bar-top,
