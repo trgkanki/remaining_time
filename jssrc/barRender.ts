@@ -47,10 +47,12 @@ function updateDOM (svgHtml: string, progressBarMessage: string) {
   const shadowRoot = barEl.shadowRoot || barEl.attachShadow({ mode: 'open' })
   shadowRoot.innerHTML = `
   <div class='rt-container' id='rtContainer'>
-  <style>${innerCSSText}</style>
-  ${svgHtml}
-  <div class='rt-message'>${progressBarMessage}</div>
-  <a class='rt-reset' href=#resetRT title='Reset progress bar for this deck'>[⥻]</a>
+    <style>${innerCSSText}</style>
+    ${svgHtml}
+    <div class='rt-message'>
+      ${progressBarMessage}
+      <a class='rt-reset' href=#resetRT title='Reset progress bar for this deck'>[⥻]</a>
+    </div>
   </div>
   `
   // since shadow DOM isloates CSS hierarchy, we should manually add night mode classes

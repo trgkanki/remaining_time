@@ -55,12 +55,19 @@
 
   .rt-message {
     display: inline-block;
+    pointer-events: none;
+    user-select: none;
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translate(-50%, 100%);
+
+    .rt-reset {
+      display: inline-block;
+      pointer-events: all;
+    }
   }
 
-  .rt-reset {
-    display: inline-block;
-    margin-left: 0.8em;
-  }
 
   // Styles of progress bars.
   .rt-log-segment {
