@@ -25,8 +25,7 @@
   position: fixed;
   right: 0;
   // background set by <script>
-
-  text-align: center;
+;
   z-index: 100;
 
   a {
@@ -58,9 +57,10 @@
     pointer-events: none;
     user-select: none;
     position: absolute;
-    left: 50%;
+    width: 100%;
     bottom: 100%;
-    transform: translate(-50%, 100%);
+    text-align: center;
+    transform: translateY(100%);
 
     .rt-reset {
       display: inline-block;
