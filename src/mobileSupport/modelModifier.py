@@ -50,8 +50,8 @@ def registerMobileScript():
 
 def updateModels(col, mode):
     models = col.models
-    templateUpdated = [False]
     for model in col.models.all():
+        templateUpdated = [False]
         for template in model["tmpls"]:
             oldqfmt = template["qfmt"]
             oldafmt = template["afmt"]
@@ -80,5 +80,5 @@ def updateModels(col, mode):
             if not (template["qfmt"] == oldqfmt and template["afmt"] == oldafmt):
                 templateUpdated[0] = True
 
-    if templateUpdated[0]:
-        models.save()
+        if templateUpdated[0]:
+            models.save(model)
