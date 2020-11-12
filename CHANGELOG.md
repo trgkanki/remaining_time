@@ -23,6 +23,12 @@ If you encounter any bugs, submit through [Github issues](https://github.com/trg
 
 [comment]: # (DO NOT MODIFY. new changelog goes here)
 
+## 20.11.12i113 (2020-11-12)
+
+- Feature: you can add custom css to the progress bar (#15)
+- Fix: message: no line break, better align to center
+- Fix: code fix for model update. Better compatibility for Anki 2.1.25+
+
 ## 20.10.21i160 (2020-10-22)
 
 - Fix: showAtBottom now works on mobile
