@@ -4,7 +4,7 @@ import { getAddonConfig } from './utils/addonConfig'
 import './basestyle.scss'
 
 // eslint-disable-next-line
-const innerCSSText = require('!!raw-loader!sass-loader!./basestyle.scss').default as string
+const innerCSSTextBase = require('!!raw-loader!sass-loader!./basestyle.scss').default as string
 
 // Drawing settings
 const segmentAlphaConsts = {
@@ -34,7 +34,7 @@ function linearInterpolate (start: number, end: number, t: number) {
   return start + (end - start) * t
 }
 
-function updateDOM (svgHtml: string, progressBarMessage: string) {
+async function updateDOM (svgHtml: string, progressBarMessage: string) {
   let barEl = document.getElementById('rtContainer')
   if (!barEl) {
     barEl = document.createElement('div')
@@ -45,6 +45,7 @@ function updateDOM (svgHtml: string, progressBarMessage: string) {
 
   // Shadow DOM to isolate styling from external CSS
   const shadowRoot = barEl.shadowRoot || barEl.attachShadow({ mode: 'open' })
+  const innerCSSText = innerCSSTextBase + (await getAddonConfig('barCSS') || '')
   shadowRoot.innerHTML = `
   <div class='rt-container' id='rtContainer'>
     <style>${innerCSSText}</style>
@@ -166,5 +167,5 @@ export async function updateProgressBar () {
       ${pathSVGs.join('')}
   </svg>
   `
-  updateDOM(svgHtml, message)
+  await updateDOM(svgHtml, message)
 }

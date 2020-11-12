@@ -22,3 +22,9 @@ Format the messages. `%(variableName)` gets replaced to values below
 - `%(ETA)`: Estimated time arrival. Expected review finish time
 - `%(ETA12)`: Same as `ETA`, except that it's in 12-hour format (ex: `12:00 PM`)
 - `%(RR)`: Retention rate for reviewed cards only. (ex: `80.0%`)
+
+## barCSS (Default: `""`) - *Experimental*
+
+CSS stylesheet that only gets applied inside the progress bar. What selector to use is intentionally undocumented, so that we could change our implementation details as much as we want. Be careful as your code *may* break every time the addon is updated.
+
+To see what selectors to use, try using [AnkiWebView Inspector](https://ankiweb.net/shared/info/31746032) addon.
