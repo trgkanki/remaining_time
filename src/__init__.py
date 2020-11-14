@@ -26,7 +26,7 @@ from .utils import uuid  # duplicate UUID checked here
 from .utils import debugLog  # debug log registered here
 
 from .utils.JSEval import execJSFile
-from .utils.configrw import getConfig
+from .utils.configrw import getConfig, onConfigUpdate
 from .utils.resource import updateMedia, readResource
 
 from aqt.reviewer import Reviewer
@@ -36,6 +36,7 @@ from .mobileSupport.modelModifier import registerMobileScript
 from . import jsapi
 
 addHook("profileLoaded", registerMobileScript)
+onConfigUpdate(registerMobileScript)
 
 
 def afterInitWeb(self):
@@ -47,7 +48,13 @@ def afterInitWeb(self):
             "_remainingtime.min.js", readResource("js/main.min.js").encode("utf-8")
         )
 
-    execJSFile(self.web, "js/main.min.js")
+
+def afterNextCard(self):
+    # Script will auto-run via card template when runOnMobile is set.
+    # Manually run script only when it's not set.
+    if not getConfig("runOnMobile"):
+        execJSFile(self.web, "js/main.min.js")
 
 
 Reviewer._initWeb = wrap(Reviewer._initWeb, afterInitWeb, "after")
+Reviewer.nextCard = wrap(Reviewer.nextCard, afterNextCard, "after")
