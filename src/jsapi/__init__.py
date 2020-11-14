@@ -1,1 +1,1 @@
-from . import ankiLocalStorage, remainingCardCount
+from . import ankiLocalStorage, remainingCardCount, isQuestionSide
