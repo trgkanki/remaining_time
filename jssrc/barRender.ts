@@ -1,7 +1,6 @@
 import { Estimator } from './estimator'
 import { getRemainingReviews, t2s, getRemainingCardLoad as reviewLoad } from './utils'
 import { getAddonConfig } from './utils/addonConfig'
-import './basestyle.scss'
 
 // eslint-disable-next-line
 const innerCSSTextBase = require('!!raw-loader!sass-loader!./basestyle.scss').default as string
@@ -34,7 +33,19 @@ function linearInterpolate (start: number, end: number, t: number) {
   return start + (end - start) * t
 }
 
+function addBaseStyleCSS () {
+  let styleEl = document.getElementById('rt-basestyle')
+  if (!styleEl) {
+    styleEl = document.createElement('style')
+    styleEl.id = 'rt-basestyle'
+    styleEl.innerHTML = innerCSSTextBase
+    document.head.appendChild(styleEl)
+  }
+}
+
 async function updateDOM (svgHtml: string, progressBarMessage: string) {
+  addBaseStyleCSS()
+
   let barEl = document.getElementById('rtContainer')
   if (!barEl) {
     barEl = document.createElement('div')
