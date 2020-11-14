@@ -21,11 +21,11 @@ async function isQuestionSide (): Promise<boolean> {
   }
 }
 
-// eslint-disable-next-line no-inner-declarations
-async function main () {
+async function injectVerticalAlignCSS () {
   // showAtBottom implementation
   // note: Anki overwrites document.body.classList right after the HTML is loaded,
   // so we cannot just add classname to body for UI styling.
+  // we need to manually inject appropriate stylesheet based on user config.
   const injectedCSS = (await getAddonConfig('showAtBottom')) ? rtbarBottomCSS : rtbarTopCSS
   let style = document.getElementById('rt-vertical-positioner')
   if (!style) {
@@ -34,6 +34,11 @@ async function main () {
     document.head.appendChild(style)
   }
   style.innerHTML = injectedCSS
+}
+
+// eslint-disable-next-line no-inner-declarations
+async function main () {
+  await injectVerticalAlignCSS()
 
   if (await isQuestionSide()) {
     await updateEstimator()
