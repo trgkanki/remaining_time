@@ -21,9 +21,7 @@ const ESTIMATOR_SCHEMA_VERSION = 1
 
 // Persistence
 let cache: Estimator
-function getLocalStorageKey () {
-  return '__rt__estimator__schema__'
-}
+const kRtEstimatorSchema = '__rt__estimator__schema__'
 
 // Implementation
 export class Estimator {
@@ -90,7 +88,7 @@ export class Estimator {
     }
 
     ankiLocalStorage.setItem(
-      getLocalStorageKey(),
+      kRtEstimatorSchema,
       JSON.stringify(s, function (_key, val) {
         return val.toFixed ? Number(val.toFixed(1)) : val
       })
@@ -100,7 +98,7 @@ export class Estimator {
   static async instance (): Promise<Estimator> {
     if (cache) return cache
 
-    const content = await ankiLocalStorage.getItem(getLocalStorageKey())
+    const content = await ankiLocalStorage.getItem(kRtEstimatorSchema)
     if (!content) cache = new Estimator()
     else {
       try {
