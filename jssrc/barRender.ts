@@ -1,9 +1,12 @@
+/* eslint-disable import/no-webpack-loader-syntax */
+
 import { Estimator } from './estimator'
 import { getRemainingReviews, t2s, getRemainingCardLoad as reviewLoad } from './utils'
 import { getAddonConfig } from './utils/addonConfig'
 
-// eslint-disable-next-line
-const innerCSSTextBase = require('!!raw-loader!sass-loader!./basestyle.scss').default as string
+const baseStyleCSS = require('!!raw-loader!sass-loader!./basestyle.scss').default as string
+const rtbarTopCSS = require('!!raw-loader!./res/rtbar-top.css').default as string
+const rtbarBottomCSS = require('!!raw-loader!./res/rtbar-bottom.css').default as string
 
 // Drawing settings
 const segmentAlphaConsts = {
@@ -33,19 +36,19 @@ function linearInterpolate (start: number, end: number, t: number) {
   return start + (end - start) * t
 }
 
-function addBaseStyleCSS () {
+async function addBaseStyleCSS (target: HTMLElement) {
+  const verticalPositioningCSS = (await getAddonConfig('showAtBottom')) ? rtbarBottomCSS : rtbarTopCSS
+
   let styleEl = document.getElementById('rt-basestyle')
   if (!styleEl) {
     styleEl = document.createElement('style')
     styleEl.id = 'rt-basestyle'
-    styleEl.innerHTML = innerCSSTextBase
-    document.head.appendChild(styleEl)
+    target.appendChild(styleEl)
   }
+  styleEl.innerHTML = baseStyleCSS + verticalPositioningCSS
 }
 
 async function updateDOM (svgHtml: string, progressBarMessage: string) {
-  addBaseStyleCSS()
-
   let barEl = document.getElementById('rtContainer')
   if (!barEl) {
     barEl = document.createElement('div')
@@ -53,10 +56,11 @@ async function updateDOM (svgHtml: string, progressBarMessage: string) {
     barEl.classList.add('rt-container')
     document.body.append(barEl)
   }
+  await addBaseStyleCSS(barEl)
 
   // Shadow DOM to isolate styling from external CSS
   const shadowRoot = barEl.shadowRoot || barEl.attachShadow({ mode: 'open' })
-  const innerCSSText = innerCSSTextBase + (await getAddonConfig('barCSS') || '')
+  const innerCSSText = baseStyleCSS + (await getAddonConfig('barCSS') || '')
   shadowRoot.innerHTML = `
   <div class='rt-container' id='rtContainer'>
     <style>${innerCSSText}</style>
@@ -81,12 +85,12 @@ async function updateDOM (svgHtml: string, progressBarMessage: string) {
       const estimator = await Estimator.instance()
       estimator.reset()
       estimator.save()
-      updateProgressBar()
+      renderProgressBar()
     }
   })
 }
 
-export async function updateProgressBar () {
+export async function renderProgressBar () {
   const currentRemainingReviews = await getRemainingReviews()
   const remainingLoad = reviewLoad(currentRemainingReviews)
   if (remainingLoad === 0) return
