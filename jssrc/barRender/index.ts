@@ -4,20 +4,10 @@ import { getAddonConfig } from '../utils/addonConfig'
 import { getMessage } from './message'
 import { getSVG } from './svg'
 import { injectCSS } from './injectCSS'
+import { getRtContainer, saveRtContainer } from './rtContainer'
 
 // eslint-disable-next-line import/no-webpack-loader-syntax
 const baseStyleCSS = require('!!raw-loader!sass-loader!../basestyle.scss').default as string
-
-export function getRtContainer (): HTMLDivElement {
-  let rtContainerEl = document.getElementById('rtContainer') as HTMLDivElement | null
-  if (!rtContainerEl) {
-    rtContainerEl = document.createElement('div')
-    rtContainerEl.id = 'rtContainer'
-    rtContainerEl.classList.add('rt-container')
-    document.body.append(rtContainerEl)
-  }
-  return rtContainerEl
-}
 
 async function updateDOM (svgHtml: string, progressBarMessage: string) {
   const rtContainerEl = getRtContainer()
@@ -55,6 +45,8 @@ async function updateDOM (svgHtml: string, progressBarMessage: string) {
       renderProgressBar()
     }
   })
+
+  saveRtContainer(rtContainerEl)
 }
 
 export async function renderProgressBar () {
