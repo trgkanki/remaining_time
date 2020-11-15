@@ -23,6 +23,11 @@ If you encounter any bugs, submit through [Github issues](https://github.com/trg
 
 [comment]: # (DO NOT MODIFY. new changelog goes here)
 
+## 20.11.15i135 (2020-11-15)
+
+- Hotfix: 'again' recorded as 'good' ([Issue #24](https://github.com/trgkanki/remaining_time/issues/26))
+- Fix: possible bar blinkering on AnkiDroid
+
 ## 20.11.12i113 (2020-11-12)
 
 - Feature: you can add custom css to the progress bar (#15)
