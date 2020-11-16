@@ -92,15 +92,27 @@ async function getEstimatorInstruction (
   currentRemainingCards: RemainingCardCounts
 ): Promise<EstimatorInst> {
   try {
+    // Edit card check
+    if (
+      estimator.logs.length >= 1 &&
+      estimator.logs[estimator.logs.length - 1].reviewHash === currentReviewHash
+    ) {
+      return {
+        instType: RCCTConst.IGNORE
+      }
+    }
+
+    // Undo check
     if (
       estimator.logs.length >= 2 &&
       estimator.logs[estimator.logs.length - 2].reviewHash === currentReviewHash
     ) {
-      // Undo check
       return {
         instType: RCCTConst.UNDO
       }
     }
+
+    // Comparing!
     const prevRemainingCards = await getLastRCC()
     if (!prevRemainingCards) return { instType: RCCTConst.RESET }
     const previousReviewLoad = getRemainingCardLoad(prevRemainingCards)
