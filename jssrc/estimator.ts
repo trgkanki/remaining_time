@@ -15,9 +15,10 @@ export interface LogEntry {
   dt: number;
   dy: number;
   logType: InstLogType;
+  cardId: number;
 }
 
-const ESTIMATOR_SCHEMA_VERSION = 1
+const ESTIMATOR_SCHEMA_VERSION = 2
 
 // Persistence
 let cache: Estimator
@@ -36,7 +37,7 @@ export class Estimator {
     this._startTime = now()
   }
 
-  update (dy: number, logType: InstLogType) {
+  update (cardId: number, dy: number, logType: InstLogType) {
     const logLength = this.logs.length
     const epoch = now()
     const dt =
@@ -48,7 +49,7 @@ export class Estimator {
     if (dy < -10) dy = -10 // could happen on massive new cards
     if (dy > 10) dy = 10
 
-    this.logs.push({ epoch, dt, dy, logType })
+    this.logs.push({ cardId, epoch, dt, dy, logType })
   }
 
   getSlope () {
@@ -84,7 +85,7 @@ export class Estimator {
     s.push(ESTIMATOR_SCHEMA_VERSION)
     s.push(this._startTime)
     for (const log of this.logs) {
-      s.push(log.epoch, log.dt, log.dy, log.logType)
+      s.push(log.epoch, log.dt, log.dy, log.logType, log.cardId)
     }
 
     ankiLocalStorage.setItem(
@@ -114,9 +115,10 @@ export class Estimator {
             epoch: s[cursor + 0],
             dt: s[cursor + 1],
             dy: s[cursor + 2],
-            logType: s[cursor + 3]
+            logType: s[cursor + 3],
+            cardId: s[cursor + 4]
           })
-          cursor += 4
+          cursor += 5
         }
         if (!cursor === s.length) {
           throw new Error('Length mismatch - RTT')

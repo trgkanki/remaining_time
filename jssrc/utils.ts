@@ -18,6 +18,14 @@ export async function getRemainingReviews (): Promise<RemainingCardCounts> {
   }
 }
 
+export async function getCurrentCardId (): Promise<number> {
+  if ((window as any).AnkiDroidJS) {
+    return AnkiDroidJS.ankiGetCardId()
+  } else {
+    return callPyFunc('getCurrentCardId')
+  }
+}
+
 export function getRemainingCardLoad ({ nu, lrn, rev }: RemainingCardCounts) {
   return nu * 2 + lrn + rev
 }

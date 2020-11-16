@@ -1,5 +1,5 @@
 import { Estimator } from './estimator'
-import { RemainingCardCounts, getRemainingCardLoad, getRemainingReviews, now } from './utils'
+import { RemainingCardCounts, getRemainingCardLoad, getRemainingReviews, now, getCurrentCardId } from './utils'
 import ankiLocalStorage from './utils/ankiLocalStorage'
 import { onSameReviewSession } from './isDoingReview'
 import { debugLog } from './utils/debugLog'
@@ -31,6 +31,7 @@ type EstimatorInst = InstReset | InstIgnore | InstUpdate
 let lastEpoch = 0
 
 export async function updateEstimator () {
+  const cardId = await getCurrentCardId()
   const instruction = await processRemainingCountDiff()
   const epoch = now()
   const estimator = await Estimator.instance()
@@ -54,7 +55,7 @@ export async function updateEstimator () {
       break
 
     case RCCTConst.UPDATE:
-      estimator.update(instruction.dy, instruction.logType)
+      estimator.update(cardId, instruction.dy, instruction.logType)
       break
   }
   estimator.save()
