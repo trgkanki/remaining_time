@@ -1,0 +1,11 @@
+issuesOpened: >
+  Thank you for raising an issue. We will try and get back to you as soon as possible.
+
+  Please make sure you have given us **as much context as possible**. If you've filled the issue template, that would probably be sufficient.
+  [It's _**really important**_ to know as much information as possible to investigate your use case](https://shapeshed.com/the-importance-of-a-good-bug-report/).
+
+issuesClosed: >
+  Thanks for the issue. If you find this addon useful, or if you're satisfied with how the issues are resolved, consider supporting me via [patreon](https://www.patreon.com/trgk)!
+  Support helps me immensely for further development and maintenance.
+
+  [![Support me via patreon](https://cdn.jsdelivr.net/gh/trgkanki/trgkanki-template-cli@develop/res/patreon_small.png)](https://www.patreon.com/trgk)
