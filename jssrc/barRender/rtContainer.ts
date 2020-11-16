@@ -1,4 +1,4 @@
-import pako from 'pako'
+import { pakob64Deflate, pakob64Inflate } from '../utils/pakob64'
 import ankiLocalStorage from '../utils/ankiLocalStorage'
 
 const kRtDomSerializeB64 = '_rt_dom_serialize_b64'
@@ -22,15 +22,12 @@ export function saveRtContainer (rtContainerEl: HTMLDivElement) {
   const innerHTML = rtContainerEl.innerHTML
   const shadowHtml = rtContainerEl.shadowRoot?.innerHTML
 
-  let payload = JSON.stringify({
+  const payload = JSON.stringify({
     innerHTML, shadowHtml
   })
   // payload takes about 6kb, passing cookie limit which is used for AnkiDroid.
   // Hence we need to compress this.
-  payload = pako.deflate(payload, { to: 'string' })
-  payload = btoa(payload)
-
-  ankiLocalStorage.setItem(kRtDomSerializeB64, payload)
+  ankiLocalStorage.setItem(kRtDomSerializeB64, pakob64Deflate(payload))
 }
 
 /**
@@ -38,11 +35,9 @@ export function saveRtContainer (rtContainerEl: HTMLDivElement) {
  */
 export async function reinstateRtContainer (): Promise<boolean> {
   const rtContainerEl = getRtContainer()
-  let payload = await ankiLocalStorage.getItem(kRtDomSerializeB64)
+  const payload = await ankiLocalStorage.getItem(kRtDomSerializeB64)
   if (payload) {
-    payload = atob(payload)
-    payload = pako.inflate(payload, { to: 'string' })
-    const { innerHTML, shadowHtml } = JSON.parse(payload)
+    const { innerHTML, shadowHtml } = JSON.parse(pakob64Inflate(payload))
     rtContainerEl.innerHTML = innerHTML
     const shadowRoot = rtContainerEl.shadowRoot || rtContainerEl.attachShadow({ mode: 'open' })
     shadowRoot.innerHTML = shadowHtml

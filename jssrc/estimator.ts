@@ -3,6 +3,7 @@
  */
 
 import ankiLocalStorage from './utils/ankiLocalStorage'
+import { pakob64Deflate, pakob64Inflate } from './utils/pakob64'
 import { now } from './utils'
 import { InstLogType } from './updater'
 
@@ -94,9 +95,9 @@ export class Estimator {
 
     ankiLocalStorage.setItem(
       kRtEstimatorSchema,
-      JSON.stringify(s, function (_key, val) {
+      pakob64Deflate(JSON.stringify(s, function (_key, val) {
         return val.toFixed ? Number(val.toFixed(1)) : val
-      })
+      }))
     )
   }
 
@@ -107,7 +108,7 @@ export class Estimator {
     if (!content) cache = new Estimator()
     else {
       try {
-        const s = JSON.parse(content)
+        const s = JSON.parse(pakob64Inflate(content))
         let cursor = 0
         if (s[cursor++] !== ESTIMATOR_SCHEMA_VERSION) {
           throw new Error('Old schema')
