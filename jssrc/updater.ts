@@ -3,15 +3,21 @@ import { RemainingCardCounts, getRemainingCardLoad, getRemainingReviews, now, ge
 import ankiLocalStorage from './utils/ankiLocalStorage'
 import { onSameReviewSession } from './isDoingReview'
 import { debugLog } from './utils/debugLog'
+import CRC32 from 'crc-32'
 
 enum RCCTConst {
   RESET,
   UPDATE,
-  IGNORE
+  IGNORE,
+  UNDO
 }
 
 interface InstReset {
   instType: RCCTConst.RESET;
+}
+
+interface InstUndo {
+  instType: RCCTConst.UNDO;
 }
 
 interface InstIgnore {
@@ -26,15 +32,28 @@ interface InstUpdate {
   logType: InstLogType;
 }
 
-type EstimatorInst = InstReset | InstIgnore | InstUpdate
+type EstimatorInst = InstReset | InstIgnore | InstUpdate | InstUndo
 
 let lastEpoch = 0
 
-export async function updateEstimator () {
+/// /
+
+async function getReviewHash (rcc: RemainingCardCounts): Promise<number> {
   const cardId = await getCurrentCardId()
-  const instruction = await processRemainingCountDiff()
-  const epoch = now()
+  return CRC32.str(JSON.stringify({ rcc, cardId }))
+}
+
+export async function updateEstimator () {
+  const currentRemainingCards = await getRemainingReviews()
+  const reviewHash = await getReviewHash(currentRemainingCards)
   const estimator = await Estimator.instance()
+
+  const instruction = await getEstimatorInstruction(
+    reviewHash,
+    estimator,
+    currentRemainingCards
+  )
+  const epoch = now()
 
   debugLog(' - Output instruction: %s', JSON.stringify(instruction))
 
@@ -50,12 +69,16 @@ export async function updateEstimator () {
     case RCCTConst.IGNORE:
       break
 
+    case RCCTConst.UNDO:
+      estimator.undo()
+      break
+
     case RCCTConst.RESET:
       estimator.reset()
       break
 
     case RCCTConst.UPDATE:
-      estimator.update(cardId, instruction.dy, instruction.logType)
+      estimator.update(reviewHash, instruction.dy, instruction.logType)
       break
   }
   estimator.save()
@@ -63,10 +86,22 @@ export async function updateEstimator () {
 
 /// /
 
-async function processRemainingCountDiff (): Promise<EstimatorInst> {
-  const currentRemainingCards = await getRemainingReviews()
+async function getEstimatorInstruction (
+  currentReviewHash: number,
+  estimator: Estimator,
+  currentRemainingCards: RemainingCardCounts
+): Promise<EstimatorInst> {
   try {
-    const prevRemainingCards = await getRCC()
+    if (
+      estimator.logs.length >= 2 &&
+      estimator.logs[estimator.logs.length - 2].reviewHash === currentReviewHash
+    ) {
+      // Undo check
+      return {
+        instType: RCCTConst.UNDO
+      }
+    }
+    const prevRemainingCards = await getLastRCC()
     if (!prevRemainingCards) return { instType: RCCTConst.RESET }
     const previousReviewLoad = getRemainingCardLoad(prevRemainingCards)
     const nextReviewLoad = getRemainingCardLoad(currentRemainingCards)
@@ -122,16 +157,17 @@ async function processRemainingCountDiff (): Promise<EstimatorInst> {
     // Reset otherwise
     return { instType: RCCTConst.RESET }
   } finally {
-    saveRCC(currentRemainingCards)
+    saveLastRCC(currentRemainingCards)
   }
 }
 
-async function getRCC () {
-  const s = await ankiLocalStorage.getItem('__rt__lastrcc__')
+const kLastRCC = '__rt__lastrcc__'
+async function getLastRCC () {
+  const s = await ankiLocalStorage.getItem(kLastRCC)
   if (!s) return null
   return JSON.parse(s) as RemainingCardCounts
 }
 
-function saveRCC (rcc: RemainingCardCounts) {
-  ankiLocalStorage.setItem('__rt__lastrcc__', JSON.stringify(rcc))
+function saveLastRCC (rcc: RemainingCardCounts) {
+  ankiLocalStorage.setItem(kLastRCC, JSON.stringify(rcc))
 }

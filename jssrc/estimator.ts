@@ -15,7 +15,7 @@ export interface LogEntry {
   dt: number;
   dy: number;
   logType: InstLogType;
-  cardId: number;
+  reviewHash: number;
 }
 
 const ESTIMATOR_SCHEMA_VERSION = 2
@@ -37,7 +37,7 @@ export class Estimator {
     this._startTime = now()
   }
 
-  update (cardId: number, dy: number, logType: InstLogType) {
+  update (reviewHash: number, dy: number, logType: InstLogType) {
     const logLength = this.logs.length
     const epoch = now()
     const dt =
@@ -49,7 +49,11 @@ export class Estimator {
     if (dy < -10) dy = -10 // could happen on massive new cards
     if (dy > 10) dy = 10
 
-    this.logs.push({ cardId, epoch, dt, dy, logType })
+    this.logs.push({ reviewHash, epoch, dt, dy, logType })
+  }
+
+  undo () {
+    this.logs.pop()
   }
 
   getSlope () {
@@ -85,7 +89,7 @@ export class Estimator {
     s.push(ESTIMATOR_SCHEMA_VERSION)
     s.push(this._startTime)
     for (const log of this.logs) {
-      s.push(log.epoch, log.dt, log.dy, log.logType, log.cardId)
+      s.push(log.epoch, log.dt, log.dy, log.logType, log.reviewHash)
     }
 
     ankiLocalStorage.setItem(
@@ -116,7 +120,7 @@ export class Estimator {
             dt: s[cursor + 1],
             dy: s[cursor + 2],
             logType: s[cursor + 3],
-            cardId: s[cursor + 4]
+            reviewHash: s[cursor + 4]
           })
           cursor += 5
         }
