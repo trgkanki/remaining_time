@@ -16,7 +16,7 @@ assignees: ''
 
 > A clear and concise description of what you want to happen.
 
-## Alternative solutions you've thought of\
+## Alternative solutions you've thought of
 
 > A clear and concise description of any alternative solutions or features you've considered.
 
