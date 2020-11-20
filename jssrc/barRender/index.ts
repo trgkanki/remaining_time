@@ -30,8 +30,9 @@ async function updateDOM (svgHtml: string, progressBarMessage: string) {
   // since shadow DOM isolates CSS hierarchy, we should manually add night mode classes
   // back to shadow dom root
   if (document.body.classList.contains('nightMode')) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     rtContainerEl.classList.add('nightMode')
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    shadowRoot.getElementById('rtContainer')!.classList.add('nightMode')
   }
 
   // reset button
