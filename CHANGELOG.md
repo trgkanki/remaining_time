@@ -23,6 +23,11 @@ If you encounter any bugs, submit through [Github issues](https://github.com/trg
 
 [comment]: # (DO NOT MODIFY. new changelog goes here)
 
+## 20.11.20i48 (2020-11-20)
+
+- fix: dark mode (again)
+- fix: undo undoes the progress bar, edit card now don't touch the progress bar (most of the time)
+
 ## 20.11.15i135 (2020-11-15)
 
 - Hotfix: 'again' recorded as 'good' ([Issue #24](https://github.com/trgkanki/remaining_time/issues/26))
