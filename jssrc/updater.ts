@@ -166,8 +166,9 @@ async function getEstimatorInstruction (
       }
     }
 
-    // Reset otherwise
-    return { instType: RCCTConst.RESET }
+    // Ignore otherwise
+    // This could happen on multiple cases, like suspending multiple cards at once,...
+    return { instType: RCCTConst.IGNORE }
   } finally {
     saveLastRCC(currentRemainingCards)
   }
