@@ -18,7 +18,9 @@ function linearInterpolate (start: number, end: number, t: number) {
 
 /// main
 
-export function getSVG (estimator: Estimator, remainingLoad: number): string {
+export function getSVG (estimator: Estimator, remainingLoad: number, options: {
+  fixedWidth: boolean;
+}): string {
   const elapsedTime = estimator.elapsedTime
   const remainingTime = remainingLoad / estimator.getSlope()
 
@@ -27,13 +29,14 @@ export function getSVG (estimator: Estimator, remainingLoad: number): string {
   let rectX = 0
 
   let timeSum = 0
-  for (const { dt } of estimator.logs) {
+  const { logs } = estimator
+  for (const { dt } of logs) {
     timeSum += dt
   }
 
-  for (const log of estimator.logs) {
+  for (const log of logs) {
     const clampedDt = Math.min(log.dt, longSegmentClampMinTime)
-    const rectW = clampedDt / timeSum * progress
+    const rectW = options.fixedWidth ? progress / logs.length : clampedDt / timeSum * progress
     const rectAlpha =
       log.dt > longSegmentClampMinTime ? segmentAlphaConsts.minAlpha / 4
         : (clampedDt < segmentAlphaConsts.clampMinTime) ? segmentAlphaConsts.maxAlpha

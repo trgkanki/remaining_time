@@ -56,8 +56,11 @@ export async function renderProgressBar () {
   if (remainingLoad === 0) return
 
   const estimator = await Estimator.instance()
+  const renderOptions = {
+    fixedWidth: !!(await getAddonConfig('fixedSegmentWidth'))
+  }
 
   const message = await getMessage(estimator, remainingLoad)
-  const svgHtml = getSVG(estimator, remainingLoad)
+  const svgHtml = getSVG(estimator, remainingLoad, renderOptions)
   await updateDOM(svgHtml, message)
 }

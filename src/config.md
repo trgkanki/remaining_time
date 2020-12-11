@@ -11,6 +11,10 @@ When this is true, the progress bar will show at the bottom.
 
 Set plugin to run also on mobile. *Note) only compatible w/ AnkiDroid.*
 
+## fixedSegmentWidth (default: false)
+
+Set all segment's width to same. [This has been requested](https://github.com/trgkanki/remaining_time/issues/25), so FYI.
+
 ## messageFormat (default: `"Elapsed %(elapsedTime),  Remaining %(remainingTime), ETA %(ETA)"`)
 
 Format the messages. `%(variableName)` gets replaced to values below
