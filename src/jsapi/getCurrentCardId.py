@@ -5,4 +5,6 @@ from aqt import mw
 @JSCallable
 def getCurrentCardId():
     reviewer = mw.reviewer
-    return reviewer.card.id
+    if reviewer.card:
+        return reviewer.card.id
+    return 0
