@@ -23,6 +23,15 @@ If you encounter any bugs, submit through [Github issues](https://github.com/trg
 
 [comment]: # (DO NOT MODIFY. new changelog goes here)
 
+## 20.12.13i151 (2020-12-13)
+
+If you like the ongoing support of this addon consider buying me a cup of coffee via [patreon](https://www.patreon.com/trgk)!
+
+- Fix: frequent resetting of entire progress bar. For better usability addon will NEVER reset the progress bar on any instance. You should manually reset them as seem appropriate.
+- Fix: mobile support for long learning session. Progress bar will update faithfully.
+- Fix: FOUC on AnkiDroid
+- Feature: (experimental) added fixed-width segment mode. IDK why, but it is requested.
+
 ## 20.11.20i48 (2020-11-20)
 
 - fix: dark mode (again)
