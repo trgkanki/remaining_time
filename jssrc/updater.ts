@@ -4,6 +4,7 @@ import ankiLocalStorage from './utils/ankiLocalStorage'
 import { onSameReviewSession } from './isDoingReview'
 import { debugLog } from './utils/debugLog'
 import CRC32 from 'crc-32'
+import { getAddonConfig } from './utils/addonConfig'
 
 enum RCCTConst {
   RESET,
@@ -168,7 +169,11 @@ async function getEstimatorInstruction (
 
     // Ignore otherwise
     // This could happen on multiple cases, like suspending multiple cards at once,...
-    return { instType: RCCTConst.IGNORE }
+    if (await getAddonConfig('autoReset')) {
+      return { instType: RCCTConst.RESET }
+    } else {
+      return { instType: RCCTConst.IGNORE }
+    }
   } finally {
     saveLastRCC(currentRemainingCards)
   }

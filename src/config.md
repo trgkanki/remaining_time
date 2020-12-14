@@ -15,6 +15,10 @@ Set plugin to run also on mobile. *Note) only compatible w/ AnkiDroid.*
 
 Set all segment's width to same. [This has been requested](https://github.com/trgkanki/remaining_time/issues/25), so FYI.
 
+## autoReset (default: false)
+
+Triggers automatic reset. Note that this is quite fragile for now, so this is false by default currently.
+
 ## messageFormat (default: `"Elapsed %(elapsedTime),  Remaining %(remainingTime), ETA %(ETA)"`)
 
 Format the messages. `%(variableName)` gets replaced to values below
