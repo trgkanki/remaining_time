@@ -31,6 +31,8 @@ from .utils.resource import updateMedia, readResource
 
 from aqt.reviewer import Reviewer
 from anki.hooks import wrap, addHook
+from aqt.overview import Overview
+from aqt.utils import showInfo  # debug TODO remove
 
 from .mobileSupport.modelModifier import registerMobileScript
 from . import jsapi
@@ -56,5 +58,11 @@ def afterNextCard(self):
         execJSFile(self.web, "js/main.min.js")
 
 
+def onOverview(self):
+    afterInitWeb(None)
+    execJSFile(self.web, "js/main.min.js")
+
+
 Reviewer._initWeb = wrap(Reviewer._initWeb, afterInitWeb, "after")
 Reviewer.nextCard = wrap(Reviewer.nextCard, afterNextCard, "after")
+Overview.refresh = wrap(Overview.refresh, onOverview, "after")
