@@ -4,5 +4,9 @@ from aqt import mw
 
 @JSCallable
 def isQuestionSide():
-    reviewer = mw.reviewer
-    return reviewer.state == "question"
+    return mw.state == "review" and mw.reviewer.state == "question"
+
+
+@JSCallable
+def isOverview():
+    return mw.state == "overview"

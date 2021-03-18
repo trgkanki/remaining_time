@@ -18,9 +18,15 @@ async function isQuestionSide (): Promise<boolean> {
   }
 }
 
+async function isOverview (): Promise<boolean> {
+  // AnkiDroid
+  if (isMobile()) return false
+  else return callPyFunc('isOverview')
+}
+
 // eslint-disable-next-line no-inner-declarations
 async function main () {
-  if (await isQuestionSide()) {
+  if (await isQuestionSide() || await isOverview()) {
     await updateEstimator()
   }
   await renderProgressBar()

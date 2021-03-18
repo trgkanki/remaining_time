@@ -53,8 +53,6 @@ async function updateDOM (svgHtml: string, progressBarMessage: string) {
 export async function renderProgressBar () {
   const currentRemainingReviews = await getRemainingReviews()
   const remainingLoad = reviewLoad(currentRemainingReviews)
-  if (remainingLoad === 0) return
-
   const estimator = await Estimator.instance()
   const renderOptions = {
     fixedWidth: !!(await getAddonConfig('fixedSegmentWidth'))
