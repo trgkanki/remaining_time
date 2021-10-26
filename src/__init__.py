@@ -63,6 +63,18 @@ def onOverview(self):
     execJSFile(self.web, "js/main.min.js")
 
 
+def addRemainingTimeHotkey(self, _old):
+    hotkeys = _old(self)
+    if getConfig("resetHotkey"):
+
+        def onReset():
+            self.web.eval("_3cc745f46701204a_click_reset_progress_bar()")
+
+        hotkeys.append((getConfig("resetHotkey"), onReset))
+    return hotkeys
+
+
 Reviewer._initWeb = wrap(Reviewer._initWeb, afterInitWeb, "after")
+Reviewer._shortcutKeys = wrap(Reviewer._shortcutKeys, addRemainingTimeHotkey, "around")
 Reviewer.nextCard = wrap(Reviewer.nextCard, afterNextCard, "after")
 Overview.refresh = wrap(Overview.refresh, onOverview, "after")

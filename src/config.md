@@ -19,6 +19,11 @@ Set all segment's width to same. [This has been requested](https://github.com/tr
 
 Triggers automatic reset. Note that this is quite fragile for now, so this is false by default currently.
 
+
+## resetHotkey (default: "")
+
+Hotkey for reset button.
+
 ## messageFormat (default: `"Elapsed %(elapsedTime),  Remaining %(remainingTime), ETA %(ETA)"`)
 
 Format the messages. `%(variableName)` gets replaced to values below

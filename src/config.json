@@ -2,6 +2,7 @@
   "debug": false,
   "showAtBottom": false,
   "autoReset": false,
+  "resetHotkey": "",
   "runOnMobile": false,
   "messageFormat": "Elapsed %(elapsedTime),  Remaining %(remainingTime), ETA %(ETA)",
   "barCSS": ""

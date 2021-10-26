@@ -38,14 +38,17 @@ async function updateDOM (svgHtml: string, progressBarMessage: string) {
   // reset button
   const resetButton = shadowRoot.querySelector('.rt-reset')
   if (!resetButton) return
-  resetButton.addEventListener('click', async () => {
+  const handler = async () => {
     if (confirm('[Remaining time] Press OK to reset the progress bar.')) {
       const estimator = await Estimator.instance()
       estimator.reset()
       estimator.save()
       renderProgressBar()
     }
-  })
+  }
+  // eslint-disable-next-line @typescript-eslint/camelcase
+  (window as any)._3cc745f46701204a_click_reset_progress_bar = handler
+  resetButton.addEventListener('click', handler)
 
   saveRtContainer(rtContainerEl)
 }
