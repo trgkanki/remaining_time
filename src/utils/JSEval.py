@@ -31,10 +31,13 @@ def execJSFile(web, jspath, cb=None, *, once=False):
     js = readResource(jspath)
     if once:
         checkKey = "".join([getCurrentAddonName(), "#", jspath])
+        # Semicolon is necessary on the third line.
+        # on webpack 5, js may start with function parenthesis, so
+        # without ;, true may be evaluated as a function name.
         js = """
         if (!window.__plugin_jsTable) window.__plugin_jsTable = {}
         if (!window.__plugin_jsTable["%s"]) {
-            window.__plugin_jsTable["%s"] = true
+            window.__plugin_jsTable["%s"] = true;
             %s
         }
         """ % (
