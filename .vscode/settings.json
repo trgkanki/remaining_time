@@ -3,5 +3,10 @@
   "cSpell.words": [
     "jssrc"
   ],
-  "licenser.license": "AGPLv3"
+  "licenser.license": "AGPLv3",
+  "workbench.colorCustomizations": {
+    "[Dracula]": {
+      "gitDecoration.ignoredResourceForeground": "#666"
+    }
+  }
 }
