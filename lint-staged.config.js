@@ -14,9 +14,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 module.exports = {
-  '*.js': [
-    'eslint --fix'
-  ],
   '*.py': [
     'python3 -m black'
   ],
