@@ -20,14 +20,41 @@ interface JsonpQueueEntry {
   reject: (reason: any) => void;
 }
 
-const queue = [] as JsonpQueueEntry[]
-export function requestJSONP (url: string, callbackName: string): Promise<any> {
-  return new Promise((resolve, reject) => {
-    queue.push({ url, callbackName, resolve, reject })
-    runQueue()
-  })
+/**
+ * Main JSONP runner
+ */
+function requestJSONPMain (entry: JsonpQueueEntry): void {
+  const { url, callbackName, resolve, reject } = entry
+  const windowAny = window as any
+  const scriptEl = document.createElement('script')
+
+  scriptEl.async = true
+  windowAny[callbackName] = (data: any) => {
+    scriptEl.remove()
+    delete windowAny[callbackName]
+    resolve(data)
+  }
+
+  scriptEl.src = url
+  scriptEl.onerror = (err: any) => {
+    scriptEl.remove()
+    delete windowAny[callbackName]
+    console.error(err)
+    reject(err)
+  }
+
+  document.getElementsByTagName('head')[0].appendChild(scriptEl)
 }
 
+/**
+ * Queuer. sequentially call requestJSONPMain
+ *
+ * Since one may reuse callback name between jsonp calls, (ex: calling static
+ * .js within medias) it's quite risky to just allow jsonp to be called
+ * asynchronously. This function queues JSONP calls and calls them sequentially.
+ */
+
+const queue = [] as JsonpQueueEntry[]
 let isJsonPRunning = false
 
 function runQueue (): void {
@@ -52,25 +79,12 @@ function runQueue (): void {
   })
 }
 
-function requestJSONPMain (entry: JsonpQueueEntry): void {
-  const { url, callbackName, resolve, reject } = entry
-  const windowAny = window as any
-  const scriptEl = document.createElement('script')
-
-  scriptEl.async = true
-  windowAny[callbackName] = (data: any) => {
-    scriptEl.remove()
-    delete windowAny[callbackName]
-    resolve(data)
-  }
-
-  scriptEl.src = url
-  scriptEl.onerror = (err: any) => {
-    scriptEl.remove()
-    delete windowAny[callbackName]
-    console.error(err)
-    reject(err)
-  }
-
-  document.getElementsByTagName('head')[0].appendChild(scriptEl)
+/**
+ * Main export
+ */
+export function requestJSONP (url: string, callbackName: string): Promise<any> {
+  return new Promise((resolve, reject) => {
+    queue.push({ url, callbackName, resolve, reject })
+    runQueue()
+  })
 }
