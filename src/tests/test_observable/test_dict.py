@@ -14,7 +14,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from .obsproxy import observable
-from nose.tools import with_setup, assert_equal
 from .notified import (
     registerNotification,
     assertNotified,
@@ -35,51 +34,54 @@ def teardown_func():
     pass
 
 
-# Test for notifying things
-@with_setup(setup_func, teardown_func)
-def test_dict_setitem():
-    a["a"] = 3
-    assert_equal(a, {"a": 3, "b": 2, "c": 3})
-    assertNotified(
-        [(a, 1),]
-    )
+class TestDict:
+    def setup_method(self, method):
+        global a
+        a = observable({"a": 1, "b": 2, "c": 3})
+        registerNotification(a)
+        resetNotification()
 
+    def teardown_method(self, method):
+        pass
 
-@with_setup(setup_func, teardown_func)
-def test_dict_delitem():
-    del a["a"]
-    assert_equal(a, {"b": 2, "c": 3})
-    assertNotified(
-        [(a, 1),]
-    )
+    # Test for notifying things
+    def test_dict_setitem(self):
+        a["a"] = 3
+        assert a == {"a": 3, "b": 2, "c": 3}
+        assertNotified(
+            [
+                (a, 1),
+            ]
+        )
 
+    def test_dict_delitem(self):
+        del a["a"]
+        assert a == {"b": 2, "c": 3}
+        assertNotified(
+            [
+                (a, 1),
+            ]
+        )
 
-@with_setup(setup_func, teardown_func)
-def test_dict_getitem():
-    assert_equal(a["a"], 1)
-    assert_equal(a, {"a": 1, "b": 2, "c": 3})
-    assertNotified()
+    def test_dict_getitem(self):
+        assert a["a"] == 1
+        assert a == {"a": 1, "b": 2, "c": 3}
+        assertNotified()
 
+    def test_dict_get(self):
+        assert a.get("a", None) == 1
+        assert a.get("d", None) == None
+        assertNotified()
 
-@with_setup(setup_func, teardown_func)
-def test_dict_get():
-    assert_equal(a.get("a", None), 1)
-    assert_equal(a.get("d", None), None)
-    assertNotified()
+    def test_dict_keys(self):
+        k = set(a.keys())
+        assert k == {"a", "b", "c"}
+        assertNotified()
 
-
-@with_setup(setup_func, teardown_func)
-def test_dict_keys():
-    k = set(a.keys())
-    assert_equal(k, {"a", "b", "c"})
-    assertNotified()
-
-
-@with_setup(setup_func, teardown_func)
-def test_dict_items():
-    k = set(a.items())
-    assert_equal(k, {("a", 1), ("b", 2), ("c", 3)})
-    assertNotified()
+    def test_dict_items(self):
+        k = set(a.items())
+        assert k == {("a", 1), ("b", 2), ("c", 3)}
+        assertNotified()
 
 
 def test_nested_dict_list_dict():
@@ -92,13 +94,17 @@ def test_nested_dict_list_dict():
     registerNotification(k["b"][0])
 
     resetNotification()
-    assert_equal(k["a"][0]["b"], 1)
+    assert k["a"][0]["b"] == 1
     assertNotified()
 
     k["a"][0]["b"] = 2
-    assert_equal(k["a"][0]["b"], 2)
+    assert k["a"][0]["b"] == 2
     assertNotified(
-        [(k, 1), (k["a"], 1), (k["a"][0], 1),]
+        [
+            (k, 1),
+            (k["a"], 1),
+            (k["a"][0], 1),
+        ]
     )
 
 
@@ -115,19 +121,24 @@ def test_nested_list_dict_bug():
 
     k["a"] = [{"b": 0, "c": 7}]  # This should not throw
     assertNotified(
-        [(k, 1), (k["a"], 1),]
+        [
+            (k, 1),
+            (k["a"], 1),
+        ]
     )
 
     resetNotification()
     k["c"] = [{"b": 3, "c": 5}]  # This should not throw
     assertNotified([(k, 1)])
-    assert_equal(
-        k, {"a": [{"b": 0, "c": 7}], "b": [{"b": 3, "c": 4}], "c": [{"b": 3, "c": 5}],}
-    )
+    assert k == {
+        "a": [{"b": 0, "c": 7}],
+        "b": [{"b": 3, "c": 4}],
+        "c": [{"b": 3, "c": 5}],
+    }
 
 
 def test_configurator():
-    """ Test case while making wautocomplete configurator """
+    """Test case while making wautocomplete configurator"""
     allDecks = [
         {"id": 1, "name": "Default"},
         {"id": 2, "name": "Default 2"},
@@ -150,5 +161,8 @@ def test_configurator():
 
     addonConfig["blacklistDeckIds"] = allDecks[:3]
     assertNotified(
-        [(addonConfig, 1), (addonConfig["blacklistDeckIds"], 1),]
+        [
+            (addonConfig, 1),
+            (addonConfig["blacklistDeckIds"], 1),
+        ]
     )

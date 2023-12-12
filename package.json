@@ -12,7 +12,7 @@
     "link": "npx trgkanki-template-cli link",
     "dist": "npx trgkanki-template-cli release",
     "test": "npm-run-all test:py",
-    "test:py": "python3 -m nose src/tests",
+    "test:py": "python3 -m pytest src/tests",
     "prepare": "husky install"
   },
   "keywords": [
