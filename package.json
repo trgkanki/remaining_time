@@ -1,6 +1,6 @@
 {
   "name": "remainig_time",
-  "version": "24.1.22i134",
+  "version": "24.1.22i135",
   "description": "template for trgkanki's addon",
   "scripts": {
     "postinstall": "python3 -m pip install -r requirements.txt",

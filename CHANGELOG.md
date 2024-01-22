@@ -23,6 +23,10 @@ If you encounter any bugs, submit through [Github issues](https://github.com/trg
 
 [comment]: # (DO NOT MODIFY. new changelog goes here)
 
+## 24.1.22i135 (2024-01-22)
+
+- 23.10+ fix 2
+
 ## 24.1.22i134 (2024-01-22)
 
 - basic 23.10 support
