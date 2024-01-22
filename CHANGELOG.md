@@ -23,6 +23,12 @@ If you encounter any bugs, submit through [Github issues](https://github.com/trg
 
 [comment]: # (DO NOT MODIFY. new changelog goes here)
 
+## 24.1.22i134 (2024-01-22)
+
+- basic 23.10 support
+- fix reset progress bar hotkey
+- js now overview compatible
+
 ## 20.12.13i151 (2020-12-13)
 
 If you like the ongoing support of this addon consider buying me a cup of coffee via [patreon](https://www.patreon.com/trgk)!
