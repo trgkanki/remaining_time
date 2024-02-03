@@ -10,7 +10,7 @@ def getCurrentRemainingCardCount():
     # Pre 23.10 code
     if pointVersion() < 230000:
         # Code from aqt.reviewer.Reviewer._remaining()
-        if reviewer.hadCardQueue:
+        if hasattr(reviewer, 'hadCardQueue') and reviewer.hadCardQueue:
             # if it's come from the undo queue, don't count it separately
             counts = list(mw.col.sched.counts())
         else:
