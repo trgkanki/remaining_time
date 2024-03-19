@@ -426,3 +426,6 @@ dist_*.zip
 *.ankiaddon
 
 meta.json
+
+# possible ignored file from jsinterop+ branch
+*.min.js
