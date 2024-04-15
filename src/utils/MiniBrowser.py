@@ -38,8 +38,8 @@ class MiniBrowser(QDialog):
         super().__init__(parent)
         mw.setupDialogGC(self)
 
-        self.setWindowFlags(Qt.Window)
-        self.setWindowModality(Qt.WindowModal)
+        self.setWindowFlags(Qt.WindowType.Window)
+        self.setWindowModality(Qt.WindowModality.WindowModal)
 
         # Populate content
         self.web = AnkiWebView()
