@@ -27,7 +27,7 @@ from qdlgproxy import (  # type: ignore
     Td,
     observable,
 )
-from PyQt5.Qt import QApplication
+from aqt.qt import QApplication
 
 
 class TestClass:
