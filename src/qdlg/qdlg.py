@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt5.Qt import QDialog, QVBoxLayout, Qt
+from aqt.qt import QDialog, QVBoxLayout, Qt
 
 from .stack import pushQDlgStack, popQDlgStack, qDlgStackGetDialog
 from .utils import addLayoutOrWidget

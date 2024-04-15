@@ -26,7 +26,7 @@ from qdlgproxy import (
     Td,
 )
 
-from PyQt5.Qt import QApplication, QAbstractItemView
+from aqt.qt import QApplication, QAbstractItemView
 import sys
 
 # # Word autocompltete - configuration

@@ -16,7 +16,7 @@
 from ..stack import qDlgStackTop
 from .Style import StylableWidget
 
-from PyQt5.Qt import QLabel
+from aqt.qt import QLabel
 
 
 class Text(StylableWidget):

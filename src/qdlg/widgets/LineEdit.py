@@ -18,7 +18,7 @@ from ..utils import continuationHelper
 from ..modelHandler import configureModel
 from .Style import StylableWidget
 
-from PyQt5.Qt import QLineEdit
+from aqt.qt import QLineEdit
 
 
 class LineEdit(StylableWidget):
