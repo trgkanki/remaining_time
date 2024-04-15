@@ -25,7 +25,7 @@ from qdlgproxy import (  # type: ignore
     Tr,
     Td,
 )
-from PyQt5.Qt import QApplication
+from aqt.qt import QApplication
 
 
 class TestClass:

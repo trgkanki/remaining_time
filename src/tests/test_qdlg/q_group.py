@@ -24,7 +24,7 @@ from qdlgproxy import (  # type: ignore
     Td,
     Group,
 )
-from PyQt5.Qt import QApplication
+from aqt.qt import QApplication
 
 
 @QDlg("Table test")

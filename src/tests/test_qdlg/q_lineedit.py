@@ -15,7 +15,7 @@
 
 import sys
 from qdlgproxy import QDlg, Text, LineEdit  # type: ignore
-from PyQt5.Qt import QApplication
+from aqt.qt import QApplication
 
 
 @QDlg("LineEdit test dialog", size=[640, 480])

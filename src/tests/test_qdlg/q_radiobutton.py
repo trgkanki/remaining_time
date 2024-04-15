@@ -18,7 +18,7 @@ from qdlgproxy import (  # type: ignore
     QDlg,
     RadioButton,
 )
-from PyQt5.Qt import QApplication
+from aqt.qt import QApplication
 
 
 @QDlg("Table test")

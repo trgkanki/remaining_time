@@ -17,7 +17,7 @@ from ..stack import qDlgStackTop
 from ..container import QDlgContainer
 from ..utils import addLayoutOrWidget
 
-from PyQt5.Qt import QVBoxLayout, QHBoxLayout
+from aqt.qt import QVBoxLayout, QHBoxLayout
 
 
 class LayoutBase(QDlgContainer):
