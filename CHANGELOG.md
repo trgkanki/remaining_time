@@ -23,6 +23,10 @@ If you encounter any bugs, submit through [Github issues](https://github.com/trg
 
 [comment]: # (DO NOT MODIFY. new changelog goes here)
 
+## 24.4.16i24 (2024-04-16)
+
+- 23.10+ fix 3
+
 ## 24.1.23i147 (2024-01-23)
 
 fix packaging issue
