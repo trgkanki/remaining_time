@@ -18,7 +18,10 @@ def getCurrentRemainingCardCount():
 
     # 23.10 code
     else:
-        _, counts = reviewer._v3.counts()
+        if (v3 := reviewer._v3) is not None:
+            _, counts = v3.counts()
+        else:
+            counts = (0, 0, 0)
 
     nu, lrn, rev = counts
     return nu, lrn, rev
