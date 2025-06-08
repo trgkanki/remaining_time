@@ -19,7 +19,7 @@ import sys
 import os
 
 sys.path.insert(
-    1, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../qdlg"))
+    1, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src/qdlg"))
 )
 
 from observable import *  # NOQA
