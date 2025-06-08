@@ -43,9 +43,9 @@ class MiniBrowser(QDialog):
 
         # Populate content
         self.web = AnkiWebView()
-        self.web._page._isMiniBrowser = True
+        self.web.page()._isMiniBrowser = True
         # Support window.close
-        self.web._page.windowCloseRequested.connect(self.close)
+        self.web.page().windowCloseRequested.connect(self.close)
         l = QVBoxLayout()
         l.setContentsMargins(0, 0, 0, 0)
         l.addWidget(self.web)
@@ -84,7 +84,7 @@ class MiniBrowser(QDialog):
 
         # work around webengine stealing focus on setHtml()
         oldFocus = app.focusWidget()
-        self.web._page.setUrl(QUrl.fromLocalFile(rootHtmlPath))
+        self.web.page().setUrl(QUrl.fromLocalFile(rootHtmlPath))
         if oldFocus:
             oldFocus.setFocus()
 
