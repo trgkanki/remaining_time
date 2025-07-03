@@ -23,6 +23,10 @@ If you encounter any bugs, submit through [Github issues](https://github.com/trg
 
 [comment]: # (DO NOT MODIFY. new changelog goes here)
 
+## 25.7.3i33 (2025-07-03)
+
+fix new/review color
+
 ## 24.4.16i24 (2024-04-16)
 
 - 23.10+ fix 3
