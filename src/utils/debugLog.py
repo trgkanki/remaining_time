@@ -14,7 +14,7 @@ logFilePath = getResourcePath("log_%s.log" % getCurrentAddonName())
 
 
 def isDebugMode(*, _local=[]):
-    """ Cached getConfig("debug") """
+    """Cached getConfig("debug")"""
     if not _local:
         _local.append(getConfig("debug"))
     return _local[0]
