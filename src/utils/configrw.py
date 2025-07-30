@@ -14,11 +14,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from aqt import mw
-from aqt.utils import askUser
-from ..qdlg import observable
+from aqt.addons import AddonManager
+from anki.hooks import wrap
+
 import os
+import functools
 
 
+@functools.cache
 def getCurrentAddonName():
     fPath = os.path.dirname(os.path.abspath(__file__))
     fPath = fPath.replace(os.sep, "/")
@@ -28,8 +31,7 @@ def getCurrentAddonName():
 
 
 def getConfig(key, default=None):
-    addonName = getCurrentAddonName()
-    config = mw.addonManager.getConfig(addonName)
+    config = getConfigAll()
     if not config:
         return default
     return config.get(key, default)
@@ -37,7 +39,8 @@ def getConfig(key, default=None):
 
 def setConfig(key, value):
     addonName = getCurrentAddonName()
-    config = mw.addonManager.getConfig(addonName)
+    config = getConfigAll()
+
     if config is None:
         config = {}
     config[key] = value
@@ -49,20 +52,7 @@ def setConfig(key, value):
 
 def setConfigEditor(editorFunc):
     addonName = getCurrentAddonName()
-    config = mw.addonManager.setConfigAction(addonName, editorFunc)
-
-
-def getConfigAll():
-    addonName = getCurrentAddonName()
-    return mw.addonManager.getConfig(addonName)
-
-
-def setConfigAll(newConfig):
-    addonName = getCurrentAddonName()
-    config = mw.addonManager.getConfig(addonName)
-    for k, v in newConfig.items():
-        config[k] = v
-    mw.addonManager.writeConfig(addonName, config)
+    mw.addonManager.setConfigAction(addonName, editorFunc)
 
 
 # Config update callback
@@ -79,3 +69,34 @@ def cbConfigUpdated(_):
 
 
 mw.addonManager.setConfigUpdatedAction(getCurrentAddonName(), cbConfigUpdated)
+
+
+# Config getter & cache
+
+
+_config_cache = None
+
+
+def getConfigAll():
+    global _config_cache
+    if _config_cache is None:
+        addonName = getCurrentAddonName()
+        _config_cache = mw.addonManager.getConfig(addonName)
+
+    return _config_cache.copy()
+
+
+def setConfigAll(newConfig):
+    addonName = getCurrentAddonName()
+    config = mw.addonManager.getConfig(addonName)
+    for k, v in newConfig.items():
+        config[k] = v
+    mw.addonManager.writeConfig(addonName, config)
+
+
+def _resetConfigCache():
+    global _config_cache
+    _config_cache = None
+
+
+onConfigUpdate(_resetConfigCache)
