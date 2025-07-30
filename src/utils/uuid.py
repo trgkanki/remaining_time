@@ -29,7 +29,7 @@ def addonUUID():
 
 
 def dupUUIDCheck():
-    """ Check for duplicate UUID and raise exception if one exists """
+    """Check for duplicate UUID and raise exception if one exists"""
     uuid = addonUUID()
 
     if (
