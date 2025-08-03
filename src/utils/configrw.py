@@ -81,7 +81,7 @@ def getConfigAll():
     global _config_cache
     if _config_cache is None:
         addonName = getCurrentAddonName()
-        _config_cache = mw.addonManager.getConfig(addonName)
+        _config_cache = mw.addonManager.getConfig(addonName) or {}
 
     return _config_cache.copy()
 
