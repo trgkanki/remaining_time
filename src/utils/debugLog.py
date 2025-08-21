@@ -29,11 +29,8 @@ def openLogWithPreferredEditor():
         subprocess.call(("xdg-open", logFilePath))
 
 
-def log(s: str, *args) -> None:
+def log(s: str) -> None:
     if isDebugMode():
-        if len(args):
-            s = s % args
-
         now = datetime.now()  # current date and time
         with open(logFilePath, "a", encoding="utf-8") as f:
             f.write("[%s]\t%s\n" % (now.strftime("%Y-%m-%d %H:%M:%S"), s))
