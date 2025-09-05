@@ -3,7 +3,7 @@
   "version": "20.5.4i8",
   "description": "template for trgkanki's addon",
   "scripts": {
-    "postinstall": "python3 -m pip install -r requirements.txt",
+    "postinstall": "echo \"Make sure to install pipx on your environment! (npx analogue for python)\"",
     "dev:js": "cross-env NODE_ENV=development webpack -w --progress",
     "compile:js": "webpack --progress",
     "compile": "npm-run-all compile:js",
@@ -12,7 +12,7 @@
     "link": "npx trgkanki-template-cli link",
     "dist": "npx trgkanki-template-cli release",
     "test": "npm-run-all test:py",
-    "test:py": "python3 -m pytest tests",
+    "test:py": "pipx run pytest tests",
     "prepare": "husky install"
   },
   "keywords": [
