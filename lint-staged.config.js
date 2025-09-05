@@ -15,7 +15,7 @@
 
 module.exports = {
   '*.py': [
-    'python3 -m black'
+    'pipx run black'
   ],
   '*': () => 'npm run test'
 }
