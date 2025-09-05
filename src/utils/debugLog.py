@@ -15,7 +15,7 @@ logFilePath = getResourcePath("log_%s.log" % getCurrentAddonName())
 
 
 def isDebugMode(*, _local=[]):
-    """ Cached getConfig("debug") """
+    """Cached getConfig("debug")"""
     if not _local:
         _local.append(getConfig("debug"))
     return _local[0]
@@ -31,11 +31,8 @@ def openLogWithPreferredEditor():
 
 
 @JSCallable
-def log(s: str, *args) -> None:
+def log(s: str) -> None:
     if isDebugMode():
-        if len(args):
-            s = s % args
-
         now = datetime.now()  # current date and time
         with open(logFilePath, "a", encoding="utf-8") as f:
             f.write("[%s]\t%s\n" % (now.strftime("%Y-%m-%d %H:%M:%S"), s))

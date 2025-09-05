@@ -18,7 +18,7 @@ module.exports = {
     'eslint --fix'
   ],
   '*.py': [
-    'python3 -m black'
+    'pipx run black'
   ],
   '*.{scss,css}': [
     'stylelint --fix'

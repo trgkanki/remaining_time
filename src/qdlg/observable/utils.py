@@ -17,7 +17,7 @@
 def bind(instance, func, as_name=None):
     """
     Bind the function *func* to *instance*, with either provided name *as_name*
-    or the existing name of *func*. The provided *func* should accept the 
+    or the existing name of *func*. The provided *func* should accept the
     instance as the first argument, i.e. "self".
 
     from https://stackoverflow.com/questions/1015307/python-bind-an-unbound-method

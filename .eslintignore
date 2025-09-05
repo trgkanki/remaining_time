@@ -5,3 +5,4 @@ node_modules/
 *.min.js
 
 !.eslintrc.js
+lint-staged.config.js
