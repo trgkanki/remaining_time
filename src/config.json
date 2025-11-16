@@ -2,6 +2,7 @@
   "debug": false,
   "showAtBottom": false,
   "autoReset": false,
+  "reviewTimeCutoff": 300,
   "resetHotkey": "",
   "runOnMobile": false,
   "messageFormat": "Elapsed %(elapsedTime),  Remaining %(remainingTime), ETA %(ETA)",

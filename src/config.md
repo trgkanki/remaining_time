@@ -1,6 +1,7 @@
 # Remaining Time 2.1 - Configuration
 
 ## debug (default: false)
+
 Enable debug mode.
 
 ## showAtBottom (default: false)
@@ -19,6 +20,10 @@ Set all segment's width to same. [This has been requested](https://github.com/tr
 
 Triggers automatic reset. Note that this is quite fragile for now, so this is false by default currently.
 
+## reviewTimeCutoff (default: 300)
+
+Every review taking too much time will be clampped to `reviewTimeCutoff` (seconds). Some outliers may influence the ETA too much.
+Use this option to filter out the outliers.
 
 ## resetHotkey (default: "")
 
