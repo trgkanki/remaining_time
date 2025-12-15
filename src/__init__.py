@@ -31,6 +31,7 @@ from .utils.resource import updateMedia, readResource
 
 from aqt.reviewer import Reviewer
 from anki.hooks import wrap, addHook
+from aqt import gui_hooks, mw
 from aqt.overview import Overview
 from aqt.utils import showInfo  # debug TODO remove
 
@@ -63,18 +64,22 @@ def onOverview(self):
     execJSFile(self.web, "js/main.min.js")
 
 
-def addRemainingTimeHotkey(self, _old):
-    hotkeys = _old(self)
-    if getConfig("resetHotkey"):
-
-        def onReset():
-            self.web.eval("_3cc745f46701204a_click_reset_progress_bar()")
-
-        hotkeys.append((getConfig("resetHotkey"), onReset))
-    return hotkeys
-
-
 Reviewer._initWeb = wrap(Reviewer._initWeb, afterInitWeb, "after")
-Reviewer._shortcutKeys = wrap(Reviewer._shortcutKeys, addRemainingTimeHotkey, "around")
 Reviewer.nextCard = wrap(Reviewer.nextCard, afterNextCard, "after")
 Overview.refresh = wrap(Overview.refresh, onOverview, "after")
+
+
+def addHotkey(state, shortcuts):
+    if state != "review":
+        return
+
+    hotkey = getConfig("resetHotkey")
+    if hotkey:
+
+        def onReset():
+            mw.web.eval("_3cc745f46701204a_click_reset_progress_bar()")
+
+        shortcuts.append((hotkey, onReset))
+
+
+gui_hooks.state_shortcuts_will_change.append(addHotkey)
