@@ -23,6 +23,11 @@ If you encounter any bugs, submit through [Github issues](https://github.com/trg
 
 [comment]: # (DO NOT MODIFY. new changelog goes here)
 
+## 26.1.21i80 (2026-01-21)
+
+- Fixed hotkey not working
+- Added `reviewTimeCutoff` config.
+
 ## 25.7.3i33 (2025-07-03)
 
 fix new/review color
