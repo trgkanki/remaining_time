@@ -11,7 +11,6 @@ from anki.hooks import wrap
 
 from .resource import getResourcePath
 
-
 # By default, AnkiWebPage opens link in a browser for non-anki-urls,
 # like those starting with `file://`. We override this behavior since,
 # well, we want to use same `gui_hooks.webview_did_receive_js_message`
