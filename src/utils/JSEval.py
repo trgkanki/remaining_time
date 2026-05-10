@@ -65,10 +65,7 @@ def evalJS(web, funcexpr, cb):
     _handlerMap[handlerKey] = cb
 
     # Execute js code
-    web.eval(
-        """
+    web.eval("""
     Promise.resolve(%s).then(msg => {
         pycmd(`addonmsg:%s:${JSON.stringify(msg)}`)
-    })"""
-        % (funcexpr, handlerKey)
-    )
+    })""" % (funcexpr, handlerKey))

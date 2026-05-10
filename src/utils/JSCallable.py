@@ -7,7 +7,7 @@ import traceback
 
 
 def JSCallable(func):
-    """ Decorator for js-callable python function """
+    """Decorator for js-callable python function"""
     funcName = func.__name__
     msgPrefix = "pyfunc:%s:%s:" % (addonUUID(), funcName)
 
