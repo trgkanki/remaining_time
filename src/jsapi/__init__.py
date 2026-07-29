@@ -1,1 +1,7 @@
-from . import ankiLocalStorage, remainingCardCount, isQuestionSide, getCurrentCardId
+from . import (
+    ankiLocalStorage,
+    remainingCardCount,
+    isQuestionSide,
+    getCurrentCardId,
+    reviewTracking,
+)

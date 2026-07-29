@@ -1,26 +1,15 @@
 import { Estimator } from '../estimator'
 import { RemainingCardCounts, getRemainingCardLoad, getRemainingReviews, now, getCurrentCardId } from '../utils'
-import ankiLocalStorage from '../utils/ankiLocalStorage'
 import { onSameReviewSession } from '../isDoingReview'
 import { debugLog } from '../utils/debugLog'
 import CRC32 from 'crc-32'
 import { getAddonConfig } from '../utils/addonConfig'
+import { getLastRCC, saveLastRCC } from '../utils/lastRCC'
 import { EstimatorInst, ReviewLogger, RCCTConst } from './types'
 
 async function getReviewHash (rcc: RemainingCardCounts): Promise<number> {
   const cardId = await getCurrentCardId()
   return CRC32.str(JSON.stringify({ rcc, cardId }))
-}
-
-const kLastRCC = '__rt__lastrcc__'
-async function getLastRCC () {
-  const s = await ankiLocalStorage.getItem(kLastRCC)
-  if (!s) return null
-  return JSON.parse(s) as RemainingCardCounts
-}
-
-function saveLastRCC (rcc: RemainingCardCounts) {
-  ankiLocalStorage.setItem(kLastRCC, JSON.stringify(rcc))
 }
 
 async function getEstimatorInstruction (
