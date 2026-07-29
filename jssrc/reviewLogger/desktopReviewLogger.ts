@@ -1,7 +1,5 @@
-import { getRemainingCardLoad, getRemainingReviews } from '../utils'
 import ankiLocalStorage from '../utils/ankiLocalStorage'
 import { callPyFunc } from '../utils/pyfunc'
-import { getLastRCC, saveLastRCC } from '../utils/lastRCC'
 import { EstimatorInst, InstLogType, ReviewLogger, RCCTConst } from './types'
 
 interface AnswerEvent {
@@ -44,21 +42,6 @@ export class DesktopReviewLogger implements ReviewLogger {
     const events = await callPyFunc('getNewAnswerEvents', sinceSeq) as ReviewEvent[]
     if (events.length === 0) return []
 
-    // dy still comes from the RCC-load diff (not guesswork - already correctly
-    // reflects real load removed, incl. edge cases like bury-related new-card
-    // decrements). Normally exactly one 'answer' event is drained per poll; on
-    // the rare occasion multiple land in one batch, split the observed dy
-    // across them rather than double-counting it on each.
-    const currentRemainingCards = await getRemainingReviews()
-    const prevRemainingCards = await getLastRCC()
-    saveLastRCC(currentRemainingCards)
-
-    const totalDy = prevRemainingCards
-      ? getRemainingCardLoad(prevRemainingCards) - getRemainingCardLoad(currentRemainingCards)
-      : 0
-    const answerEventCount = events.filter(e => e.kind === 'answer').length
-    const dyPerAnswer = answerEventCount > 0 ? totalDy / answerEventCount : 0
-
     let maxSeq = sinceSeq
     const instructions: EstimatorInst[] = []
     for (const event of events) {
@@ -69,7 +52,6 @@ export class DesktopReviewLogger implements ReviewLogger {
         instructions.push({
           instType: RCCTConst.UPDATE,
           reviewHash: event.seq,
-          dy: dyPerAnswer,
           logType: classify(event)
         })
       }

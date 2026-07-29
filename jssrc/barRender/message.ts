@@ -1,6 +1,6 @@
 
 import { Estimator } from '../estimator'
-import { t2s } from '../utils'
+import { RemainingCardCounts, t2s } from '../utils'
 import { getAddonConfig } from '../utils/addonConfig'
 
 function zf (n: number, cnt: number) {
@@ -17,11 +17,13 @@ function HHmmFormat12 (date: Date) {
   return `${zf((date.getHours() - 1) % 12 + 1, 2)}:${zf(date.getMinutes(), 2)} ${amPm}`
 }
 
-export async function getMessage (estimator: Estimator, remainingLoad: number): Promise<string> {
+export async function getMessage (estimator: Estimator, remainingReviews: RemainingCardCounts): Promise<string> {
   const elapsedTime = estimator.elapsedTime
-  const remainingTime = remainingLoad / estimator.getSlope()
+  const remainingTime = estimator.getRemainingTime(remainingReviews)
   const totalTime = elapsedTime + remainingTime
-  const CPM = (estimator.getSlope() * 60).toFixed(2)
+  // Actual observed pace this sitting - cards answered per minute - rather
+  // than any one category's rate.
+  const CPM = (elapsedTime > 0 ? (estimator.logs.length / elapsedTime) * 60 : 0).toFixed(2)
   const ETA = new Date()
   ETA.setSeconds(ETA.getSeconds() + remainingTime)
   const ETAString24 = (remainingTime >= 86400) ? '> day' : HHmmFormat(ETA)

@@ -1,7 +1,7 @@
-import { Estimator } from './estimator'
+import { Estimator, RateCategory, categoryForLogType } from './estimator'
 import { EstimatorInst, RCCTConst } from './reviewLogger/types'
 import { getReviewLogger } from './reviewLogger'
-import { getCurrentDeckName, getDeckRate, saveDeckRate, blendDeckRate } from './utils/deckRate'
+import { getCurrentDeckName, getDeckRates, saveDeckRates, blendDeckRate, DeckRates } from './utils/deckRate'
 
 function applyInstruction (estimator: Estimator, instruction: EstimatorInst) {
   switch (instruction.instType) {
@@ -17,7 +17,7 @@ function applyInstruction (estimator: Estimator, instruction: EstimatorInst) {
       break
 
     case RCCTConst.UPDATE:
-      estimator.update(instruction.reviewHash, instruction.dy, instruction.logType)
+      estimator.update(instruction.reviewHash, instruction.logType)
       break
   }
 }
@@ -32,12 +32,22 @@ export async function updateEstimator () {
   }
   estimator.save()
 
-  const hadUpdate = instructions.some(instruction => instruction.instType === RCCTConst.UPDATE)
-  if (hadUpdate) {
+  const touchedCategories = new Set<RateCategory>()
+  for (const instruction of instructions) {
+    if (instruction.instType !== RCCTConst.UPDATE) continue
+    const category = categoryForLogType(instruction.logType)
+    if (category) touchedCategories.add(category)
+  }
+
+  if (touchedCategories.size > 0) {
     const deckName = await getCurrentDeckName()
     if (deckName) {
-      const oldRate = await getDeckRate(deckName)
-      await saveDeckRate(deckName, blendDeckRate(oldRate, estimator.getSlope()))
+      const oldRates = await getDeckRates(deckName)
+      const newRates: DeckRates = {}
+      for (const category of touchedCategories) {
+        newRates[category] = blendDeckRate(oldRates?.[category], estimator.getSlope(category))
+      }
+      await saveDeckRates(deckName, newRates)
     }
   }
 }

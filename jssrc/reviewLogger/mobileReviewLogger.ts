@@ -1,5 +1,5 @@
 import { Estimator } from '../estimator'
-import { RemainingCardCounts, getRemainingCardLoad, getRemainingReviews, now, getCurrentCardId } from '../utils'
+import { RemainingCardCounts, getRemainingReviews, now, getCurrentCardId } from '../utils'
 import { onSameReviewSession } from '../isDoingReview'
 import { debugLog } from '../utils/debugLog'
 import CRC32 from 'crc-32'
@@ -41,9 +41,6 @@ async function getEstimatorInstruction (
     // Comparing!
     const prevRemainingCards = await getLastRCC()
     if (!prevRemainingCards) return { instType: RCCTConst.RESET }
-    const previousReviewLoad = getRemainingCardLoad(prevRemainingCards)
-    const nextReviewLoad = getRemainingCardLoad(currentRemainingCards)
-    const dy = previousReviewLoad - nextReviewLoad
 
     const { nu: nu0, lrn: lrn0, rev: rev0 } = prevRemainingCards
     const { nu: nu1, lrn: lrn1, rev: rev1 } = currentRemainingCards
@@ -58,7 +55,7 @@ async function getEstimatorInstruction (
       rev0 === rev1 &&
       lrn0 <= lrn1
     ) {
-      return { instType: RCCTConst.UPDATE, reviewHash: currentReviewHash, dy, logType: 'new' }
+      return { instType: RCCTConst.UPDATE, reviewHash: currentReviewHash, logType: 'new' }
     }
 
     // Re-learn or learn the current learning card
@@ -68,8 +65,8 @@ async function getEstimatorInstruction (
     ) {
       // This might happen also in undo scenario, but we're, quite open to such scenario.
       // some minor inaccuracies could be tolerated?
-      if (lrn0 > lrn1) return { instType: RCCTConst.UPDATE, reviewHash: currentReviewHash, dy, logType: 'good' }
-      else return { instType: RCCTConst.UPDATE, reviewHash: currentReviewHash, dy, logType: 'again' }
+      if (lrn0 > lrn1) return { instType: RCCTConst.UPDATE, reviewHash: currentReviewHash, logType: 'good' }
+      else return { instType: RCCTConst.UPDATE, reviewHash: currentReviewHash, logType: 'again' }
     }
 
     // Learning review cards
@@ -78,8 +75,8 @@ async function getEstimatorInstruction (
       lrn0 <= lrn1 &&
       rev0 > rev1
     ) {
-      if (lrn0 === lrn1) return { instType: RCCTConst.UPDATE, reviewHash: currentReviewHash, dy, logType: 'rev-good' }
-      else return { instType: RCCTConst.UPDATE, reviewHash: currentReviewHash, dy, logType: 'rev-again' }
+      if (lrn0 === lrn1) return { instType: RCCTConst.UPDATE, reviewHash: currentReviewHash, logType: 'rev-good' }
+      else return { instType: RCCTConst.UPDATE, reviewHash: currentReviewHash, logType: 'rev-again' }
     }
 
     // maybe undo?
@@ -88,7 +85,7 @@ async function getEstimatorInstruction (
       (rev0 < rev1 && nu0 === nu1)
     ) {
       if (await onSameReviewSession()) {
-        return { instType: RCCTConst.UPDATE, reviewHash: currentReviewHash, dy, logType: 'unknown' }
+        return { instType: RCCTConst.UPDATE, reviewHash: currentReviewHash, logType: 'unknown' }
       }
     }
 

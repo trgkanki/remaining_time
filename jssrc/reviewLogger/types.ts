@@ -23,7 +23,6 @@ export type InstLogType = 'new' | 'good' | 'again' | 'rev-good' | 'rev-again' | 
 export interface InstUpdate {
   instType: RCCTConst.UPDATE;
   reviewHash: number;
-  dy: number;
   logType: InstLogType;
 }
 

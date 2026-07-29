@@ -26,10 +26,6 @@ export async function getCurrentCardId (): Promise<number> {
   }
 }
 
-export function getRemainingCardLoad ({ nu, lrn, rev }: RemainingCardCounts) {
-  return nu * 2 + lrn + rev
-}
-
 /**
  * Convert time duration to string
  *

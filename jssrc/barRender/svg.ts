@@ -1,5 +1,5 @@
 import { Estimator } from '../estimator'
-import { t2s } from '../utils'
+import { RemainingCardCounts, t2s } from '../utils'
 
 const segmentAlphaConsts = {
   clampMinTime: 10,
@@ -18,11 +18,11 @@ function linearInterpolate (start: number, end: number, t: number) {
 
 /// main
 
-export function getSVG (estimator: Estimator, remainingLoad: number, options: {
+export function getSVG (estimator: Estimator, remainingReviews: RemainingCardCounts, options: {
   fixedWidth: boolean;
 }): string {
   const elapsedTime = estimator.elapsedTime
-  const remainingTime = remainingLoad / estimator.getSlope()
+  const remainingTime = estimator.getRemainingTime(remainingReviews)
 
   const progress = elapsedTime / (elapsedTime + remainingTime)
   const pathSVGs: string[] = []
@@ -38,14 +38,17 @@ export function getSVG (estimator: Estimator, remainingLoad: number, options: {
     const clampedDt = Math.min(log.dt, longSegmentClampMinTime)
     const rectW = options.fixedWidth ? progress / logs.length : clampedDt / timeSum * progress
     const rectAlpha =
-      log.dt > longSegmentClampMinTime ? segmentAlphaConsts.minAlpha / 4
-        : (clampedDt < segmentAlphaConsts.clampMinTime) ? segmentAlphaConsts.maxAlpha
-          : (clampedDt > segmentAlphaConsts.clampMaxTime) ? segmentAlphaConsts.minAlpha / 2
-            : linearInterpolate(
-              segmentAlphaConsts.maxAlpha,
-              segmentAlphaConsts.minAlpha,
-              (clampedDt - segmentAlphaConsts.clampMinTime) / (segmentAlphaConsts.clampMaxTime - segmentAlphaConsts.clampMinTime)
-            )
+      log.dt > longSegmentClampMinTime
+        ? segmentAlphaConsts.minAlpha / 4
+        : (clampedDt < segmentAlphaConsts.clampMinTime)
+            ? segmentAlphaConsts.maxAlpha
+            : (clampedDt > segmentAlphaConsts.clampMaxTime)
+                ? segmentAlphaConsts.minAlpha / 2
+                : linearInterpolate(
+                  segmentAlphaConsts.maxAlpha,
+                  segmentAlphaConsts.minAlpha,
+                  (clampedDt - segmentAlphaConsts.clampMinTime) / (segmentAlphaConsts.clampMaxTime - segmentAlphaConsts.clampMinTime)
+                )
 
     // To utilize @typescript-eslint/switch-exhaustiveness-check rule, we use switch here
     // instead of more straightforward dictionary method.

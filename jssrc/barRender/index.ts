@@ -1,5 +1,5 @@
 import { Estimator } from '../estimator'
-import { getRemainingReviews, getRemainingCardLoad as reviewLoad } from '../utils'
+import { getRemainingReviews } from '../utils'
 import { getAddonConfig } from '../utils/addonConfig'
 import { getMessage } from './message'
 import { getSVG } from './svg'
@@ -54,13 +54,12 @@ async function updateDOM (svgHtml: string, progressBarMessage: string) {
 
 export async function renderProgressBar () {
   const currentRemainingReviews = await getRemainingReviews()
-  const remainingLoad = reviewLoad(currentRemainingReviews)
   const estimator = await Estimator.instance()
   const renderOptions = {
     fixedWidth: !!(await getAddonConfig('fixedSegmentWidth'))
   }
 
-  const message = await getMessage(estimator, remainingLoad)
-  const svgHtml = getSVG(estimator, remainingLoad, renderOptions)
+  const message = await getMessage(estimator, currentRemainingReviews)
+  const svgHtml = getSVG(estimator, currentRemainingReviews, renderOptions)
   await updateDOM(svgHtml, message)
 }

@@ -6,6 +6,11 @@ import ankiLocalStorage from './ankiLocalStorage'
 // the deck's long-run pace across sittings, not just the current one.
 const emaDecay = 0.9
 
+export interface DeckRates {
+  new?: number;
+  rev?: number;
+}
+
 export async function getCurrentDeckName (): Promise<string | null> {
   if ((window as any).AnkiDroidJS) {
     return AnkiDroidJS.ankiGetDeckName()
@@ -14,19 +19,19 @@ export async function getCurrentDeckName (): Promise<string | null> {
   }
 }
 
-export async function getDeckRate (deckName: string): Promise<number | null> {
-  const rates = await getDeckRateStore()
-  return rates[deckName] ?? null
+export async function getDeckRates (deckName: string): Promise<DeckRates | null> {
+  const store = await getDeckRateStore()
+  return store[deckName] ?? null
 }
 
-export async function saveDeckRate (deckName: string, rate: number): Promise<void> {
-  const rates = await getDeckRateStore()
-  rates[deckName] = rate
-  await setDeckRateStore(rates)
+export async function saveDeckRates (deckName: string, rates: DeckRates): Promise<void> {
+  const store = await getDeckRateStore()
+  store[deckName] = { ...store[deckName], ...rates }
+  await setDeckRateStore(store)
 }
 
-export function blendDeckRate (oldRate: number | null, currentSlope: number): number {
-  if (oldRate === null) return currentSlope
+export function blendDeckRate (oldRate: number | undefined, currentSlope: number): number {
+  if (oldRate === undefined) return currentSlope
   return emaDecay * oldRate + (1 - emaDecay) * currentSlope
 }
 
@@ -35,7 +40,7 @@ export function blendDeckRate (oldRate: number | null, currentSlope: number): nu
 // Anki restarts: use separate backend for storage.
 const kAnkiDroidDeckRates = '__rt__deckrates__'
 
-async function getDeckRateStore (): Promise<Record<string, number>> {
+async function getDeckRateStore (): Promise<Record<string, DeckRates>> {
   if ((window as any).AnkiDroidJS) {
     const s = await ankiLocalStorage.getItem(kAnkiDroidDeckRates)
     return s ? JSON.parse(s) : {}
@@ -43,7 +48,7 @@ async function getDeckRateStore (): Promise<Record<string, number>> {
   return (await callPyFunc('getDeckRateConfig')) || {}
 }
 
-async function setDeckRateStore (rates: Record<string, number>): Promise<void> {
+async function setDeckRateStore (rates: Record<string, DeckRates>): Promise<void> {
   if ((window as any).AnkiDroidJS) {
     await ankiLocalStorage.setItem(kAnkiDroidDeckRates, JSON.stringify(rates))
     return
