@@ -1,6 +1,7 @@
 import { Estimator } from './estimator'
 import { EstimatorInst, RCCTConst } from './reviewLogger/types'
 import { getReviewLogger } from './reviewLogger'
+import { getCurrentDeckName, getDeckRate, saveDeckRate, blendDeckRate } from './utils/deckRate'
 
 function applyInstruction (estimator: Estimator, instruction: EstimatorInst) {
   switch (instruction.instType) {
@@ -30,4 +31,13 @@ export async function updateEstimator () {
     applyInstruction(estimator, instruction)
   }
   estimator.save()
+
+  const hadUpdate = instructions.some(instruction => instruction.instType === RCCTConst.UPDATE)
+  if (hadUpdate) {
+    const deckName = await getCurrentDeckName()
+    if (deckName) {
+      const oldRate = await getDeckRate(deckName)
+      await saveDeckRate(deckName, blendDeckRate(oldRate, estimator.getSlope()))
+    }
+  }
 }

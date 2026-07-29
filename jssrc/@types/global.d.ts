@@ -8,4 +8,5 @@ declare const AnkiDroidJS: {
   ankiGetLrnCardCount(): string;
   ankiGetRevCardCount(): string;
   ankiGetCardId(): number;
+  ankiGetDeckName(): string;
 }

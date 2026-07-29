@@ -4,4 +4,5 @@ from . import (
     isQuestionSide,
     getCurrentCardId,
     reviewTracking,
+    deckRate,
 )

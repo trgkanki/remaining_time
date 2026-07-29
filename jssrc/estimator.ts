@@ -7,9 +7,16 @@ import { pakob64Deflate, pakob64Inflate } from './utils/pakob64'
 import { now } from './utils'
 import { InstLogType } from './reviewLogger/types'
 import { getAddonConfig } from './utils/addonConfig'
+import { getCurrentDeckName, getDeckRate } from './utils/deckRate'
 
 const historyDecay = 1 / 1.005
 const historyLength = 100
+
+// How much pseudo-time (in seconds) the persisted deck rate counts for when
+// seeding a fresh sitting - the seed's influence decays smoothly as real
+// logs accumulate past this, rather than being thrown away outright once a
+// couple of real data points exist.
+const deckRateSeedWeightSeconds = 600
 
 export interface LogEntry {
   epoch: number;
@@ -27,7 +34,9 @@ const kRtEstimatorSchema = '__rt__estimator__schema__'
 // Implementation
 
 interface EstimatorInitializer {
-  reviewTimeCutoff: number
+  reviewTimeCutoff: number;
+  seedRate: number;
+  seedWeightSeconds: number;
 }
 
 export class Estimator {
@@ -35,11 +44,15 @@ export class Estimator {
 
   private startTime = now()
   private reviewTimeCutoff: number
+  private seedRate: number
+  private seedWeightSeconds: number
   // eslint-disable-next-line no-use-before-define
   private static cache: Estimator | null = null
 
   constructor (args: EstimatorInitializer) {
     this.reviewTimeCutoff = args.reviewTimeCutoff
+    this.seedRate = args.seedRate
+    this.seedWeightSeconds = args.seedWeightSeconds
   }
 
   get elapsedTime () {
@@ -73,12 +86,16 @@ export class Estimator {
 
   getSlope () {
     const logLength = this.logs.length
-    if (logLength < 2) return 1e-6
+    // No persisted history and no real data yet - nothing to compute from.
+    if (logLength === 0 && this.seedWeightSeconds <= 0) return 1e-6
 
-    let totTime = 0
-    let totY = 0
+    // Seed the accumulation with the persisted deck rate as a decaying prior
+    // (weighted like an old log entry), so a fresh sitting starts accurate
+    // instead of a hard cutover once a couple of real logs exist.
+    let totTime = this.seedWeightSeconds
+    let totY = this.seedWeightSeconds * this.seedRate
     for (let i = Math.max(0, logLength - historyLength); i < logLength; i++) {
-      const r = Math.pow(1 / historyDecay, i)
+      const r = Math.pow(historyDecay, logLength - i)
       const log = this.logs[i]
       if (log.dt <= this.reviewTimeCutoff) {
         totTime += r * log.dt
@@ -120,7 +137,14 @@ export class Estimator {
 
     const content = await ankiLocalStorage.getItem(kRtEstimatorSchema)
     const reviewTimeCutoff = (await getAddonConfig('reviewTimeCutoff')) as number
-    if (!content) Estimator.cache = new Estimator({ reviewTimeCutoff })
+
+    const deckName = await getCurrentDeckName()
+    const persistedRate = deckName ? await getDeckRate(deckName) : null
+    const seedArgs = persistedRate !== null
+      ? { seedRate: persistedRate, seedWeightSeconds: deckRateSeedWeightSeconds }
+      : { seedRate: 1e-6, seedWeightSeconds: 0 }
+
+    if (!content) Estimator.cache = new Estimator({ reviewTimeCutoff, ...seedArgs })
     else {
       try {
         const s = JSON.parse(pakob64Inflate(content))
@@ -128,7 +152,7 @@ export class Estimator {
         if (s[cursor++] !== ESTIMATOR_SCHEMA_VERSION) {
           throw new Error('Old schema')
         }
-        const obj = new Estimator({ reviewTimeCutoff })
+        const obj = new Estimator({ reviewTimeCutoff, ...seedArgs })
         obj.startTime = s[cursor++]
         while (cursor < s.length) {
           obj.logs.push({
@@ -147,7 +171,7 @@ export class Estimator {
         // re-update elapsed time
         Estimator.cache = obj
       } catch {
-        Estimator.cache = new Estimator({ reviewTimeCutoff })
+        Estimator.cache = new Estimator({ reviewTimeCutoff, ...seedArgs })
       }
     }
     return Estimator.cache
