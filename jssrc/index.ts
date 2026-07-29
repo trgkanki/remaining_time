@@ -1,6 +1,5 @@
 /* eslint-disable import/no-webpack-loader-syntax */
 /* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable @typescript-eslint/camelcase */
 
 import { updateEstimator } from './updater'
 import { renderProgressBar } from './barRender'
@@ -34,7 +33,7 @@ async function main () {
 
 // Since rendering DOM from fresh state needs some time (0.05s or so), the bar
 // may not be ready on initial DOM rendering, which results flickering. To prevent
-// that, upon rendering we ave the rendered result to some fast storage and
+// that, upon rendering we have the rendered result to some fast storage and
 // use that as a placeholder on the next rendering.
 reinstateRtContainer()
   .finally(() => {

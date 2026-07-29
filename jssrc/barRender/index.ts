@@ -6,7 +6,7 @@ import { getSVG } from './svg'
 import { injectCSS } from './injectCSS'
 import { getRtContainer, saveRtContainer } from './rtContainer'
 
-// eslint-disable-next-line import/no-webpack-loader-syntax
+// eslint-disable-next-line import/no-webpack-loader-syntax, @typescript-eslint/no-var-requires
 const baseStyleCSS = require('!!raw-loader!sass-loader!../basestyle.scss').default as string
 
 async function updateDOM (svgHtml: string, progressBarMessage: string) {
@@ -46,7 +46,6 @@ async function updateDOM (svgHtml: string, progressBarMessage: string) {
       renderProgressBar()
     }
   }
-  // eslint-disable-next-line @typescript-eslint/camelcase
   (window as any)._3cc745f46701204a_click_reset_progress_bar = handler
   resetButton.addEventListener('click', handler)
 
