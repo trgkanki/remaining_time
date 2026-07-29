@@ -5,7 +5,7 @@
 import ankiLocalStorage from './utils/ankiLocalStorage'
 import { pakob64Deflate, pakob64Inflate } from './utils/pakob64'
 import { now } from './utils'
-import { InstLogType } from './updater'
+import { InstLogType } from './reviewLogger/types'
 import { getAddonConfig } from './utils/addonConfig'
 
 const historyDecay = 1 / 1.005
