@@ -1,4 +1,5 @@
 import { callPyFunc } from './utils/pyfunc'
+import { isAnkiDroid, getAnkiDroidApi } from './utils/apiAnkiDroid'
 
 export interface RemainingCardCounts {
   nu: number;
@@ -7,11 +8,14 @@ export interface RemainingCardCounts {
 }
 
 export async function getRemainingReviews (): Promise<RemainingCardCounts> {
-  if ((window as any).AnkiDroidJS) {
-    const nu = Number(AnkiDroidJS.ankiGetNewCardCount())
-    const lrn = Number(AnkiDroidJS.ankiGetLrnCardCount())
-    const rev = Number(AnkiDroidJS.ankiGetRevCardCount())
-    return { nu, lrn, rev }
+  if (isAnkiDroid()) {
+    const api = getAnkiDroidApi()
+    const [nu, lrn, rev] = await Promise.all([
+      api.ankiGetNewCardCount(),
+      api.ankiGetLrnCardCount(),
+      api.ankiGetRevCardCount()
+    ])
+    return { nu: nu.value, lrn: lrn.value, rev: rev.value }
   } else {
     const [nu, lrn, rev] = await callPyFunc('getCurrentRemainingCardCount')
     return { nu, lrn, rev }
@@ -19,8 +23,8 @@ export async function getRemainingReviews (): Promise<RemainingCardCounts> {
 }
 
 export async function getCurrentCardId (): Promise<number> {
-  if ((window as any).AnkiDroidJS) {
-    return AnkiDroidJS.ankiGetCardId()
+  if (isAnkiDroid()) {
+    return (await getAnkiDroidApi().ankiGetCardId()).value
   } else {
     return callPyFunc('getCurrentCardId')
   }

@@ -1,5 +1,6 @@
 import { callPyFunc } from './pyfunc'
 import ankiLocalStorage from './ankiLocalStorage'
+import { isAnkiDroid, getAnkiDroidApi } from './apiAnkiDroid'
 
 // EMA blend weight for folding this sitting's observed pace into the
 // persisted per-deck rate - a slow blend, since this is meant to represent
@@ -12,8 +13,8 @@ export interface DeckRates {
 }
 
 export async function getCurrentDeckName (): Promise<string | null> {
-  if ((window as any).AnkiDroidJS) {
-    return AnkiDroidJS.ankiGetDeckName()
+  if (isAnkiDroid()) {
+    return (await getAnkiDroidApi().ankiGetDeckName()).value
   } else {
     return callPyFunc('getCurrentDeckName')
   }
@@ -41,7 +42,7 @@ export function blendDeckRate (oldRate: number | undefined, currentSlope: number
 const kAnkiDroidDeckRates = '__rt__deckrates__'
 
 async function getDeckRateStore (): Promise<Record<string, DeckRates>> {
-  if ((window as any).AnkiDroidJS) {
+  if (isAnkiDroid()) {
     const s = await ankiLocalStorage.getItem(kAnkiDroidDeckRates)
     return s ? JSON.parse(s) : {}
   }
@@ -49,7 +50,7 @@ async function getDeckRateStore (): Promise<Record<string, DeckRates>> {
 }
 
 async function setDeckRateStore (rates: Record<string, DeckRates>): Promise<void> {
-  if ((window as any).AnkiDroidJS) {
+  if (isAnkiDroid()) {
     await ankiLocalStorage.setItem(kAnkiDroidDeckRates, JSON.stringify(rates))
     return
   }

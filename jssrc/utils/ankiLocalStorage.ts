@@ -5,9 +5,9 @@
  * we need an alternative backend for desktop Anki. `ankiLocalStorage.py`
  */
 
-import isMobile from 'is-mobile'
 import Cookies from 'js-cookie'
 import { callPyFunc } from './pyfunc'
+import { isAnkiDroid } from './apiAnkiDroid'
 
 /**
  * Split payload to smaller chunks for compatibility w/ ankiDroid, which has
@@ -45,21 +45,21 @@ function splitCookieLoad (key: string): string {
 
 export default {
   async setItem (key: string, data: string) {
-    if (isMobile()) {
+    if (isAnkiDroid()) {
       splitCookieSave(key, data)
     } else {
       await callPyFunc('localStorageSetItem', key, data)
     }
   },
   async getItem (key: string): Promise<string | null> {
-    if (isMobile()) {
+    if (isAnkiDroid()) {
       return splitCookieLoad(key) || null
     } else {
       return callPyFunc('localStorageGetItem', key)
     }
   },
   hasItem (key: string) {
-    if (isMobile()) {
+    if (isAnkiDroid()) {
       return Cookies.get(key) !== undefined
     } else {
       return callPyFunc('localStorageHasItem', key)

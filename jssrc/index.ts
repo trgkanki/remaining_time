@@ -3,13 +3,12 @@
 
 import { updateEstimator } from './updater'
 import { renderProgressBar } from './barRender'
-import isMobile from 'is-mobile'
 import { callPyFunc } from './utils/pyfunc'
 import { reinstateRtContainer } from './barRender/rtContainer'
+import { isAnkiDroid } from './utils/apiAnkiDroid'
 
 async function isQuestionSide (): Promise<boolean> {
-  // AnkiDroid
-  if (isMobile()) {
+  if (isAnkiDroid()) {
     const qaEl = document.getElementById('qa')
     return !!(qaEl && !qaEl.classList.contains('answer'))
   } else {
@@ -18,8 +17,7 @@ async function isQuestionSide (): Promise<boolean> {
 }
 
 async function isOverview (): Promise<boolean> {
-  // AnkiDroid
-  if (isMobile()) return false
+  if (isAnkiDroid()) return false
   else return callPyFunc('isOverview')
 }
 
