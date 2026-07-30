@@ -1,3 +1,7 @@
+:root {
+  --rt-unitsize: 16px;
+}
+
 .card {
   position: relative;
 }
@@ -15,12 +19,12 @@
 .rt-container {
   color: #000;
   font-family: sans-serif;
-  font-size: 0.8rem;
+  font-size: calc(var(--rt-unitsize) * 0.8);
 
   // Top/bottom set at body.remaining-time-bar-(.+) part
-  height: 1rem;
+  height: var(--rt-unitsize);
   left: 0;
-  line-height: 1rem;
+  line-height: var(--rt-unitsize);
 
   position: fixed;
   right: 0;
@@ -102,15 +106,15 @@
 .remaining-time-bar-top,
 .android {
   #qa {
-    padding-top: 1rem;
+    padding-top: var(--rt-unitsize);
   }
 
   #_flag {
-    padding-top: 1rem;
+    padding-top: var(--rt-unitsize);
   }
 
   #_mark {
-    padding-top: 1rem;
+    padding-top: var(--rt-unitsize);
   }
 
   #rtContainer {
@@ -121,7 +125,7 @@
 
 .remaining-time-bar-bottom {
   #qa {
-    padding-bottom: 1rem;
+    padding-bottom: var(--rt-unitsize);
   }
 
   #rtContainer {
