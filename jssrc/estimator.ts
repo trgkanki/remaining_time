@@ -90,6 +90,11 @@ export class Estimator {
     return now() - this.startTime
   }
 
+  /** Epoch of the most recent review, or the sitting's start if none yet. */
+  get lastActivityEpoch () {
+    return this.logs.length ? this.logs[this.logs.length - 1].epoch : this.startTime
+  }
+
   reset () {
     this.logs = []
     this.startTime = now()

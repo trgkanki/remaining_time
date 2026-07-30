@@ -12,7 +12,6 @@ import { RemainingCardCounts, getRemainingReviews, now, getCurrentCardId } from 
 import { onSameReviewSession } from '../isDoingReview'
 import { debugLog } from '../utils/debugLog'
 import CRC32 from 'crc-32'
-import { getAddonConfig } from '../utils/addonConfig'
 import { getLastRCC, saveLastRCC } from '../utils/lastRCC'
 import { EstimatorInst, ReviewLogger, RCCTConst } from './types'
 
@@ -100,11 +99,7 @@ async function getEstimatorInstruction (
 
     // Ignore otherwise
     // This could happen on multiple cases, like suspending multiple cards at once,...
-    if (await getAddonConfig('autoReset')) {
-      return { instType: RCCTConst.RESET }
-    } else {
-      return { instType: RCCTConst.IGNORE }
-    }
+    return { instType: RCCTConst.IGNORE }
   } finally {
     saveLastRCC(currentRemainingCards)
   }

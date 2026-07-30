@@ -6,6 +6,9 @@ import { renderProgressBar } from './barRender'
 import { callPyFunc } from './utils/pyfunc'
 import { reinstateRtContainer } from './barRender/rtContainer'
 import { isAnkiDroid } from './utils/apiAnkiDroid'
+import { Estimator } from './estimator'
+import { getAddonConfig } from './utils/addonConfig'
+import { now } from './utils'
 
 async function isQuestionSide (): Promise<boolean> {
   if (isAnkiDroid()) {
@@ -21,9 +24,24 @@ async function isOverview (): Promise<boolean> {
   else return callPyFunc('isOverview')
 }
 
+// If the user has been away for a while (e.g. resuming reviews the next
+// day), the persisted estimator's logs are stale and would otherwise report
+// a huge/misleading elapsed time. Reset it before it's used for anything.
+async function resetEstimatorIfIdle () {
+  const idleThreshold = (await getAddonConfig('autoResetIdleSeconds')) as number
+  if (idleThreshold <= 0) return
+
+  const estimator = await Estimator.instance()
+  if (now() - estimator.lastActivityEpoch > idleThreshold) {
+    estimator.reset()
+    estimator.save()
+  }
+}
+
 // eslint-disable-next-line no-inner-declarations
 async function main () {
   if (await isQuestionSide() || await isOverview()) {
+    await resetEstimatorIfIdle()
     await updateEstimator()
   }
   await renderProgressBar()
