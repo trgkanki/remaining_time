@@ -1,3 +1,12 @@
+// Mobile version of review logger - Currently works for AnkiDroidJS 0.03 api
+// Since ankidroid doesn't expose what ease did the user just pressed,
+// we can only guess from new/lrn/rev count diffs, which is kinda fragile
+// We'll accept this as incompleteness, and just document that the bar colors
+// will be kinda random. (biased to wrongs)
+//
+// ETA calculation is NOT affected by this, as new/rev card review event itself
+// is accurately captured with card count changes.
+
 import { Estimator } from '../estimator'
 import { RemainingCardCounts, getRemainingReviews, now, getCurrentCardId } from '../utils'
 import { onSameReviewSession } from '../isDoingReview'
