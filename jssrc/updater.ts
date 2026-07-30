@@ -45,7 +45,7 @@ export async function updateEstimator () {
       const oldRates = await getDeckRates(deckName)
       const newRates: DeckRates = {}
       for (const category of touchedCategories) {
-        newRates[category] = blendDeckRate(oldRates?.[category], estimator.getSlope(category))
+        newRates[category] = blendDeckRate(oldRates?.[category], estimator.getRate(category))
       }
       await saveDeckRates(deckName, newRates)
     }

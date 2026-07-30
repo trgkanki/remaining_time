@@ -11,6 +11,7 @@ import { getCurrentDeckName, getDeckRates } from './utils/deckRate'
 
 const historyDecay = 1 / 1.005
 const historyLength = 100
+const minimumRate = 1e-6
 
 // How much pseudo-time (in seconds) the persisted deck rate counts for when
 // seeding a fresh sitting - the seed's influence decays smoothly as real
@@ -30,7 +31,7 @@ export interface LogEntry {
 // particular isn't a stable "work remaining" figure - it gets replenished by
 // nu/rev processing rather than draining monotonically. So the ETA is only
 // budgeted from new and review pace; lrn is deliberately excluded (see the
-// anchor-skipping comment in getSlope for how its time is still accounted
+// anchor-skipping comment in getRate for how its time is still accounted
 // for without needing its count).
 export type RateCategory = 'new' | 'rev'
 
@@ -56,7 +57,7 @@ interface CategorySeed {
 function seedFor (rate: number | undefined): CategorySeed {
   return rate !== undefined
     ? { rate, weightSeconds: deckRateSeedWeightSeconds }
-    : { rate: 1e-6, weightSeconds: 0 }
+    : { rate: minimumRate, weightSeconds: 0 }
 }
 
 const ESTIMATOR_SCHEMA_VERSION = 3
@@ -129,7 +130,7 @@ export class Estimator {
    * genuinely interleaved stretch, and decayed averaging over many samples
    * smooths that out.
    */
-  getSlope (category: RateCategory) {
+  getRate (category: RateCategory) {
     const seed = this.seeds[category]
 
     const durations: number[] = []
@@ -144,7 +145,7 @@ export class Estimator {
 
     const n = durations.length
     // No persisted history and no real data yet - nothing to compute from.
-    if (n === 0 && seed.weightSeconds <= 0) return 1e-6
+    if (n === 0 && seed.weightSeconds <= 0) return minimumRate
 
     // Seed the accumulation with the persisted deck rate as a decaying prior
     // (weighted like an old log entry), so a fresh sitting starts accurate
@@ -166,14 +167,23 @@ export class Estimator {
     }
 
     if (totTime < 1) return 1
-    return Math.max(totCount / totTime, 1e-6)
+    return Math.max(totCount / totTime, minimumRate)
   }
 
   /** New/review remaining counts, each divided by that category's own pace. */
   getRemainingTime (remainingReviews: RemainingCardCounts) {
+    let newRate = this.getRate('new')
+    let revRate = this.getRate('rev')
+
+    // Maybe user might have done only new cards or review cards till now.
+    // We don't want to show remaining time > day endlessly d/t untouched half.
+    // Do a non-accurate but practical clamping of rates here.
+    if (newRate === minimumRate) newRate = revRate * 0.2 // I guess this is a good approximation
+    else if (revRate === minimumRate) revRate = newRate * 2 // Not inverse of above, but kinda conservative.
+
     return (
-      remainingReviews.nu / this.getSlope('new') +
-      remainingReviews.rev / this.getSlope('rev')
+      remainingReviews.nu / newRate +
+      remainingReviews.rev / revRate
     )
   }
 

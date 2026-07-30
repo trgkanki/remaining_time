@@ -31,9 +31,9 @@ export async function saveDeckRates (deckName: string, rates: DeckRates): Promis
   await setDeckRateStore(store)
 }
 
-export function blendDeckRate (oldRate: number | undefined, currentSlope: number): number {
-  if (oldRate === undefined) return currentSlope
-  return emaDecay * oldRate + (1 - emaDecay) * currentSlope
+export function blendDeckRate (oldRate: number | undefined, currentRate: number): number {
+  if (oldRate === undefined) return currentRate
+  return emaDecay * oldRate + (1 - emaDecay) * currentRate
 }
 
 // TODO: verify if ankidroid persists local storage
