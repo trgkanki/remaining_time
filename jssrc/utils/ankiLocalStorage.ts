@@ -5,26 +5,41 @@
  * we need an alternative backend for desktop Anki. `ankiLocalStorage.py`
  */
 
-import Cookies from 'js-cookie'
 import { callPyFunc } from './pyfunc'
 import { isAnkiDroid } from './apiAnkiDroid'
+import { cookieSet, cookieGet, cookieDelete, cookieKeys } from './cookie'
 
 /**
  * Split payload to smaller chunks for compatibility w/ ankiDroid, which has
- * 6kb cookie limit per cookie value.
+ * 6kb cookie limit per cookie value (after URI-encoding).
  *
  * @param key LocalStorage key to save
  * @param payload Payload to save
  */
 function splitCookieSave (key: string, payload: string) {
-  const packetSize = 4096
+  const packetSize = 1024
   let packetIndex = 0
   for (let i = 0; i < payload.length; i += packetSize) {
     const packet = payload.slice(i, i + packetSize)
-    Cookies.set(`${key}_${packetIndex}`, packet)
+    cookieSet(`${key}_${packetIndex}`, packet)
     packetIndex++
   }
-  Cookies.set(`${key}_${packetIndex}`, '')
+  cookieSet(`${key}_${packetIndex}`, '')
+  const lastIndex = packetIndex
+
+  // Delete any leftover chunks from previous saves that fall past this save's
+  // terminator. These aren't necessarily contiguous with lastIndex - older,
+  // already-deployed versions of this function didn't clean up after
+  // themselves, so gaps left over from past bugs/versions are possible.
+  // Left alone, they'd keep riding along on every request's Cookie header.
+  const chunkPrefix = `${key}_`
+  for (const k of cookieKeys()) {
+    if (!k.startsWith(chunkPrefix)) continue
+    const idx = Number(k.slice(chunkPrefix.length))
+    if (Number.isInteger(idx) && idx > lastIndex) {
+      cookieDelete(k)
+    }
+  }
 }
 
 /**
@@ -36,7 +51,7 @@ function splitCookieSave (key: string, payload: string) {
 function splitCookieLoad (key: string): string {
   const chunks: string[] = []
   for (let packetIndex = 0; ; packetIndex++) {
-    const chunk = Cookies.get(`${key}_${packetIndex}`)
+    const chunk = cookieGet(`${key}_${packetIndex}`)
     if (!chunk) break
     chunks.push(chunk)
   }
@@ -60,7 +75,7 @@ export default {
   },
   hasItem (key: string) {
     if (isAnkiDroid()) {
-      return Cookies.get(key) !== undefined
+      return cookieGet(key) !== undefined
     } else {
       return callPyFunc('localStorageHasItem', key)
     }
