@@ -1,4 +1,4 @@
-import ankiLocalStorage from '../utils/ankiLocalStorage'
+import ankiPersistentStorage from '../utils/ankiPersistentStorage'
 import { callPyFunc } from '../utils/pyfunc'
 import { EstimatorInst, InstLogType, ReviewLogger, RCCTConst } from './types'
 
@@ -21,12 +21,12 @@ type ReviewEvent = AnswerEvent | UndoEvent
 export const kLastSeq = '__rt__lastseq__'
 
 async function getLastSeq (): Promise<number> {
-  const s = await ankiLocalStorage.getItem(kLastSeq)
+  const s = await ankiPersistentStorage.getItem(kLastSeq)
   return s ? Number(s) : 0
 }
 
 function saveLastSeq (seq: number) {
-  ankiLocalStorage.setItem(kLastSeq, seq.toString())
+  ankiPersistentStorage.setItem(kLastSeq, seq.toString())
 }
 
 function classify (event: AnswerEvent): InstLogType {

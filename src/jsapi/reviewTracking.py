@@ -8,8 +8,8 @@ from anki.consts import (
 )
 
 # Live feed of true review events, drained by the JS side every card. Not
-# meant to survive an Anki restart - same lifetime as ankiLocalStorage.py's
-# in-memory store.
+# meant to survive an Anki restart - process-lifetime only, unlike
+# ankiPersistentStorage.py which is now backed by collection config.
 _pending = None
 _seq = 0
 _events = []

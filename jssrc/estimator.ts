@@ -2,7 +2,7 @@
  * Port of ExponentialSmoother.py
  */
 
-import ankiLocalStorage from './utils/ankiLocalStorage'
+import ankiPersistentStorage from './utils/ankiPersistentStorage'
 import { pakob64Deflate, pakob64Inflate } from './utils/pakob64'
 import { now, RemainingCardCounts } from './utils'
 import { InstLogType } from './reviewLogger/types'
@@ -201,7 +201,7 @@ export class Estimator {
       s.push(log.epoch, log.dt, log.logType, log.reviewHash)
     }
 
-    ankiLocalStorage.setItem(
+    ankiPersistentStorage.setItem(
       kRtEstimatorSchema,
       pakob64Deflate(JSON.stringify(s, function (_key, val) {
         return val.toFixed ? Number(val.toFixed(1)) : val
@@ -212,7 +212,7 @@ export class Estimator {
   static async instance (): Promise<Estimator> {
     if (Estimator.cache) return Estimator.cache
 
-    const content = await ankiLocalStorage.getItem(kRtEstimatorSchema)
+    const content = await ankiPersistentStorage.getItem(kRtEstimatorSchema)
     const reviewTimeCutoff = (await getAddonConfig('reviewTimeCutoff')) as number
 
     const deckName = await getCurrentDeckName()

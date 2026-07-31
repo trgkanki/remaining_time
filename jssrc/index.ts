@@ -9,22 +9,28 @@ import { isAnkiDroid } from './utils/apiAnkiDroid'
 import { Estimator, kRtEstimatorSchema } from './estimator'
 import { getAddonConfig } from './utils/addonConfig'
 import { now } from './utils'
-import ankiLocalStorage from './utils/ankiLocalStorage'
+import ankiPersistentStorage from './utils/ankiPersistentStorage'
 import { kRtLastTime } from './isDoingReview'
 import { kLastSeq } from './reviewLogger/desktopReviewLogger'
-import { kAnkiDroidDeckRates } from './utils/deckRate'
+import { kDeckRates } from './utils/deckRate'
 import { kLastRCC } from './utils/lastRCC'
 
-// All LocalStorage keys ever used by this addon. Kept here so gcStaleKeys can
-// clean up chunk cookies left behind by any of them, including keys not used
-// on this particular card/page.
-const allLocalStorageKeys = [
-  kRtDomSerializeB64,
+// All keys ever written through ankiPersistentStorage. Kept here so
+// gcStaleKeys can clean up chunk cookies left behind by any of them,
+// including keys not used on this particular card/page.
+const allPersistentStorageKeys = [
   kRtEstimatorSchema,
   kRtLastTime,
   kLastSeq,
-  kAnkiDroidDeckRates,
+  kDeckRates,
   kLastRCC
+]
+
+// kRtDomSerializeB64 used to be stored here too, before it moved to plain
+// window.localStorage (see rtContainer.ts). One-off cleanup for any chunk
+// cookies it left behind under the old scheme.
+const retiredPersistentStorageKeys = [
+  kRtDomSerializeB64
 ]
 
 async function isQuestionSide (): Promise<boolean> {
@@ -57,7 +63,8 @@ async function resetEstimatorIfIdle () {
 
 // eslint-disable-next-line no-inner-declarations
 async function main () {
-  ankiLocalStorage.gcStaleKeys(allLocalStorageKeys)
+  ankiPersistentStorage.gcStaleKeys(allPersistentStorageKeys)
+  ankiPersistentStorage.purgeKeys(retiredPersistentStorageKeys)
   if (await isQuestionSide() || await isOverview()) {
     await resetEstimatorIfIdle()
     await updateEstimator()

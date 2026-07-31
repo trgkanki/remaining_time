@@ -1,8 +1,30 @@
 /**
- * ankiLocalStorage: cross-platform localStorage implementation.
+ * ankiPersistentStorage: cross-platform persistent storage, surviving Anki restarts.
  *
- * Local storage is not supported on dataURIs, which is used on desktop Anki. Hence
- * we need an alternative backend for desktop Anki. `ankiLocalStorage.py`
+ * Desktop Anki's WebEngine no longer serves cards via data: URIs (see
+ * `_setHtml` in aqt/webview.py upstream), so window.localStorage is
+ * technically available there now - but its origin is a random port chosen
+ * fresh on every Anki launch (see aqt/mediasrv.py's MediaServer), so anything
+ * written to it is unreachable again after a restart. Hence desktop routes
+ * through `ankiPersistentStorage.py`, backed by collection config, instead of
+ * that per-launch origin.
+ *
+ * AnkiDroid has the same random-port problem for its reviewer's local server,
+ * but real cookies are scoped by host only (not port), so they survive a
+ * restart there - hence the split-into-chunks cookie backend below.
+ *
+ * NOT everything should go through this module, though: AnkiDroid's WebView
+ * JS-API bridge has a bug (as of 2026-07-31) in AnkiServer.getSessionBytes
+ * where a POST body can be read short, corrupting the request; the more
+ * total bytes ride along in the Cookie header on every request to the
+ * reviewer's origin, the likelier this seems to trigger. `kRtDomSerializeB64`
+ * (rtContainer.ts's DOM snapshot cache) is the prime suspect - it's the one
+ * key here whose payload size scales with note content instead of being a
+ * small fixed-format value, so it was moved to plain window.localStorage
+ * instead of this module. That's a safe move for that key specifically
+ * because it's only ever used to avoid a same-session render flicker; losing
+ * it on restart (or on any origin change) is harmless, unlike the other keys
+ * this module manages.
  */
 
 import { callPyFunc } from './pyfunc'
@@ -82,6 +104,22 @@ function gcStaleKeys (keys: string[]) {
   }
 }
 
+/**
+ * Fully delete all chunk cookies for the given keys, including chunks that
+ * still look "live" (i.e. at or before the current terminator). Unlike
+ * gcStaleKeys, this doesn't try to preserve a key's current value - use it
+ * only for keys that have been retired from this module entirely (e.g.
+ * migrated to plain window.localStorage), to clean up what they left behind.
+ *
+ * @param keys LocalStorage keys to fully remove
+ */
+function purgeKeys (keys: string[]) {
+  if (!isAnkiDroid()) return
+  for (const key of keys) {
+    gcChunksAbove(key, -1)
+  }
+}
+
 export default {
   async setItem (key: string, data: string) {
     if (isAnkiDroid()) {
@@ -104,5 +142,6 @@ export default {
       return callPyFunc('localStorageHasItem', key)
     }
   },
-  gcStaleKeys
+  gcStaleKeys,
+  purgeKeys
 }

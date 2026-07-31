@@ -1,5 +1,5 @@
 import { callPyFunc } from './pyfunc'
-import ankiLocalStorage from './ankiLocalStorage'
+import ankiPersistentStorage from './ankiPersistentStorage'
 import { isAnkiDroid, getAnkiDroidApi } from './apiAnkiDroid'
 
 // EMA blend weight for folding this sitting's observed pace into the
@@ -36,23 +36,13 @@ export function blendDeckRate (oldRate: number | undefined, currentRate: number)
   return emaDecay * oldRate + (1 - emaDecay) * currentRate
 }
 
-// TODO: verify if ankidroid persists local storage
-// Desktop's ankiLocalStorage implementation is not persistent across
-// Anki restarts: use separate backend for storage.
-export const kAnkiDroidDeckRates = '__rt__deckrates__'
+export const kDeckRates = '__rt__deckrates__'
 
 async function getDeckRateStore (): Promise<Record<string, DeckRates>> {
-  if (isAnkiDroid()) {
-    const s = await ankiLocalStorage.getItem(kAnkiDroidDeckRates)
-    return s ? JSON.parse(s) : {}
-  }
-  return (await callPyFunc('getDeckRateConfig')) || {}
+  const s = await ankiPersistentStorage.getItem(kDeckRates)
+  return s ? JSON.parse(s) : {}
 }
 
 async function setDeckRateStore (rates: Record<string, DeckRates>): Promise<void> {
-  if (isAnkiDroid()) {
-    await ankiLocalStorage.setItem(kAnkiDroidDeckRates, JSON.stringify(rates))
-    return
-  }
-  await callPyFunc('setDeckRateConfig', rates)
+  await ankiPersistentStorage.setItem(kDeckRates, JSON.stringify(rates))
 }

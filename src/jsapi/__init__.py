@@ -1,8 +1,8 @@
 from . import (
-    ankiLocalStorage,
+    ankiPersistentStorage,
     remainingCardCount,
     isQuestionSide,
     getCurrentCardId,
     reviewTracking,
-    deckRate,
+    deckName,
 )
