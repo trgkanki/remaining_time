@@ -8,6 +8,7 @@ import { now, RemainingCardCounts } from './utils'
 import { InstLogType } from './reviewLogger/types'
 import { getAddonConfig } from './utils/addonConfig'
 import { getCurrentDeckName, getDeckRates } from './utils/deckRate'
+import { isAnkiDroid } from './utils/apiAnkiDroid'
 
 const historyDecay = 1 / 1.005
 const historyLength = 100
@@ -23,7 +24,7 @@ export interface LogEntry {
   epoch: number;
   dt: number;
   logType: InstLogType;
-  reviewHash: number;
+  reviewHash: number | null; // May be null to save spaces on ankidroid
 }
 
 // Anki's own nu/lrn/rev counts are coupled (answering a new card can inject
@@ -60,7 +61,58 @@ function seedFor (rate: number | undefined): CategorySeed {
     : { rate: minimumRate, weightSeconds: 0 }
 }
 
-const ESTIMATOR_SCHEMA_VERSION = 3
+const ESTIMATOR_SCHEMA_VERSION = 4
+
+// How many of the most recent log entries keep their reviewHash on
+// serialization. Only mobileReviewLogger ever reads a persisted reviewHash
+// back (its edit/undo checks look at the newest 1-2 entries; 10 gives
+// headroom for a run of several undos in one poll) - desktopReviewLogger
+// dedupes via its own seq counter instead, so on desktop there's no reason
+// to pay to persist a reviewHash (high-entropy CRC32, doesn't compress) for
+// any entry at all.
+const persistedReviewHashTailLength = isAnkiDroid() ? 10 : 0
+
+const logTypeCodes: InstLogType[] = ['new', 'good', 'again', 'rev-good', 'rev-again', 'unknown']
+
+// epoch and reviewHash are dropped from the serialized form (epoch is
+// reconstructed by accumulating dt from startTime; reviewHash is only kept
+// for the newest `persistedReviewHashTailLength` entries) to keep a long
+// session's payload small - see the module comment on why this data lives in
+// a size-limited cookie on AnkiDroid.
+function serializeLogs (logs: LogEntry[]): unknown[] {
+  const s: unknown[] = [logs.length]
+  for (const log of logs) {
+    s.push(log.dt, logTypeCodes.indexOf(log.logType))
+  }
+  const tailStart = Math.max(0, logs.length - persistedReviewHashTailLength)
+  s.push(logs.length - tailStart)
+  for (let i = tailStart; i < logs.length; i++) {
+    s.push(logs[i].reviewHash)
+  }
+  return s
+}
+
+function deserializeLogs (s: unknown[], cursor: number, startTime: number): { logs: LogEntry[]; cursor: number } {
+  const count = s[cursor++] as number
+  const logs: LogEntry[] = []
+  let epoch = startTime
+  for (let i = 0; i < count; i++) {
+    const dt = s[cursor++] as number
+    const logType = logTypeCodes[s[cursor++] as number]
+    epoch += dt
+    // Patched in below for the persisted tail; older entries never have
+    // their reviewHash read.
+    logs.push({ epoch, dt, logType, reviewHash: null })
+  }
+
+  const tailCount = s[cursor++] as number
+  const tailStart = logs.length - tailCount
+  for (let i = tailStart; i < logs.length; i++) {
+    logs[i].reviewHash = s[cursor++] as number
+  }
+
+  return { logs, cursor }
+}
 
 // Persistence
 export const kRtEstimatorSchema = '__rt__estimator__schema__'
@@ -194,12 +246,8 @@ export class Estimator {
 
   save () {
     // serialize
-    const s = []
-    s.push(ESTIMATOR_SCHEMA_VERSION)
-    s.push(this.startTime)
-    for (const log of this.logs) {
-      s.push(log.epoch, log.dt, log.logType, log.reviewHash)
-    }
+    const s: unknown[] = [ESTIMATOR_SCHEMA_VERSION, this.startTime]
+    s.push(...serializeLogs(this.logs))
 
     ankiPersistentStorage.setItem(
       kRtEstimatorSchema,
@@ -232,16 +280,10 @@ export class Estimator {
         }
         const obj = new Estimator({ reviewTimeCutoff, seeds })
         obj.startTime = s[cursor++]
-        while (cursor < s.length) {
-          obj.logs.push({
-            epoch: s[cursor + 0],
-            dt: s[cursor + 1],
-            logType: s[cursor + 2],
-            reviewHash: s[cursor + 3]
-          })
-          cursor += 4
-        }
-        if (!cursor === s.length) {
+        const deserialized = deserializeLogs(s, cursor, obj.startTime)
+        obj.logs = deserialized.logs
+        cursor = deserialized.cursor
+        if (cursor !== s.length) {
           throw new Error('Length mismatch - RTT')
         }
 
