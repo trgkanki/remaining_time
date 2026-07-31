@@ -1,7 +1,7 @@
 import ankiLocalStorage from './utils/ankiLocalStorage'
 import { now } from './utils'
 
-const kRtLastTime = '_rt_lastTime'
+export const kRtLastTime = '_rt_lastTime'
 
 const windowAny = window as any
 if (!windowAny._rtIsDoingReview) {

@@ -4,11 +4,28 @@
 import { updateEstimator } from './updater'
 import { renderProgressBar } from './barRender'
 import { callPyFunc } from './utils/pyfunc'
-import { reinstateRtContainer } from './barRender/rtContainer'
+import { reinstateRtContainer, kRtDomSerializeB64 } from './barRender/rtContainer'
 import { isAnkiDroid } from './utils/apiAnkiDroid'
-import { Estimator } from './estimator'
+import { Estimator, kRtEstimatorSchema } from './estimator'
 import { getAddonConfig } from './utils/addonConfig'
 import { now } from './utils'
+import ankiLocalStorage from './utils/ankiLocalStorage'
+import { kRtLastTime } from './isDoingReview'
+import { kLastSeq } from './reviewLogger/desktopReviewLogger'
+import { kAnkiDroidDeckRates } from './utils/deckRate'
+import { kLastRCC } from './utils/lastRCC'
+
+// All LocalStorage keys ever used by this addon. Kept here so gcStaleKeys can
+// clean up chunk cookies left behind by any of them, including keys not used
+// on this particular card/page.
+const allLocalStorageKeys = [
+  kRtDomSerializeB64,
+  kRtEstimatorSchema,
+  kRtLastTime,
+  kLastSeq,
+  kAnkiDroidDeckRates,
+  kLastRCC
+]
 
 async function isQuestionSide (): Promise<boolean> {
   if (isAnkiDroid()) {
@@ -40,6 +57,7 @@ async function resetEstimatorIfIdle () {
 
 // eslint-disable-next-line no-inner-declarations
 async function main () {
+  ankiLocalStorage.gcStaleKeys(allLocalStorageKeys)
   if (await isQuestionSide() || await isOverview()) {
     await resetEstimatorIfIdle()
     await updateEstimator()

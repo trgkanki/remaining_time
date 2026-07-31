@@ -18,7 +18,7 @@ interface UndoEvent {
 
 type ReviewEvent = AnswerEvent | UndoEvent
 
-const kLastSeq = '__rt__lastseq__'
+export const kLastSeq = '__rt__lastseq__'
 
 async function getLastSeq (): Promise<number> {
   const s = await ankiLocalStorage.getItem(kLastSeq)

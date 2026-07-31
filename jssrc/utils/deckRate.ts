@@ -39,7 +39,7 @@ export function blendDeckRate (oldRate: number | undefined, currentRate: number)
 // TODO: verify if ankidroid persists local storage
 // Desktop's ankiLocalStorage implementation is not persistent across
 // Anki restarts: use separate backend for storage.
-const kAnkiDroidDeckRates = '__rt__deckrates__'
+export const kAnkiDroidDeckRates = '__rt__deckrates__'
 
 async function getDeckRateStore (): Promise<Record<string, DeckRates>> {
   if (isAnkiDroid()) {

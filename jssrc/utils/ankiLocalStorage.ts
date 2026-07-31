@@ -9,6 +9,22 @@ import { callPyFunc } from './pyfunc'
 import { isAnkiDroid } from './apiAnkiDroid'
 import { cookieSet, cookieGet, cookieDelete, cookieKeys } from './cookie'
 
+// Deletes chunk cookies `${key}_N` for N past lastIndex. Not assumed to be
+// contiguous with lastIndex - older, already-deployed versions of
+// splitCookieSave didn't clean up after themselves, so gaps left over from
+// past bugs/versions are possible. Left alone, stale chunks would keep
+// riding along on every request's Cookie header forever.
+function gcChunksAbove (key: string, lastIndex: number) {
+  const chunkPrefix = `${key}_`
+  for (const k of cookieKeys()) {
+    if (!k.startsWith(chunkPrefix)) continue
+    const idx = Number(k.slice(chunkPrefix.length))
+    if (Number.isInteger(idx) && idx > lastIndex) {
+      cookieDelete(k)
+    }
+  }
+}
+
 /**
  * Split payload to smaller chunks for compatibility w/ ankiDroid, which has
  * 6kb cookie limit per cookie value (after URI-encoding).
@@ -25,21 +41,7 @@ function splitCookieSave (key: string, payload: string) {
     packetIndex++
   }
   cookieSet(`${key}_${packetIndex}`, '')
-  const lastIndex = packetIndex
-
-  // Delete any leftover chunks from previous saves that fall past this save's
-  // terminator. These aren't necessarily contiguous with lastIndex - older,
-  // already-deployed versions of this function didn't clean up after
-  // themselves, so gaps left over from past bugs/versions are possible.
-  // Left alone, they'd keep riding along on every request's Cookie header.
-  const chunkPrefix = `${key}_`
-  for (const k of cookieKeys()) {
-    if (!k.startsWith(chunkPrefix)) continue
-    const idx = Number(k.slice(chunkPrefix.length))
-    if (Number.isInteger(idx) && idx > lastIndex) {
-      cookieDelete(k)
-    }
-  }
+  gcChunksAbove(key, packetIndex)
 }
 
 /**
@@ -56,6 +58,28 @@ function splitCookieLoad (key: string): string {
     chunks.push(chunk)
   }
   return chunks.join('')
+}
+
+// Terminator index of a key's chunk sequence, i.e. the first missing/empty
+// `${key}_N` chunk - same walk as splitCookieLoad, but only to find the index.
+function chunkTerminatorIndex (key: string): number {
+  let packetIndex = 0
+  for (; cookieGet(`${key}_${packetIndex}`); packetIndex++);
+  return packetIndex
+}
+
+/**
+ * Garbage-collect stale chunk cookies for the given LocalStorage keys.
+ * Useful for a one-off sweep to clean up chunks left behind by versions of
+ * this module that predate splitCookieSave's own gc-on-save behavior.
+ *
+ * @param keys LocalStorage keys to sweep
+ */
+function gcStaleKeys (keys: string[]) {
+  if (!isAnkiDroid()) return
+  for (const key of keys) {
+    gcChunksAbove(key, chunkTerminatorIndex(key))
+  }
 }
 
 export default {
@@ -79,5 +103,6 @@ export default {
     } else {
       return callPyFunc('localStorageHasItem', key)
     }
-  }
+  },
+  gcStaleKeys
 }

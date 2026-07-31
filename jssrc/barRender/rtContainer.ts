@@ -1,7 +1,7 @@
 import { pakob64Deflate, pakob64Inflate } from '../utils/pakob64'
 import ankiLocalStorage from '../utils/ankiLocalStorage'
 
-const kRtDomSerializeB64 = '_rt_dom_serialize_b64'
+export const kRtDomSerializeB64 = '_rt_dom_serialize_b64'
 
 export function getRtContainer (): HTMLDivElement {
   let rtContainerEl = document.getElementById('rtContainer') as HTMLDivElement | null

@@ -1,7 +1,7 @@
 import { RemainingCardCounts } from '../utils'
 import ankiLocalStorage from './ankiLocalStorage'
 
-const kLastRCC = '__rt__lastrcc__'
+export const kLastRCC = '__rt__lastrcc__'
 
 export async function getLastRCC (): Promise<RemainingCardCounts | null> {
   const s = await ankiLocalStorage.getItem(kLastRCC)

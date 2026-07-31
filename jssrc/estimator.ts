@@ -63,7 +63,7 @@ function seedFor (rate: number | undefined): CategorySeed {
 const ESTIMATOR_SCHEMA_VERSION = 3
 
 // Persistence
-const kRtEstimatorSchema = '__rt__estimator__schema__'
+export const kRtEstimatorSchema = '__rt__estimator__schema__'
 
 // Implementation
 
