@@ -249,7 +249,8 @@ export class Estimator {
     const s: unknown[] = [ESTIMATOR_SCHEMA_VERSION, this.startTime]
     s.push(...serializeLogs(this.logs))
 
-    ankiPersistentStorage.setItem(
+    const storage = (isAnkiDroid()) ? localStorage : ankiPersistentStorage
+    storage.setItem(
       kRtEstimatorSchema,
       pakob64Deflate(JSON.stringify(s, function (_key, val) {
         return val.toFixed ? Number(val.toFixed(1)) : val
@@ -260,7 +261,8 @@ export class Estimator {
   static async instance (): Promise<Estimator> {
     if (Estimator.cache) return Estimator.cache
 
-    const content = await ankiPersistentStorage.getItem(kRtEstimatorSchema)
+    const storage = (isAnkiDroid()) ? localStorage : ankiPersistentStorage
+    const content = await storage.getItem(kRtEstimatorSchema)
     const reviewTimeCutoff = (await getAddonConfig('reviewTimeCutoff')) as number
 
     const deckName = await getCurrentDeckName()

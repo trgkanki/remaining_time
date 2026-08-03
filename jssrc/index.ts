@@ -19,18 +19,11 @@ import { kLastRCC } from './utils/lastRCC'
 // gcStaleKeys can clean up chunk cookies left behind by any of them,
 // including keys not used on this particular card/page.
 const allPersistentStorageKeys = [
-  kRtEstimatorSchema,
   kRtLastTime,
   kLastSeq,
   kDeckRates,
-  kLastRCC
-]
-
-// kRtDomSerializeB64 used to be stored here too, before it moved to plain
-// window.localStorage (see rtContainer.ts). One-off cleanup for any chunk
-// cookies it left behind under the old scheme.
-const retiredPersistentStorageKeys = [
-  kRtDomSerializeB64
+  kLastRCC,
+  kRtEstimatorSchema
 ]
 
 async function isQuestionSide (): Promise<boolean> {
@@ -64,7 +57,11 @@ async function resetEstimatorIfIdle () {
 // eslint-disable-next-line no-inner-declarations
 async function main () {
   ankiPersistentStorage.gcStaleKeys(allPersistentStorageKeys)
-  ankiPersistentStorage.purgeKeys(retiredPersistentStorageKeys)
+  ankiPersistentStorage.purgeKey(kRtDomSerializeB64)
+  if (isAnkiDroid()) {
+    // will use localStorage for this key, not persistent storage
+    ankiPersistentStorage.purgeKey(kRtEstimatorSchema)
+  }
   if (await isQuestionSide() || await isOverview()) {
     await resetEstimatorIfIdle()
     await updateEstimator()

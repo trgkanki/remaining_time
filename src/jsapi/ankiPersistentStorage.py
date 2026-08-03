@@ -27,3 +27,13 @@ def localStorageGetItem(key):
 @JSCallable
 def localStorageHasItem(key):
     return key in _readAll()
+
+
+@JSCallable
+def localStoragePurgeItem(key):
+    storage = _readAll()
+    try:
+        del storage[key]
+        mw.col.set_config(_CONFIG_KEY, storage)
+    except KeyError:
+        pass

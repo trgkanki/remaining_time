@@ -90,36 +90,6 @@ function chunkTerminatorIndex (key: string): number {
   return packetIndex
 }
 
-/**
- * Garbage-collect stale chunk cookies for the given LocalStorage keys.
- * Useful for a one-off sweep to clean up chunks left behind by versions of
- * this module that predate splitCookieSave's own gc-on-save behavior.
- *
- * @param keys LocalStorage keys to sweep
- */
-function gcStaleKeys (keys: string[]) {
-  if (!isAnkiDroid()) return
-  for (const key of keys) {
-    gcChunksAbove(key, chunkTerminatorIndex(key))
-  }
-}
-
-/**
- * Fully delete all chunk cookies for the given keys, including chunks that
- * still look "live" (i.e. at or before the current terminator). Unlike
- * gcStaleKeys, this doesn't try to preserve a key's current value - use it
- * only for keys that have been retired from this module entirely (e.g.
- * migrated to plain window.localStorage), to clean up what they left behind.
- *
- * @param keys LocalStorage keys to fully remove
- */
-function purgeKeys (keys: string[]) {
-  if (!isAnkiDroid()) return
-  for (const key of keys) {
-    gcChunksAbove(key, -1)
-  }
-}
-
 export default {
   async setItem (key: string, data: string) {
     if (isAnkiDroid()) {
@@ -142,6 +112,22 @@ export default {
       return callPyFunc('localStorageHasItem', key)
     }
   },
-  gcStaleKeys,
-  purgeKeys
+  /**
+   * Garbage-collect stale chunk cookies for the given LocalStorage keys.
+   * Useful for a one-off sweep to clean up chunks left behind by versions of
+   * this module that predate splitCookieSave's own gc-on-save behavior.
+   */
+  gcStaleKeys (keys: string[]) {
+    if (!isAnkiDroid()) return
+    for (const key of keys) {
+      gcChunksAbove(key, chunkTerminatorIndex(key))
+    }
+  },
+  purgeKey (key: string) {
+    if (isAnkiDroid()) {
+      gcChunksAbove(key, -1)
+    } else {
+      return callPyFunc('localStoragePurgeItem', key)
+    }
+  }
 }
