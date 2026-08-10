@@ -235,8 +235,8 @@ export class Estimator {
     // Maybe user might have done only new cards or review cards till now.
     // We don't want to show remaining time > day endlessly d/t untouched half.
     // Do a non-accurate but practical clamping of rates here.
-    if (newRate === minimumRate) newRate = revRate * 0.2 // I guess this is a good approximation
-    else if (revRate === minimumRate) revRate = newRate * 2 // Not inverse of above, but kinda conservative.
+    if (newRate <= 2 * minimumRate) newRate = Math.max(newRate, revRate * 0.1)
+    if (revRate <= 2 * minimumRate) revRate = Math.max(revRate, newRate)
 
     return (
       remainingReviews.nu / newRate +
