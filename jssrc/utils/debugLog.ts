@@ -2,8 +2,12 @@ import { callPyFunc } from './pyfunc'
 import { getAddonConfig } from './addonConfig'
 import { isAnkiDroid } from './apiAnkiDroid'
 
-export async function debugLog (format: string, ...args: any[]): Promise<void> {
-  if (!isAnkiDroid() && await getAddonConfig('debug')) {
-    return callPyFunc('log', format, ...args)
+export async function debugLog (s: string): Promise<void> {
+  if (await getAddonConfig('debug')) {
+    if (isAnkiDroid()) {
+      console.log(s)
+    } else {
+      return callPyFunc('log', s)
+    }
   }
 }
