@@ -5,7 +5,7 @@ import { updateEstimator } from './updater'
 import { renderProgressBar } from './barRender'
 import { callPyFunc } from './utils/pyfunc'
 import { reinstateRtContainer, kRtDomSerializeB64 } from './barRender/rtContainer'
-import { isAnkiDroid } from './utils/apiAnkiDroid'
+import { isAnkiDroid, getAnkiDroidApi } from './utils/apiAnkiDroid'
 import { Estimator, kRtEstimatorSchema } from './estimator'
 import { getAddonConfig } from './utils/addonConfig'
 import { now } from './utils'
@@ -28,8 +28,7 @@ const allPersistentStorageKeys = [
 
 async function isQuestionSide (): Promise<boolean> {
   if (isAnkiDroid()) {
-    const qaEl = document.getElementById('qa')
-    return !!(qaEl && !qaEl.classList.contains('answer'))
+    return !(await getAnkiDroidApi().ankiIsDisplayingAnswer()).value
   } else {
     return callPyFunc('isQuestionSide')
   }

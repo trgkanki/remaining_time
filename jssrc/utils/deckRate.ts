@@ -19,7 +19,14 @@ export interface DeckRates {
 
 export async function getCurrentDeckName (): Promise<string | null> {
   if (isAnkiDroid()) {
-    return (await getAnkiDroidApi().ankiGetDeckName()).value
+    // AnkiDroid's js-api.js has a bug: handleRequest special-cases any
+    // endpoint whose name contains "deckName" (or "nextTime") to return the
+    // raw, un-JSON.parse()'d fetch response text instead of a parsed
+    // {success, value} object, unlike every other AnkiDroidJS method. Handle
+    // both shapes defensively rather than assuming the declared type holds.
+    const raw = await getAnkiDroidApi().ankiGetDeckName() as AnkiDroidApiResult<string> | string
+    const result = typeof raw === 'string' ? JSON.parse(raw) as AnkiDroidApiResult<string> : raw
+    return result.value
   } else {
     return callPyFunc('getCurrentDeckName')
   }

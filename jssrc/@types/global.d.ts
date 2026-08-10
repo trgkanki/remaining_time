@@ -15,4 +15,5 @@ declare class AnkiDroidJS {
   ankiGetRevCardCount(): Promise<AnkiDroidApiResult<number>>;
   ankiGetCardId(): Promise<AnkiDroidApiResult<number>>;
   ankiGetDeckName(): Promise<AnkiDroidApiResult<string>>;
+  ankiIsDisplayingAnswer(): Promise<AnkiDroidApiResult<boolean>>;
 }
