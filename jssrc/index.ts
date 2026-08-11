@@ -11,7 +11,6 @@ import { getAddonConfig } from './utils/addonConfig'
 import { now } from './utils'
 import ankiPersistentStorage from './utils/ankiPersistentStorage'
 import { kRtLastTime } from './isDoingReview'
-import { kLastSeq } from './reviewLogger/desktopReviewLogger'
 import { kDeckRates } from './utils/deckRate'
 import { kLastRCC } from './utils/lastRCC'
 
@@ -20,7 +19,6 @@ import { kLastRCC } from './utils/lastRCC'
 // including keys not used on this particular card/page.
 const allPersistentStorageKeys = [
   kRtLastTime,
-  kLastSeq,
   kDeckRates,
   kLastRCC,
   kRtEstimatorSchema

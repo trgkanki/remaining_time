@@ -1,4 +1,3 @@
-import ankiPersistentStorage from '../utils/ankiPersistentStorage'
 import { callPyFunc } from '../utils/pyfunc'
 import { EstimatorInst, InstLogType, ReviewLogger, RCCTConst } from './types'
 
@@ -18,15 +17,12 @@ interface UndoEvent {
 
 type ReviewEvent = AnswerEvent | UndoEvent
 
-export const kLastSeq = '__rt__lastseq__'
-
 async function getLastSeq (): Promise<number> {
-  const s = await ankiPersistentStorage.getItem(kLastSeq)
-  return s ? Number(s) : 0
+  return callPyFunc('getLastSeenSeq') as Promise<number>
 }
 
-function saveLastSeq (seq: number) {
-  ankiPersistentStorage.setItem(kLastSeq, seq.toString())
+async function saveLastSeq (seq: number) {
+  await callPyFunc('setLastSeenSeq', seq)
 }
 
 function classify (event: AnswerEvent): InstLogType {
@@ -57,7 +53,7 @@ export class DesktopReviewLogger implements ReviewLogger {
       }
     }
 
-    saveLastSeq(maxSeq)
+    await saveLastSeq(maxSeq)
     return instructions
   }
 }

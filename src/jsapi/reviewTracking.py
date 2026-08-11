@@ -1,4 +1,6 @@
 from ..utils.JSCallable import JSCallable
+from ..utils.debugLog import log
+
 from aqt import mw, gui_hooks
 from anki.consts import (
     QUEUE_TYPE_NEW,
@@ -13,6 +15,21 @@ from anki.consts import (
 _pending = None
 _seq = 0
 _events = []
+
+
+# process lifecycle-bound tracking variable for javascript
+_jsLastSeenSeq = 0
+
+
+@JSCallable
+def getLastSeenSeq():
+    return _jsLastSeenSeq
+
+
+@JSCallable
+def setLastSeenSeq(newSeq):
+    global _jsLastSeenSeq
+    _jsLastSeenSeq = newSeq
 
 
 def _on_will_answer_card(ease_tuple, reviewer, card):
@@ -48,6 +65,7 @@ def _on_did_answer_card(reviewer, card, ease):
             "wasReview": queue == QUEUE_TYPE_REV,
         }
     )
+    log("addEvent: seq %s, ev %s" % (_seq, _events[-1]))
     _pending = None
 
 
@@ -58,7 +76,7 @@ def _on_state_did_undo(changes):
     if not changes.changes.card:
         return
     _seq += 1
-    _events.append({"seq": _seq, "kind": "undo"})
+    log("addEvent: seq %s, ev %s" % (_seq, _events[-1]))
 
 
 gui_hooks.reviewer_will_answer_card.append(_on_will_answer_card)
