@@ -53,7 +53,7 @@ async function getEstimatorInstruction (
     const { nu: nu0, lrn: lrn0, rev: rev0 } = prevRemainingCards
     const { nu: nu1, lrn: lrn1, rev: rev1 } = currentRemainingCards
 
-    debugLog(`RCC - prev: ${JSON.stringify(prevRemainingCards)}, current: ${JSON.stringify(currentRemainingCards)}`)
+    await debugLog(`RCC - prev: ${JSON.stringify(prevRemainingCards)}, current: ${JSON.stringify(currentRemainingCards)}`)
 
     // See the new card for the first time
     if (
@@ -120,7 +120,7 @@ export class MobileReviewLogger implements ReviewLogger {
     )
     const epoch = now()
 
-    debugLog(` - Output instruction: ${JSON.stringify(instruction)}`)
+    await debugLog(` - Output instruction: ${JSON.stringify(instruction)}`)
 
     // Due to how run() is called on index.ts, on desktop anki
     // run() might be called twice with qFade(100ms) duration.

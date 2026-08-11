@@ -2,6 +2,7 @@ import { Estimator, RateCategory, categoryForLogType } from './estimator'
 import { EstimatorInst, RCCTConst } from './reviewLogger/types'
 import { getReviewLogger } from './reviewLogger'
 import { getCurrentDeckName, saveDeckRates, DeckRates } from './utils/deckRate'
+import { debugLog } from './utils/debugLog'
 
 function applyInstruction (estimator: Estimator, instruction: EstimatorInst) {
   switch (instruction.instType) {
@@ -28,6 +29,7 @@ export async function updateEstimator () {
   const instructions = await logger.poll()
 
   for (const instruction of instructions) {
+    await debugLog(`[updateEstimator] new instruction: ${JSON.stringify(instruction)}`)
     applyInstruction(estimator, instruction)
   }
   estimator.save()

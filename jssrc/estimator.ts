@@ -172,8 +172,11 @@ export class Estimator {
     const state = this.rates[category]
     const withinCutoff = dt <= this.reviewTimeCutoff
     const cappedDt = withinCutoff ? dt : this.reviewTimeCutoff
+    const oldWeightedTime = state.weightedTime
+    const oldWeightedCount = state.weightedCount
     state.weightedTime = state.weightedTime * historyDecay + cappedDt
     state.weightedCount = state.weightedCount * historyDecay + (withinCutoff ? 1 : 0)
+    console.log(`[applyRateSample] category ${category}, dt ${dt}, weightedTime ${oldWeightedTime} -> ${state.weightedTime}, weightedCount ${oldWeightedCount} -> ${state.weightedCount}`)
   }
 
   /** Exact inverse of applyRateSample, for undo. */
