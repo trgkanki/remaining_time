@@ -5,6 +5,7 @@
   "reviewTimeCutoff": 300,
   "resetHotkey": "",
   "runOnMobile": false,
+  "fixedSegmentWidth": false,
   "messageFormat": "Elapsed %(elapsedTime),  Remaining %(remainingTime), ETA %(ETA)",
   "barCSS": ""
 }
