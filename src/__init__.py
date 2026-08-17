@@ -33,7 +33,6 @@ from aqt.reviewer import Reviewer
 from anki.hooks import wrap, addHook
 from aqt import gui_hooks, mw
 from aqt.overview import Overview
-from aqt.utils import showInfo  # debug TODO remove
 
 from .mobileSupport.modelModifier import registerMobileScript
 from . import jsapi
