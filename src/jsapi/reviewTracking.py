@@ -76,6 +76,7 @@ def _on_state_did_undo(changes):
     if not changes.changes.card:
         return
     _seq += 1
+    _events.append({"seq": _seq, "kind": "undo"})
     log("addEvent: seq %s, ev %s" % (_seq, _events[-1]))
 
 
