@@ -14,8 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from aqt import mw
-from aqt.addons import AddonManager
-from anki.hooks import wrap, addHook
+from anki.hooks import addHook
 
 from .resource import updateMedia
 

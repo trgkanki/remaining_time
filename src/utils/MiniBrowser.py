@@ -1,5 +1,5 @@
 from aqt import mw
-from aqt.webview import AnkiWebView, AnkiWebPage
+from aqt.webview import AnkiWebView
 from aqt.qt import (
     QApplication,
     QUrl,
@@ -7,27 +7,8 @@ from aqt.qt import (
     QVBoxLayout,
     Qt,
 )
-from anki.hooks import wrap
 
 from .resource import getResourcePath
-
-# By default, AnkiWebPage opens link in a browser for non-anki-urls,
-# like those starting with `file://`. We override this behavior since,
-# well, we want to use same `gui_hooks.webview_did_receive_js_message`
-# based js-py bridging for our minibrowser as well. To use AnkiWebView
-# directly here, we have to hook this.
-# Note that this is very hacky way, and this might break in the future.
-
-
-def newAcceptNavigationRequest(self, url, navType, isMainFrame, *, _old):
-    if hasattr(self, "_isMiniBrowser"):
-        return True
-    return _old(self, url, navType, isMainFrame)
-
-
-AnkiWebPage.acceptNavigationRequest = wrap(
-    AnkiWebPage.acceptNavigationRequest, newAcceptNavigationRequest, "around"
-)
 
 
 class MiniBrowser(QDialog):
@@ -42,7 +23,8 @@ class MiniBrowser(QDialog):
 
         # Populate content
         self.web = AnkiWebView()
-        self.web.page()._isMiniBrowser = True
+        self.web.set_open_links_externally(False)
+
         # Support window.close
         self.web.page().windowCloseRequested.connect(self.close)
         l = QVBoxLayout()
