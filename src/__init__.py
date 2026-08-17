@@ -29,10 +29,8 @@ from .utils.JSEval import execJSFile
 from .utils.configrw import getConfig, onConfigUpdate
 from .utils.resource import updateMedia, readResource
 
-from aqt.reviewer import Reviewer
-from anki.hooks import wrap, addHook
+from anki.hooks import addHook
 from aqt import gui_hooks, mw
-from aqt.overview import Overview
 
 from .mobileSupport.modelModifier import registerMobileScript
 from . import jsapi
@@ -41,31 +39,37 @@ addHook("profileLoaded", registerMobileScript)
 onConfigUpdate(registerMobileScript)
 
 
-def afterInitWeb(self):
-    # always update medial/_remainingtime.min.js on webview init
+def updateMobileBundle():
+    # always update medial/_remainingtime.min.js on new review session
     # aids for better development
-
     if getConfig("runOnMobile"):
         updateMedia(
             "_remainingtime.min.js", readResource("js/main.min.js").encode("utf-8")
         )
 
 
-def afterNextCard(self):
+def onStateWillChange(newState, _oldState):
+    if newState == "review":
+        updateMobileBundle()
+
+
+gui_hooks.state_will_change.append(onStateWillChange)
+
+
+def onReviewerDidShowQuestion(card):
     # Script will auto-run via card template when runOnMobile is set.
     # Manually run script only when it's not set.
     if not getConfig("runOnMobile"):
-        execJSFile(self.web, "js/main.min.js")
+        execJSFile(mw.web, "js/main.min.js")
 
 
-def onOverview(self):
-    afterInitWeb(None)
-    execJSFile(self.web, "js/main.min.js")
+def onOverview(overview):
+    updateMobileBundle()
+    execJSFile(overview.web, "js/main.min.js")
 
 
-Reviewer._initWeb = wrap(Reviewer._initWeb, afterInitWeb, "after")
-Reviewer.nextCard = wrap(Reviewer.nextCard, afterNextCard, "after")
-Overview.refresh = wrap(Overview.refresh, onOverview, "after")
+gui_hooks.reviewer_did_show_question.append(onReviewerDidShowQuestion)
+gui_hooks.overview_did_refresh.append(onOverview)
 
 
 def addHotkey(state, shortcuts):
