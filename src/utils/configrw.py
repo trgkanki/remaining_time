@@ -14,8 +14,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from aqt import mw
-from aqt.addons import AddonManager
-from anki.hooks import wrap
 
 import os
 import functools

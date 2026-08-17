@@ -23,7 +23,6 @@
 
 from aqt.editor import Editor
 from anki.hooks import wrap
-from aqt.utils import askUser
 
 from .utils import openChangelog
 from .utils import uuid  # duplicate UUID checked here
