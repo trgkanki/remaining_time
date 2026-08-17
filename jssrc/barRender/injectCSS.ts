@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable import/no-webpack-loader-syntax */
+
 import { getAddonConfig } from '../utils/addonConfig'
 
 const baseStyleCSS = require('!!raw-loader!sass-loader!../basestyle.scss').default as string
