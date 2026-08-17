@@ -9,6 +9,7 @@ import { InstLogType } from './reviewLogger/types'
 import { getAddonConfig } from './utils/addonConfig'
 import { getCurrentDeckName, getDeckRates, RateState } from './utils/deckRate'
 import { isAnkiDroid } from './utils/apiAnkiDroid'
+import { debugLog } from './utils/debugLog'
 
 const historyDecay = 1 / 1.005
 const minimumRate = 1e-6
@@ -176,7 +177,7 @@ export class Estimator {
     const oldWeightedCount = state.weightedCount
     state.weightedTime = state.weightedTime * historyDecay + cappedDt
     state.weightedCount = state.weightedCount * historyDecay + (withinCutoff ? 1 : 0)
-    console.log(`[applyRateSample] category ${category}, dt ${dt}, weightedTime ${oldWeightedTime} -> ${state.weightedTime}, weightedCount ${oldWeightedCount} -> ${state.weightedCount}`)
+    debugLog(`[applyRateSample] category ${category}, dt ${dt}, weightedTime ${oldWeightedTime} -> ${state.weightedTime}, weightedCount ${oldWeightedCount} -> ${state.weightedCount}`)
   }
 
   /** Exact inverse of applyRateSample, for undo. */
