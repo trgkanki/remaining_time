@@ -23,6 +23,13 @@ If you encounter any bugs, submit through [Github issues](https://github.com/trg
 
 [comment]: # (DO NOT MODIFY. new changelog goes here)
 
+## 26.8.23i22 (2026-08-23)
+
+- Fix: (Desktop) wrong colors in general.
+- Fix: AnkiDroid re-support
+- Fix: missing `fixedSegmentWidth` settings
+- Updated ETA algorithm: hoping would be kinda more stable and accurate.
+
 ## 26.1.21i80 (2026-01-21)
 
 - Fixed hotkey not working
