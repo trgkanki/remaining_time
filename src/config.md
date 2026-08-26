@@ -29,6 +29,10 @@ Use this option to filter out the outliers.
 
 Hotkey for reset button.
 
+## resetPaceOnManualReset (default: false)
+
+When enabled, using the reset button or reset hotkey also clears the current deck's persisted learned pace. Idle and new-sitting resets always preserve the learned pace.
+
 ## messageFormat (default: `"Elapsed %(elapsedTime),  Remaining %(remainingTime), ETA %(ETA)"`)
 
 Format the messages. `%(variableName)` gets replaced to values below

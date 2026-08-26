@@ -4,6 +4,7 @@
   "autoResetIdleSeconds": 18000,
   "reviewTimeCutoff": 300,
   "resetHotkey": "",
+  "resetPaceOnManualReset": false,
   "runOnMobile": false,
   "fixedSegmentWidth": false,
   "messageFormat": "Elapsed %(elapsedTime),  Remaining %(remainingTime), ETA %(ETA)",

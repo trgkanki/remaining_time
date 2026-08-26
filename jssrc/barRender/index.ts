@@ -5,6 +5,7 @@ import { getMessage } from './message'
 import { getSVG } from './svg'
 import { injectCSS } from './injectCSS'
 import { getRtContainer, saveRtContainer } from './rtContainer'
+import { getCurrentDeckName, saveDeckRate } from '../utils/deckRate'
 
 // eslint-disable-next-line import/no-webpack-loader-syntax, @typescript-eslint/no-var-requires
 const baseStyleCSS = require('!!raw-loader!sass-loader!../basestyle.scss').default as string
@@ -42,6 +43,11 @@ async function updateDOM (svgHtml: string, progressBarMessage: string) {
     if (confirm('[Remaining time] Press OK to reset the progress bar.')) {
       const estimator = await Estimator.instance()
       estimator.reset()
+      if (await getAddonConfig('resetPaceOnManualReset')) {
+        estimator.resetRate()
+        const deckName = await getCurrentDeckName()
+        if (deckName) await saveDeckRate(deckName, estimator.rate)
+      }
       estimator.save()
       renderProgressBar()
     }

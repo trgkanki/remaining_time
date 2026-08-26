@@ -127,6 +127,10 @@ export class Estimator {
     // learned pace, not sitting-scoped state.
   }
 
+  resetRate () {
+    this.rate = emptyRateState()
+  }
+
   private applyRateSample (dt: number, dy: number) {
     const state = this.rate
     const withinCutoff = dt <= this.reviewTimeCutoff
