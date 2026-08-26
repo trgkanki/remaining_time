@@ -4,9 +4,8 @@ import { isAnkiDroid } from './apiAnkiDroid'
 
 export async function debugLog (s: string): Promise<void> {
   if (await getAddonConfig('debug')) {
-    if (isAnkiDroid()) {
-      console.log(s)
-    } else {
+    console.log(s)
+    if (!isAnkiDroid()) {
       return callPyFunc('log', s)
     }
   }
