@@ -10,5 +10,5 @@ export async function getLastRCC (): Promise<RemainingCardCounts | null> {
 }
 
 export function saveLastRCC (rcc: RemainingCardCounts) {
-  ankiPersistentStorage.setItem(kLastRCC, JSON.stringify(rcc))
+  return ankiPersistentStorage.setItem(kLastRCC, JSON.stringify(rcc))
 }

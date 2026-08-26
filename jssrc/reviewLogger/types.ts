@@ -1,3 +1,5 @@
+import { RemainingCardCounts } from '../utils'
+
 /* eslint-disable no-unused-vars -- enum members are consumed from other modules */
 export enum RCCTConst {
   RESET,
@@ -37,5 +39,8 @@ export type EstimatorInst = InstReset | InstIgnore | InstUpdate | InstUndo
  * python instead.
  */
 export interface ReviewLogger {
-  poll (): Promise<EstimatorInst[]>;
+  poll (
+    currentRemainingCards: RemainingCardCounts,
+    previousRemainingCards: RemainingCardCounts | null
+  ): Promise<EstimatorInst[]>;
 }

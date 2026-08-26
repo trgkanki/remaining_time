@@ -2,20 +2,21 @@ import { callPyFunc } from './pyfunc'
 import ankiPersistentStorage from './ankiPersistentStorage'
 import { isAnkiDroid, getAnkiDroidApi } from './apiAnkiDroid'
 
-// A category's running pace as a pure exponential smoother's raw
-// accumulator (decayed weighted seconds / decayed weighted count), rather
-// than a plain rate number - keeping both halves lets a fresh sitting keep
-// decaying this exact state instead of re-blending a derived rate through a
-// second, separately-tuned smoother.
+// The deck's running pace as a pure exponential smoother's raw accumulator
+// (decayed weighted seconds / decayed weighted work). Keeping both halves
+// lets a fresh sitting continue the same state instead of re-blending a
+// derived rate through a second, separately-tuned smoother.
 export interface RateState {
   weightedTime: number;
-  weightedCount: number;
+  weightedWork: number;
 }
 
-export interface DeckRates {
-  new?: RateState;
-  rev?: RateState;
+interface DeckRateStore {
+  schema: number;
+  rates: Record<string, RateState>;
 }
+
+const DECK_RATE_SCHEMA_VERSION = 3
 
 export async function getCurrentDeckName (): Promise<string | null> {
   if (isAnkiDroid()) {
@@ -37,39 +38,38 @@ function isRateState (value: unknown): value is RateState {
     typeof value === 'object' &&
     value !== null &&
     typeof (value as RateState).weightedTime === 'number' &&
-    typeof (value as RateState).weightedCount === 'number'
+    typeof (value as RateState).weightedWork === 'number'
   )
 }
 
-function sanitizeDeckRates (raw: unknown): DeckRates {
-  // old schema (storing raw number instead of object) -> ignore
-  if (typeof raw !== 'object' || raw === null) return {}
-
-  const { new: newRate, rev: revRate } = raw as DeckRates
-  return {
-    new: isRateState(newRate) ? newRate : undefined,
-    rev: isRateState(revRate) ? revRate : undefined
-  }
+export async function getDeckRate (deckName: string): Promise<RateState | null> {
+  const store = await getDeckRateStore()
+  return store[deckName] ?? null
 }
 
-export async function getDeckRates (deckName: string): Promise<DeckRates | null> {
+export async function saveDeckRate (deckName: string, rate: RateState): Promise<void> {
   const store = await getDeckRateStore()
-  return store[deckName] ? sanitizeDeckRates(store[deckName]) : null
-}
-
-export async function saveDeckRates (deckName: string, rates: DeckRates): Promise<void> {
-  const store = await getDeckRateStore()
-  store[deckName] = { ...sanitizeDeckRates(store[deckName]), ...rates }
+  store[deckName] = rate
   await setDeckRateStore(store)
 }
 
 export const kDeckRates = '__rt__deckrates__'
 
-async function getDeckRateStore (): Promise<Record<string, DeckRates>> {
+async function getDeckRateStore (): Promise<Record<string, RateState>> {
   const s = await ankiPersistentStorage.getItem(kDeckRates)
-  return s ? JSON.parse(s) : {}
+  if (!s) return {}
+
+  const value = JSON.parse(s) as Partial<DeckRateStore>
+  if (value.schema !== DECK_RATE_SCHEMA_VERSION || typeof value.rates !== 'object' || value.rates === null) return {}
+
+  return Object.fromEntries(
+    Object.entries(value.rates).filter((entry): entry is [string, RateState] => isRateState(entry[1]))
+  )
 }
 
-async function setDeckRateStore (rates: Record<string, DeckRates>): Promise<void> {
-  await ankiPersistentStorage.setItem(kDeckRates, JSON.stringify(rates))
+async function setDeckRateStore (rates: Record<string, RateState>): Promise<void> {
+  await ankiPersistentStorage.setItem(kDeckRates, JSON.stringify({
+    schema: DECK_RATE_SCHEMA_VERSION,
+    rates
+  }))
 }
