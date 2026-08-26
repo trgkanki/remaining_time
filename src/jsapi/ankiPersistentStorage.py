@@ -1,22 +1,32 @@
-from ..utils.JSCallable import JSCallable
-from aqt import mw
+import json
+import os
 
-# All keys written through ankiPersistentStorage.ts's setItem/getItem share one
-# collection-config entry, namespaced by their own key. Collection config
-# syncs via AnkiWeb and survives restarts - keep values here small, since the
-# whole dict round-trips on every read/write.
-_CONFIG_KEY = "remainingTimeStorage"
+from ..utils.JSCallable import JSCallable
+from ..utils.resource import getResourcePath
+
+_STORAGE_PATH = getResourcePath("persistent_storage.json")
+_TEMP_STORAGE_PATH = _STORAGE_PATH + ".tmp"
 
 
 def _readAll():
-    return mw.col.get_config(_CONFIG_KEY, {})
+    try:
+        with open(_STORAGE_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
+
+
+def _writeAll(storage):
+    with open(_TEMP_STORAGE_PATH, "w", encoding="utf-8") as f:
+        json.dump(storage, f, ensure_ascii=False, indent=2)
+    os.replace(_TEMP_STORAGE_PATH, _STORAGE_PATH)
 
 
 @JSCallable
 def localStorageSetItem(key, data):
     storage = _readAll()
     storage[key] = data
-    mw.col.set_config(_CONFIG_KEY, storage)
+    _writeAll(storage)
 
 
 @JSCallable
@@ -32,8 +42,6 @@ def localStorageHasItem(key):
 @JSCallable
 def localStoragePurgeItem(key):
     storage = _readAll()
-    try:
+    if key in storage:
         del storage[key]
-        mw.col.set_config(_CONFIG_KEY, storage)
-    except KeyError:
-        pass
+        _writeAll(storage)

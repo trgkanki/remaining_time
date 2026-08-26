@@ -6,8 +6,8 @@
  * technically available there now - but its origin is a random port chosen
  * fresh on every Anki launch (see aqt/mediasrv.py's MediaServer), so anything
  * written to it is unreachable again after a restart. Hence desktop routes
- * through `ankiPersistentStorage.py`, backed by collection config, instead of
- * that per-launch origin.
+ * through `ankiPersistentStorage.py`, backed by an addon-local JSON file,
+ * instead of that per-launch origin.
  *
  * AnkiDroid has the same random-port problem for its reviewer's local server,
  * but real cookies are scoped by host only (not port), so they survive a
