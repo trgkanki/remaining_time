@@ -1,27 +1,10 @@
 # Changelog of remaining_time
 
-In case you're using this addon well, consider supporting me via [patreon](https://www.patreon.com/trgk)!
 If you encounter any bugs, submit through [Github issues](https://github.com/trgkanki/remaining_time/issues) page.
 
 [![github](https://cdn.jsdelivr.net/gh/trgkanki/trgkanki-template-cli@develop/res/github_small.png)](https://github.com/trgkanki/remaining_time/issues)
-[![patreon](https://cdn.jsdelivr.net/gh/trgkanki/trgkanki-template-cli@develop/res/patreon_small.png)](https://www.patreon.com/trgk)
-
-<details>
-  <summary>🎉 Special thanks to ...</summary>
-  
-  ## Patreons
-  - abed
-  - Sven
-
-  # Developers
-  - [Glutaminate](https://github.com/glutanimate/)
-  - [Dae](github.com/dae/)
-
-</details>
 
 ---------
-
-[comment]: # (DO NOT MODIFY. new changelog goes here)
 
 ## 26.8.28i172 (2026-08-29)
 
@@ -106,7 +89,7 @@ Fix issues with AnkiDroid support.
 
 ## 20.9.12i225 (2020-09-13)
 
-- Fixes confirm message so that user can 
+- Fixes confirm message so that user can
 - Re-fixes compatibility w/ [Hint Hotkeys](https://ankiweb.net/shared/info/1844908621) addon.
 
 ## 20.8.25i52 (2020-08-25)
@@ -115,7 +98,7 @@ Hotfix: compatibility w/ Anki 2.1.30+. Fixes this error
 
 ```
 File "anki/hooks.py", line 635, in repl
-TypeError: new_body_class() got multiple values for argument '_old' 
+TypeError: new_body_class() got multiple values for argument '_old'
 ```
 
 ## 20.8.24i181 (2020-08-25)
