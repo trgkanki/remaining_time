@@ -23,6 +23,12 @@ If you encounter any bugs, submit through [Github issues](https://github.com/trg
 
 [comment]: # (DO NOT MODIFY. new changelog goes here)
 
+## 26.8.28i172 (2026-08-29)
+
+- Hotfix: ETA calculation formula reverted to previous one (with minimal changes). Hope this fixes issues for everyone. Sorry for inconvenience.
+- Added `resetPaceOnManualReset` option, that resets calculated pace on 'Reset Progress Bar' button.
+- Fix desktop anki always having things to sync.
+
 ## 26.8.23i22 (2026-08-23)
 
 - Fix: (Desktop) wrong colors in general.
