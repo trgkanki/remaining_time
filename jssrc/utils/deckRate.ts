@@ -1,6 +1,6 @@
 import { callPyFunc } from './pyfunc'
 import ankiPersistentStorage from './ankiPersistentStorage'
-import { isAnkiDroid, getAnkiDroidApi } from './apiAnkiDroid'
+import { isAnkiDroid } from './apiAnkiDroid'
 
 // The deck's running pace as a pure exponential smoother's raw accumulator
 // (decayed weighted seconds / decayed weighted work). Keeping both halves
@@ -20,14 +20,11 @@ const DECK_RATE_SCHEMA_VERSION = 3
 
 export async function getCurrentDeckName (): Promise<string | null> {
   if (isAnkiDroid()) {
-    // AnkiDroid's js-api.js has a bug: handleRequest special-cases any
-    // endpoint whose name contains "deckName" (or "nextTime") to return the
-    // raw, un-JSON.parse()'d fetch response text instead of a parsed
-    // {success, value} object, unlike every other AnkiDroidJS method. Handle
-    // both shapes defensively rather than assuming the declared type holds.
-    const raw = await getAnkiDroidApi().ankiGetDeckName() as AnkiDroidApiResult<string> | string
-    const result = typeof raw === 'string' ? JSON.parse(raw) as AnkiDroidApiResult<string> : raw
-    return result.value
+    // Ankidroid don't expose a proper way to get currently reviewed deck.
+    // ankiGetDeckName() returns individual reviewed card's deck, not the deck currently
+    // being reviewed (ex: on studying deck w/ multiple subdecks, or custom study sessions)
+    // Just consolidate everything to 'deck' here.
+    return 'deck'
   } else {
     return callPyFunc('getCurrentDeckName')
   }
